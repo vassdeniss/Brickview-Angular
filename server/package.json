@@ -1,0 +1,27 @@
+{
+  "name": "legoview-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "server": "nodemon --exec \"node -r env/config\" server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vassdeniss/Legoview-Angular.git"
+  },
+  "keywords": [],
+  "author": "Denis Vasilev",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/vassdeniss/Legoview-Angular/issues"
+  },
+  "homepage": "https://github.com/vassdeniss/Legoview-Angular#readme",
+  "dependencies": {
+    "express": "^4.18.2",
+    "nodemon": "^2.0.22"
+  },
+  "devDependencies": {
+    "eslint": "^8.43.0"
+  }
+}
