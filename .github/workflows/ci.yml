@@ -1,10 +1,10 @@
 name: Continious Integration
 on:
   workflow_dispatch:
-  pull_request:
-    types:
-      - closed
   push:
+    branches:
+      - dev
+  pull_request:
     branches:
       - main
 jobs:

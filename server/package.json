@@ -5,6 +5,7 @@
   "main": "server.js",
   "scripts": {
     "server": "nodemon --exec \"node -r dotenv/config\" server.js",
+    "server-debug": "nodemon --exec \"node --inspect -r dotenv/config\" server.js",
     "test": "mocha ./tests/*.spec.js --exit"
   },
   "repository": {
