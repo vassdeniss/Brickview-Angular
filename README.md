@@ -1,1 +1,1 @@
-# LegoView - A Lego Auction Site
+# Legoview - Lego Review Site
