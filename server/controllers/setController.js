@@ -5,7 +5,7 @@ const setService = require('../services/setService');
 router.get('/:setId', async (req, res) => {
   try {
     const set = await setService.getWithMinifigs(req.params.setId);
-    res.json(set);
+    res.status(200).json(set);
   } catch (err) {
     res.status(404).send('Set not found!');
   }
