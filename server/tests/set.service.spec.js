@@ -45,10 +45,9 @@ describe('Set service methods', function () {
         .onSecondCall()
         .resolves({ data: mockedFigData });
 
-      const [set, figs] = await setService.getWithMinifigs(setId);
+      const data = await setService.getWithMinifigs(setId);
 
-      expect(set).to.deep.equal(mockedSetData);
-      expect(figs).to.deep.equal(mockedFigData);
+      expect(data).to.deep.equal({ ...mockedSetData, ...mockedFigData });
     });
 
     it('should throw an error when an invalid setId is provided', async () => {
