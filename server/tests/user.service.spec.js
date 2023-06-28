@@ -1,22 +1,28 @@
 const { expect } = require('chai');
 const sinon = require('sinon');
 const bcrypt = require('bcrypt');
+const jwt = require('../lib/jwt');
 const User = require('../models/User');
 
 const rewire = require('rewire');
 const service = rewire('../services/userService');
 
 describe('User service methods', function () {
+  let generateTokenStubResetter;
   const generateTokenStub = sinon.stub().returns({
     accessToken: 'access_token',
     refreshToken: 'refresh_token',
   });
 
   beforeEach(() => {
-    service.__set__('generateToken', generateTokenStub);
+    generateTokenStubResetter = service.__set__(
+      'generateToken',
+      generateTokenStub
+    );
   });
 
   afterEach(() => {
+    generateTokenStubResetter();
     generateTokenStub.resetHistory();
     sinon.restore();
   });
@@ -95,6 +101,39 @@ describe('User service methods', function () {
       } catch (error) {
         expect(error.message).to.equal('Invalid username or password!');
       }
+    });
+  });
+
+  describe('generateToken', () => {
+    it('should return a token for the user', async () => {
+      generateTokenStubResetter();
+
+      const userData = {
+        username: 'testuser',
+        password: 'testpassword',
+      };
+
+      const user = new User(userData);
+
+      const createStub = sinon.stub(User, 'create').resolves(user);
+      const signStub = sinon
+        .stub(jwt, 'sign')
+        .onFirstCall()
+        .resolves('access_token')
+        .onSecondCall()
+        .resolves('refresh_token');
+      const saveStub = sinon.stub(user, 'save').resolves(true);
+
+      const result = await service.register(userData);
+
+      expect(createStub.calledOnceWith(userData)).to.be.true;
+      expect(signStub.calledTwice).to.be.true;
+      expect(saveStub.calledOnce).to.be.true;
+      expect(result.accessToken).to.equal('access_token');
+      expect(result.refreshToken).to.equal('refresh_token');
+      expect(result._id).to.exist;
+      expect(result.username).to.equal(user.username);
+      expect(user.refreshToken).to.exist;
     });
   });
 });

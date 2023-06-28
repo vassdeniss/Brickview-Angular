@@ -27,10 +27,10 @@ async function generateToken(user) {
     username: user.username,
   };
 
-  const accessToken = jwt.sign(payload, process.env.JWT_TOKEN, {
+  const accessToken = await jwt.sign(payload, process.env.JWT_TOKEN, {
     expiresIn: '15m',
   });
-  const refreshToken = jwt.sign(payload, process.env.JWT_TOKEN, {
+  const refreshToken = await jwt.sign(payload, process.env.JWT_TOKEN, {
     expiresIn: '7d',
   });
 
