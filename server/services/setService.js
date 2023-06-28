@@ -28,5 +28,5 @@ exports.getWithMinifigs = async (setId) => {
     }
   );
 
-  return [set.data, figs.data];
+  return { ...set.data, ...figs.data };
 };
