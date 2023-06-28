@@ -11,3 +11,22 @@ exports.get = async (setId) => {
 
   return response.data;
 };
+
+exports.getWithMinifigs = async (setId) => {
+  const set = await axios.get(`${host}/api/v3/lego/sets/${setId}-1/`, {
+    headers: {
+      Authorization: `key ${process.env.REBRICKABLE_API_KEY}`,
+    },
+  });
+
+  const figs = await axios.get(
+    `${host}/api/v3/lego/sets/${setId}-1/minifigs/`,
+    {
+      headers: {
+        Authorization: `key ${process.env.REBRICKABLE_API_KEY}`,
+      },
+    }
+  );
+
+  return [set.data, figs.data];
+};
