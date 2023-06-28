@@ -24,7 +24,7 @@ userSchema.virtual('repeatPassword').set(function (value) {
   }
 });
 
-userSchema.pre('save', async function () {
+userSchema.post('validate', async function () {
   this.password = await bcrypt.hash(this.password, 10);
 });
 

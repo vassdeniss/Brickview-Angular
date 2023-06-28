@@ -1,8 +1,12 @@
 const { expect } = require('chai');
-const { ValidationError } = require('mongoose');
+const sinon = require('sinon');
+const bcrypt = require('bcrypt');
+
 const User = require('../models/User');
 
 describe('User model validations', function () {
+  this.timeout(20000);
+
   it('should require a username', async () => {
     const user = new User({ password: 'password123' });
 
@@ -118,5 +122,26 @@ describe('User model validations', function () {
     }
 
     expect(error).to.not.exist;
+  });
+
+  it('should hash the password before saving', async () => {
+    const plainTextPassword = 'testpassword';
+    const hashedPassword = 'hashed#password';
+
+    const bcryptStub = sinon.stub(bcrypt, 'hash').resolves(hashedPassword);
+
+    const user = new User({
+      username: 'testuser',
+      password: plainTextPassword,
+      repeatPassword: plainTextPassword,
+    });
+
+    await user.validate();
+
+    expect(bcryptStub.calledOnce).to.be.true;
+    expect(bcryptStub.calledWith(plainTextPassword, 10)).to.be.true;
+    expect(user.password).to.equal(hashedPassword);
+
+    sinon.restore();
   });
 });
