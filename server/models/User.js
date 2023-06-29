@@ -13,6 +13,7 @@ const userSchema = new mongoose.Schema({
     required: [true, 'Email is required!'],
     unique: [true, 'Email already exists!'],
     trim: true,
+    lowercase: true,
     validate: [
       {
         validator: function (email) {
@@ -22,7 +23,9 @@ const userSchema = new mongoose.Schema({
       },
       {
         validator: async function (email) {
-          const user = await this.constructor.findOne({ email });
+          const user = await this.constructor.findOne({
+            email: email.toLowerCase(),
+          });
 
           if (!user) {
             return true;
@@ -57,7 +60,9 @@ userSchema.virtual('repeatPassword').set(function (value) {
 });
 
 userSchema.post('validate', async function () {
-  this.password = await bcrypt.hash(this.password, 10);
+  const test = await bcrypt.hash(this.password, 10);
+  console.log(test);
+  this.password = test;
 });
 
 const User = mongoose.model('User', userSchema);

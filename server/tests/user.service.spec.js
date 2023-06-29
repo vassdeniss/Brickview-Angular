@@ -50,7 +50,7 @@ describe('User service methods', function () {
   describe('login', () => {
     it('should login with valid credentials and return a token', async () => {
       const userData = {
-        username: 'testuser',
+        email: 'testuser@mail.com',
         password: 'testpassword',
       };
 
@@ -123,18 +123,25 @@ describe('User service methods', function () {
         .resolves('access_token')
         .onSecondCall()
         .resolves('refresh_token');
-      const saveStub = sinon.stub(user, 'save').resolves(true);
+      const findByIdAndUpdateStub = sinon
+        .stub(User, 'findByIdAndUpdate')
+        .callsFake(() => (user.refreshToken = 'refresh_token'));
 
       const result = await service.register(userData);
 
       expect(createStub.calledOnceWith(userData)).to.be.true;
       expect(signStub.calledTwice).to.be.true;
-      expect(saveStub.calledOnce).to.be.true;
+      expect(
+        findByIdAndUpdateStub.calledOnceWith(user._id, {
+          refreshToken: 'refresh_token',
+        })
+      ).to.be.true;
       expect(result.accessToken).to.equal('access_token');
       expect(result.refreshToken).to.equal('refresh_token');
       expect(result._id).to.exist;
       expect(result.username).to.equal(user.username);
       expect(user.refreshToken).to.exist;
+      expect(user.refreshToken).to.equal('refresh_token');
     });
   });
 });

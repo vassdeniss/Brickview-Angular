@@ -1,24 +1,35 @@
 const express = require('express');
 const swaggerJsdoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
-const cors = require('cors');
+const jwt = require('./lib/jwt');
 
 const app = express();
 
+const HOST = process.env.IPV4 || 'localhost';
 const PORT = process.env.PORT || 3000;
 
+const addMiddlewares = require('./configs/middlewares');
 const connectDb = require('./configs/database');
 
 const routes = require('./routes');
+
+addMiddlewares(app);
 
 connectDb()
   .then(() => console.log('Connected to database'))
   .catch((err) => console.log(`DB error: ${err}`));
 
-app.use(cors());
-
 app.get('/', (req, res) => {
   res.send('slash');
+});
+
+app.post('/refresh-token', async (req, res) => {
+  const { refreshToken } = req.body;
+
+  const decoded = await jwt.verify(refreshToken, process.env.JWT_TOKEN);
+
+  const { username } = decoded;
+  // TODO: Finishs
 });
 
 const options = {
@@ -57,6 +68,4 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
 
 app.use(routes);
 
-app.listen(PORT, process.env.IPV4 | 'localhost', () =>
-  console.log(`Server listenng on ${PORT}`)
-);
+app.listen(PORT, HOST, () => console.log(`Server listenng on ${HOST}:${PORT}`));
