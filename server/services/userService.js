@@ -14,8 +14,6 @@ exports.login = async ({ email, password }) => {
     throw new Error('Invalid email or password!');
   }
 
-  console.log(password, user.password);
-
   const isValid = await bcrypt.compare(password, user.password);
   if (!isValid) {
     throw new Error('Invalid email or password!');

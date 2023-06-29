@@ -60,9 +60,7 @@ userSchema.virtual('repeatPassword').set(function (value) {
 });
 
 userSchema.post('validate', async function () {
-  const test = await bcrypt.hash(this.password, 10);
-  console.log(test);
-  this.password = test;
+  this.password = await bcrypt.hash(this.password, 10);
 });
 
 const User = mongoose.model('User', userSchema);
