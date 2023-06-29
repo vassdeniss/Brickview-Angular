@@ -123,6 +123,7 @@ describe('User service methods', function () {
         .resolves('access_token')
         .onSecondCall()
         .resolves('refresh_token');
+      const verifyStub = sinon.stub(jwt, 'verify').resolves(true);
       const findByIdAndUpdateStub = sinon
         .stub(User, 'findByIdAndUpdate')
         .callsFake(() => (user.refreshToken = 'refresh_token'));
@@ -131,6 +132,7 @@ describe('User service methods', function () {
 
       expect(createStub.calledOnceWith(userData)).to.be.true;
       expect(signStub.calledTwice).to.be.true;
+      expect(verifyStub.calledOnce).to.be.true;
       expect(
         findByIdAndUpdateStub.calledOnceWith(user._id, {
           refreshToken: 'refresh_token',
