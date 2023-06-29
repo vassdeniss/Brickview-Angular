@@ -61,8 +61,7 @@ describe('User service methods', function () {
 
       const result = await service.login(userData);
 
-      expect(findOneStub.calledOnceWith({ username: userData.username })).to.be
-        .true;
+      expect(findOneStub.calledOnceWith({ email: userData.email })).to.be.true;
       expect(compareStub.calledOnceWith(userData.password, user.password)).to.be
         .true;
       expect(generateTokenStub.calledOnceWith(user)).to.be.true;
@@ -70,9 +69,9 @@ describe('User service methods', function () {
       expect(result.refreshToken).to.equal('refresh_token');
     });
 
-    it('should throw an error with invalid username', async () => {
+    it('should throw an error with non-existant email', async () => {
       const userData = {
-        username: 'testuser',
+        email: 'testEmail@email.com',
         password: 'testpassword',
       };
 
@@ -82,13 +81,13 @@ describe('User service methods', function () {
         await service.login(userData);
         expect.fail('Expected an error to be thrown');
       } catch (error) {
-        expect(error.message).to.equal('Invalid username or password!');
+        expect(error.message).to.equal('Invalid email or password!');
       }
     });
 
     it('should throw an error with invalid password', async () => {
       const userData = {
-        username: 'testuser',
+        email: 'testEmail@email.com',
         password: 'testpassword',
       };
 
@@ -99,7 +98,7 @@ describe('User service methods', function () {
         await service.login(userData);
         expect.fail('Expected an error to be thrown');
       } catch (error) {
-        expect(error.message).to.equal('Invalid username or password!');
+        expect(error.message).to.equal('Invalid email or password!');
       }
     });
   });
@@ -109,8 +108,10 @@ describe('User service methods', function () {
       generateTokenStubResetter();
 
       const userData = {
-        username: 'testuser',
+        username: 'testusername',
+        email: 'testEmail@email.com',
         password: 'testpassword',
+        repeatPassword: 'testpassword',
       };
 
       const user = new User(userData);
