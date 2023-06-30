@@ -1,5 +1,12 @@
 /**
  * @swagger
+ * tags:
+ *   name: Sets
+ *   description: Set management
+ */
+
+/**
+ * @swagger
  * components:
  *   schemas:
  *     Set:
