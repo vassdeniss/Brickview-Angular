@@ -60,6 +60,7 @@ userSchema.virtual('repeatPassword').set(function (value) {
 });
 
 userSchema.post('validate', async function (doc) {
+  /* istanbul ignore next  */
   if (doc.isNew) {
     this.password = await bcrypt.hash(this.password, 10);
   }

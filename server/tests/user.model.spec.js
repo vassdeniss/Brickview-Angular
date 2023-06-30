@@ -5,6 +5,10 @@ const bcrypt = require('bcrypt');
 const User = require('../models/User');
 
 describe('User model validations', function () {
+  afterEach(() => {
+    sinon.restore();
+  });
+
   it('should require a username', async () => {
     const user = new User({ password: 'password123' });
 
@@ -154,8 +158,6 @@ describe('User model validations', function () {
     expect(error.errors['email'].message).to.equal(
       'The email address is already in use!'
     );
-
-    sinon.restore();
   });
 
   it('should hash the password before saving', async () => {
@@ -177,8 +179,6 @@ describe('User model validations', function () {
     expect(bcryptStub.calledOnce).to.be.true;
     expect(bcryptStub.calledWith(plainTextPassword, 10)).to.be.true;
     expect(user.password).to.equal(hashedPassword);
-
-    sinon.restore();
   });
 
   it('should not throw any error when data is correct', async () => {
@@ -199,7 +199,5 @@ describe('User model validations', function () {
     }
 
     expect(error).to.not.exist;
-
-    sinon.restore();
   });
 });
