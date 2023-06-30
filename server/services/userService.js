@@ -34,20 +34,18 @@ async function generateToken(user) {
     expiresIn: '15m',
   });
 
-  const accessDecoded = await jwt.verify(accessToken, process.env.JWT_SECRET);
-
   const refreshToken = await jwt.sign(
-    { accessExpiry: accessDecoded.exp },
+    { username: user.username },
     process.env.JWT_SECRET,
     {
       expiresIn: '7d',
     }
   );
 
-  await User.findByIdAndUpdate(user._id, { refreshToken });
+  user.refreshToken = refreshToken;
+  await user.save();
 
   const result = {
-    ...accessPayload,
     accessToken,
     refreshToken,
   };
@@ -62,7 +60,7 @@ exports.logout = async (refreshToken) => {
     throw new Error('Invalid refresh token!');
   }
 
-  user.refreshToken = undefined;
+  user.refreshToken = '';
   await user.save();
 
   return;
