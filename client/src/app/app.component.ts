@@ -8,13 +8,19 @@ import { Set } from './types/setType';
   styleUrls: ['./app.component.css'],
 })
 export class AppComponent implements OnInit {
-  resultSet: Set | undefined = undefined;
+  sets: Set[] = [];
 
   constructor(private set: SetService) {}
 
   ngOnInit(): void {
-    this.set.getSet('8273').subscribe((data) => {
-      this.resultSet = data;
+    this.set.getSet('10129').subscribe((data) => {
+      this.sets.push(data);
+    });
+    this.set.getSet('10179').subscribe((data) => {
+      this.sets.push(data);
+    });
+    this.set.getSet('10030').subscribe((data) => {
+      this.sets.push(data);
     });
   }
 }
