@@ -4,9 +4,10 @@ import { HttpClientModule } from '@angular/common/http';
 
 import { AppComponent } from './app.component';
 import { SetService } from './services/set.service';
+import { NavComponent } from './nav/nav.component';
 
 @NgModule({
-  declarations: [AppComponent],
+  declarations: [AppComponent, NavComponent],
   imports: [BrowserModule, HttpClientModule],
   providers: [SetService],
   bootstrap: [AppComponent],
