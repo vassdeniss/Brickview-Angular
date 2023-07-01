@@ -47,6 +47,12 @@ const userSchema = new mongoose.Schema({
     minLength: [8, 'Password must be at least 8 characters long!'],
   },
   refreshToken: String,
+  sets: [
+    {
+      type: mongoose.Types.ObjectId,
+      ref: 'Set',
+    },
+  ],
 });
 
 userSchema.virtual('repeatPassword').set(function (value) {

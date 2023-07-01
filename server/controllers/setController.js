@@ -12,7 +12,7 @@
  *     Set:
  *       type: object
  *       properties:
- *         set_num:
+ *         setNum:
  *           type: string
  *           description: The set number.
  *           example: "8091-1"
@@ -24,57 +24,30 @@
  *           type: integer
  *           description: The year the set was released.
  *           example: 2010
- *         theme_id:
- *           type: integer
- *           description: The ID of the theme the set belongs to.
- *           example: 158
- *         num_parts:
+ *         parts:
  *           type: integer
  *           description: The number of parts in the set.
  *           example: 176
- *         set_img_url:
+ *         image:
  *           type: string
  *           format: uri
  *           description: The URL of the set image.
  *           example: "https://cdn.rebrickable.com/media/sets/8091-1/3953.jpg"
- *         set_url:
- *           type: string
- *           format: uri
- *           description: The URL of the set details page.
- *           example: "https://rebrickable.com/sets/8091-1/republic-swamp-speeder/"
- *         last_modified_dt:
- *           type: string
- *           format: date-time
- *           description: The date and time when the set was last modified.
- *           example: "2019-11-03T18:01:57.689879Z"
- *         count:
+ *         minifigCount:
  *           type: integer
  *           description: The total count of minifigures.
  *           example: 4
- *         next:
- *           type: null
- *           nullable: true
- *           description: The URL for the next page of results. (null if not available)
- *         previous:
- *           type: null
- *           nullable: true
- *           description: The URL for the previous page of results. (null if not available)
  *         results:
  *           type: array
  *           items:
- *             $ref: '#/components/schemas/SetMinifigure'
+ *             $ref: '#/components/schemas/Minifigure'
  *       example:
- *         set_num: "8091-1"
+ *         setNum: "8091-1"
  *         name: "Republic Swamp Speeder"
  *         year: 2010
- *         theme_id: 158
- *         num_parts: 176
- *         set_img_url: "https://cdn.rebrickable.com/media/sets/8091-1/3953.jpg"
- *         set_url: "https://rebrickable.com/sets/8091-1/republic-swamp-speeder/"
- *         last_modified_dt: "2019-11-03T18:01:57.689879Z"
- *         count: 4
- *         next: null
- *         previous: null
+ *         parts: 176
+ *         image: "https://cdn.rebrickable.com/media/sets/8091-1/3953.jpg"
+ *         minifigCount: 4
  *         results:
  *           - id: 9227
  *             set_num: "fig-003834"
@@ -97,7 +70,7 @@
  *             quantity: 1
  *             set_img_url: "https://cdn.rebrickable.com/media/sets/fig-003668/102998.jpg"
  *
- *     SetMinifigure:
+ *     Minifigure:
  *       type: object
  *       properties:
  *         id:
