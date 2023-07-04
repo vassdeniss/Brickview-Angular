@@ -33,7 +33,7 @@ jobs:
       - name: Install dependencies
         run: npm install
       - name: Build angular app
-        run: npm run build -- --prod
+        run: npm run build:prd
       - name: Deploy client
         uses: peaceiris/actions-gh-pages@v3
         with:
