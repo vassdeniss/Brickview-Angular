@@ -1,0 +1,20 @@
+name: Continious Deployment
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+jobs:
+  render-server-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy server
+        env:
+          URL: ${{ secrets.RENDER_DEPLOY_HOOK }}
+        run: |
+          curl -X GET "$URL"
+      - name: Delay before health check
+        run: sleep 60s
+      - name: Check server health
+        run: |
+          curl -sSf https://legoview-api.onrender.com/health || exit 1

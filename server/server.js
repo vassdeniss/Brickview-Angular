@@ -50,9 +50,6 @@ const options = {
       {
         url: process.env.HOST,
       },
-      {
-        url: 'http://130.204.92.72:20302',
-      },
     ],
   },
   apis: ['./controllers/*.js'],
