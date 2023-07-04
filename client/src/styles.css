@@ -1,0 +1,7 @@
+body {
+  background-image: linear-gradient(
+      rgba(32, 32, 32, 0.7),
+      rgba(32, 32, 32, 0.7)
+    ),
+    url(./assets/images/bgn.jpg);
+}

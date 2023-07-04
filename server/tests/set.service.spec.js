@@ -45,10 +45,27 @@ describe('Set service methods', function () {
         .onSecondCall()
         .resolves({ data: mockedFigData });
 
-      const [set, figs] = await setService.getWithMinifigs(setId);
+      const expected = {
+        setNum: '12345',
+        name: 'Some set',
+        year: 2023,
+        parts: 4152,
+        image: 'i-am-an-image-url',
+        minifigCount: 1,
+        results: [
+          {
+            id: 1231,
+            set_num: 'fig-851653',
+            set_name: 'Some minifig',
+            quantity: 1,
+            set_img_url: 'i-am-an-image-url',
+          },
+        ],
+      };
 
-      expect(set).to.deep.equal(mockedSetData);
-      expect(figs).to.deep.equal(mockedFigData);
+      const data = await setService.getWithMinifigs(setId);
+
+      expect(data).to.deep.equal(expected);
     });
 
     it('should throw an error when an invalid setId is provided', async () => {
@@ -57,9 +74,7 @@ describe('Set service methods', function () {
       sinon
         .stub(axios, 'get')
         .onFirstCall()
-        .rejects(new Error('Invalid setId'))
-        .onSecondCall()
-        .resolves({ data: mockedFigData });
+        .rejects(new Error('Invalid setId'));
 
       await expect(setService.getWithMinifigs(setId)).to.be.rejectedWith(
         'Invalid setId'

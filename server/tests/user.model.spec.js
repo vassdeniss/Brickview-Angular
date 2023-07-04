@@ -1,8 +1,14 @@
 const { expect } = require('chai');
-const { ValidationError } = require('mongoose');
+const sinon = require('sinon');
+const bcrypt = require('bcrypt');
+
 const User = require('../models/User');
 
 describe('User model validations', function () {
+  afterEach(() => {
+    sinon.restore();
+  });
+
   it('should require a username', async () => {
     const user = new User({ password: 'password123' });
 
@@ -103,12 +109,87 @@ describe('User model validations', function () {
     );
   });
 
-  it('should not throw any error when data is correct', async () => {
+  it('should require a valid email', async () => {
     const user = new User({
       username: 'testuser',
       password: 'password123',
       repeatPassword: 'password123',
+      email: 'invalid-email',
     });
+
+    let error = null;
+    try {
+      await user.validate();
+    } catch (err) {
+      error = err;
+    }
+
+    expect(error).to.exist;
+    expect(error.errors['email'].message).to.equal(
+      'Please enter a valid email address!'
+    );
+  });
+
+  it('should require an email which is not in use', async () => {
+    const user = new User({
+      username: 'testuser',
+      password: 'password123',
+      repeatPassword: 'password123',
+      email: 'validEmail@mail.com',
+    });
+
+    const userTwo = new User({
+      username: 'testuser2',
+      password: 'password123',
+      repeatPassword: 'password123',
+      email: 'validEmail@mail.com',
+    });
+
+    sinon.stub(User, 'findOne').resolves(userTwo);
+
+    let error = null;
+    try {
+      await user.validate();
+    } catch (err) {
+      error = err;
+    }
+
+    expect(error).to.exist;
+    expect(error.errors['email'].message).to.equal(
+      'The email address is already in use!'
+    );
+  });
+
+  it('should hash the password before saving', async () => {
+    const plainTextPassword = 'testpassword';
+    const hashedPassword = 'hashed#password';
+
+    const bcryptStub = sinon.stub(bcrypt, 'hash').resolves(hashedPassword);
+
+    const user = new User({
+      username: 'testuser',
+      email: 'validEmail@mail.com',
+      password: plainTextPassword,
+      repeatPassword: plainTextPassword,
+    });
+
+    sinon.stub(User, 'findOne').resolves(user);
+    await user.validate();
+
+    expect(bcryptStub.calledOnce).to.be.true;
+    expect(bcryptStub.calledWith(plainTextPassword, 10)).to.be.true;
+    expect(user.password).to.equal(hashedPassword);
+  });
+
+  it('should not throw any error when data is correct', async () => {
+    const user = new User({
+      username: 'testuser',
+      email: 'validEmail@mail.com',
+      password: 'password123',
+      repeatPassword: 'password123',
+    });
+
+    sinon.stub(User, 'findOne').resolves(null);
 
     let error = null;
     try {

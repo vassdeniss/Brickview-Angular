@@ -6,7 +6,8 @@
   "scripts": {
     "server": "nodemon --exec \"node -r dotenv/config\" server.js",
     "server-debug": "nodemon --exec \"node --inspect -r dotenv/config\" server.js",
-    "test": "mocha ./tests/*.spec.js --exit"
+    "test": "mocha ./tests/*.spec.js --exit",
+    "coverage": "nyc --reporter=text npm test"
   },
   "repository": {
     "type": "git",
@@ -22,16 +23,22 @@
   "dependencies": {
     "axios": "^1.4.0",
     "bcrypt": "^5.1.0",
+    "cors": "^2.8.5",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
+    "jsonwebtoken": "^9.0.0",
     "mongoose": "^7.3.1",
-    "nodemon": "^2.0.22"
+    "nodemon": "^2.0.22",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^4.6.3"
   },
   "devDependencies": {
     "chai": "^4.3.7",
     "chai-as-promised": "^7.1.1",
     "eslint": "^8.43.0",
     "mocha": "^10.2.0",
+    "nyc": "^15.1.0",
+    "rewire": "^6.0.0",
     "sinon": "^15.2.0",
     "supertest": "^6.3.3"
   }
