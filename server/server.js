@@ -5,8 +5,8 @@ const jwt = require('./lib/jwt');
 
 const app = express();
 
-const HOST = process.env.IPV4 || 'localhost';
 const PORT = process.env.PORT || 3000;
+const HOST = process.env.HOST || 'http://localhost:3000';
 
 const addMiddlewares = require('./configs/middlewares');
 const connectDb = require('./configs/database');
@@ -18,10 +18,6 @@ addMiddlewares(app);
 connectDb()
   .then(() => console.log('Connected to database'))
   .catch((err) => console.log(`DB error: ${err}`));
-
-app.get('/', (req, res) => {
-  res.send('slash');
-});
 
 app.post('/refresh-token', async (req, res) => {
   const { refreshToken } = req.body;
@@ -52,7 +48,7 @@ const options = {
     },
     servers: [
       {
-        url: 'http://localhost:3000',
+        url: process.env.HOST,
       },
       {
         url: 'http://130.204.92.72:20302',
@@ -72,4 +68,4 @@ app.get('/health', (req, res) => {
 
 app.use(routes);
 
-app.listen(PORT, HOST, () => console.log(`Server listenng on ${HOST}:${PORT}`));
+app.listen(PORT, () => console.log(`Server listenng on ${HOST}`));
