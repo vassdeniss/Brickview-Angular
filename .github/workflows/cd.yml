@@ -34,8 +34,8 @@ jobs:
         run: npm install
       - name: Build angular app
         run: npm run build:production
-      - name: Deploy
+      - name: Deploy client
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: dist/client
+          publish_dir: ./dist/client
