@@ -18,3 +18,24 @@ jobs:
       - name: Check server health
         run: |
           curl -sSf https://legoview-api.onrender.com/health || exit 1
+  pages-client-deploy:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./client
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: 18
+      - name: Install dependencies
+        run: npm install
+      - name: Build angular app
+        run: npm run build -- --prod
+      - name: Deploy client
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          personal_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist/legoview
