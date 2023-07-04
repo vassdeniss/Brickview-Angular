@@ -66,6 +66,10 @@ const specs = swaggerJsdoc(options);
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
 
+app.get('/health', (req, res) => {
+  res.status(200).send('Server health OK!');
+});
+
 app.use(routes);
 
 app.listen(PORT, HOST, () => console.log(`Server listenng on ${HOST}:${PORT}`));
