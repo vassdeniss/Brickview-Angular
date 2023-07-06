@@ -4,7 +4,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { UserSetListComponent } from './user/user-set-list/user-set-list.component';
 
 const routes: Routes = [
-  { path: 'user/vass/sets', component: UserSetListComponent },
+  { path: 'users/vass/sets', component: UserSetListComponent },
 ];
 
 @NgModule({
