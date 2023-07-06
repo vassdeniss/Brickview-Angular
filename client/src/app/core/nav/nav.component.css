@@ -38,3 +38,22 @@ body {
 .navbar-button:hover {
   background-color: #015605;
 }
+
+@media (max-width: 768px) {
+  .navbar {
+    flex-direction: column;
+    padding: 10px 20px;
+  }
+
+  .navbar-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+  }
+
+  .navbar-button {
+    margin: 5px 0;
+    padding: 6px 10px;
+    font-size: 14px;
+  }
+}

@@ -7,12 +7,19 @@ import { AppRoutingModule } from './app-routing.module';
 import { SetService } from './services/set.service';
 
 import { AppComponent } from './app.component';
-import { NavComponent } from './nav/nav.component';
+
+import { CoreModule } from './core/core.module';
 import { UserModule } from './user/user.module';
 
 @NgModule({
-  declarations: [AppComponent, NavComponent],
-  imports: [BrowserModule, HttpClientModule, AppRoutingModule, UserModule],
+  declarations: [AppComponent],
+  imports: [
+    BrowserModule,
+    HttpClientModule,
+    AppRoutingModule,
+    CoreModule,
+    UserModule,
+  ],
   providers: [SetService],
   bootstrap: [AppComponent],
 })
