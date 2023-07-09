@@ -1,7 +1,6 @@
 const express = require('express');
 const swaggerJsdoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
-const jwt = require('./lib/jwt');
 
 const app = express();
 
@@ -12,21 +11,13 @@ const addMiddlewares = require('./configs/middlewares');
 const connectDb = require('./configs/database');
 
 const routes = require('./routes');
+const { mustBeAuth } = require('./middlewares/auth');
 
 addMiddlewares(app);
 
 connectDb()
   .then(() => console.log('Connected to database'))
   .catch((err) => console.log(`DB error: ${err}`));
-
-app.post('/refresh-token', async (req, res) => {
-  const { refreshToken } = req.body;
-
-  const decoded = await jwt.verify(refreshToken, process.env.JWT_TOKEN);
-
-  const { username } = decoded;
-  // TODO: Finishs
-});
 
 const options = {
   definition: {
@@ -61,6 +52,10 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
 
 app.get('/health', (req, res) => {
   res.status(200).send('Server health OK!');
+});
+
+app.get('/validate-token', mustBeAuth, (req, res) => {
+  res.status(200).send(true);
 });
 
 app.use(routes);
