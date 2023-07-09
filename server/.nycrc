@@ -1,3 +1,8 @@
 {
-  "exclude": ["middlewares/**/*.js", "tests/**/*.spec.js"]
+  "exclude": [
+    "middlewares/**/*.js",
+    "tests/**/*.spec.js",
+    "server.js",
+    "routes.js"
+  ]
 }
