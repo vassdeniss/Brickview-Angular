@@ -23,24 +23,22 @@ exports.login = async ({ email, password }) => {
   return result;
 };
 
+exports.generateToken = (user) => generateToken(user);
+
 async function generateToken(user) {
-  const accessPayload = {
+  const payload = {
     _id: user._id,
     username: user.username,
     email: user.email,
   };
 
-  const accessToken = await jwt.sign(accessPayload, process.env.JWT_SECRET, {
+  const accessToken = await jwt.sign(payload, process.env.JWT_SECRET, {
     expiresIn: '15m',
   });
 
-  const refreshToken = await jwt.sign(
-    { username: user.username },
-    process.env.JWT_SECRET,
-    {
-      expiresIn: '7d',
-    }
-  );
+  const refreshToken = await jwt.sign(payload, process.env.JWT_SECRET, {
+    expiresIn: '7d',
+  });
 
   user.refreshToken = refreshToken;
   await user.save();
@@ -53,15 +51,28 @@ async function generateToken(user) {
   return result;
 }
 
-exports.logout = async (refreshToken) => {
+exports.validateRefreshToken = async (refreshToken) => {
   const user = await User.findOne({ refreshToken });
-
   if (!user) {
     throw new Error('Invalid refresh token!');
   }
 
-  user.refreshToken = '';
-  await user.save();
-
-  return;
+  return user;
 };
+
+exports.logout = async (refreshToken) => {
+  const user = await User.findOne({ refreshToken });
+  user.refreshToken = '';
+  return await user.save();
+};
+
+// exports.getCollection = async () => {
+//   const id = 'idkWhereToGetIdFrom'; // TODO: figure out client side requests
+
+//   const user = await User.findById(id).populate('sets');
+//   if (!user) {
+//     throw new Error('Invalid user ID!');
+//   }
+
+//   return user.sets;
+// };
