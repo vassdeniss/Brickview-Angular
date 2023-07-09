@@ -1,17 +1,26 @@
-const { expect } = require('chai');
+const chai = require('chai');
+const { expect } = chai;
 const request = require('supertest');
-const express = require('express');
 const sinon = require('sinon');
+const sinonChai = require('sinon-chai');
+
+chai.use(sinonChai);
 
 const User = require('../models/User');
 const userService = require('../services/userService');
-const router = require('../controllers/userController');
+const authMiddleware = require('../middlewares/auth');
 
-const app = express();
-app.use(express.json());
-app.use('/', router);
+let app;
 
 describe('User controller routes', function () {
+  beforeEach(() => {
+    sinon.stub(authMiddleware, 'mustBeAuth').callsFake((req, res, next) => {
+      next();
+    });
+
+    app = require('../server');
+  });
+
   afterEach(() => {
     sinon.restore();
   });
@@ -36,7 +45,9 @@ describe('User controller routes', function () {
 
       sinon.stub(userService, 'register').returns(expectedData);
 
-      const response = await request(app).post('/register').send(userData);
+      const response = await request(app)
+        .post('/users/register')
+        .send(userData);
 
       expect(response.status).to.equal(200);
       expect(response.body).to.deep.equal(expectedData);
@@ -54,7 +65,9 @@ describe('User controller routes', function () {
         .stub(userService, 'register')
         .throws(new Error('Registration failed!'));
 
-      const response = await request(app).post('/register').send(userData);
+      const response = await request(app)
+        .post('/users/register')
+        .send(userData);
 
       expect(response.status).to.equal(400);
       expect(response.body).to.have.property('message');
@@ -78,7 +91,7 @@ describe('User controller routes', function () {
 
       sinon.stub(userService, 'login').returns(expectedData);
 
-      const response = await request(app).post('/login').send(loginData);
+      const response = await request(app).post('/users/login').send(loginData);
 
       expect(response.status).to.equal(200);
       expect(response.body).to.deep.equal(expectedData);
@@ -92,10 +105,24 @@ describe('User controller routes', function () {
 
       sinon.stub(userService, 'login').throws(new Error('Login failed!'));
 
-      const response = await request(app).post('/login').send(loginData);
+      const response = await request(app).post('/users/login').send(loginData);
 
       expect(response.status).to.equal(400);
       expect(response.body).to.have.property('message');
+    });
+  });
+
+  describe('GET /logout', () => {
+    it('should return a 204 status when logout succeeds', async () => {
+      const logoutStub = sinon.stub(userService, 'logout');
+      const refreshHeader = 'some-refresh-token';
+
+      const response = await request(app)
+        .get('/users/logout')
+        .set('X-Refresh', refreshHeader);
+
+      expect(response.status).to.equal(204);
+      expect(logoutStub).to.have.been.calledOnceWith(refreshHeader);
     });
   });
 });

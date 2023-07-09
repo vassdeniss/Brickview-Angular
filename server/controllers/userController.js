@@ -132,24 +132,12 @@ router.post('/login', async (req, res) => {
  *     security:
  *       - bearerAuth: []
  *     responses:
- *       200:
+ *       204:
  *         description: Logout successful
- *       400:
- *         description: Logout failed
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Error'
  */
 router.get('/logout', mustBeAuth, async (req, res) => {
-  try {
-    await userService.logout(res.user.refreshToken);
-    res.status(200).end();
-  } catch (err) {
-    res.status(400).json({
-      message: err.message,
-    });
-  }
+  await userService.logout(req.header('X-Refresh'));
+  res.status(204).end();
 });
 
 module.exports = router;

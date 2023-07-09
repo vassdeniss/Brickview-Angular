@@ -61,3 +61,5 @@ app.get('/validate-token', mustBeAuth, (req, res) => {
 app.use(routes);
 
 app.listen(PORT, () => console.log(`Server listenng on ${HOST}`));
+
+module.exports = app;
