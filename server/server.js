@@ -55,7 +55,9 @@ app.get('/health', (req, res) => {
 });
 
 app.get('/validate-token', mustBeAuth, (req, res) => {
-  res.status(200).send(true);
+  res.status(200).json({
+    resolution: 'Authenticated',
+  });
 });
 
 app.use(routes);
