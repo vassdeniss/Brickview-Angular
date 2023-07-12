@@ -13,6 +13,7 @@ export class AuthService {
   constructor(private http: HttpClient, private token: TokenService) {}
 
   // TODO: CS validatin
+  // TODO: test
   register(credentials: RegisterCredentials): Observable<JwtTokens> {
     return this.http.post<JwtTokens>(
       `${environment.apiUrl}/users/register`,
@@ -20,6 +21,7 @@ export class AuthService {
     );
   }
 
+  // TODO: test
   isAuthenticated(): Observable<boolean> {
     return this.http.get(`${environment.apiUrl}/validate-token`).pipe(
       map((data: any) => data.resolution === 'Authenticated'),

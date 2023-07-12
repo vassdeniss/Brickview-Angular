@@ -26,11 +26,8 @@ describe('SetService', () => {
     httpMock.verify();
   });
 
-  it('should be created', () => {
-    expect(service).toBeTruthy();
-  });
-
   it('should retrieve a set', () => {
+    // Arrange: setup mock set / id
     const setId = '1234';
     const mockSet: Set = {
       setNum: '12345',
@@ -41,12 +38,15 @@ describe('SetService', () => {
       minifigCount: 1,
     };
 
+    // Act / Assert: call service method / assert return set is the mocked one
     service.getSet(setId).subscribe((set: Set) => {
       expect(set).toEqual(mockSet);
     });
 
+    // Assert: that the request has been made correctly
     const request = httpMock.expectOne(`${environment.apiUrl}/sets/${setId}`);
     expect(request.request.method).toBe('GET');
+
     request.flush(mockSet);
   });
 });

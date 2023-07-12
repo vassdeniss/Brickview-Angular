@@ -7,6 +7,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { SetService } from './services/set.service';
 import { AuthService } from './services/auth.service';
 import { TokenService } from './services/token.service';
+import { SpinnerService } from './services/spinner.service';
 
 import { AppComponent } from './app.component';
 
@@ -30,8 +31,8 @@ import { AuthModule } from './auth/auth.module';
     SetService,
     AuthService,
     TokenService,
+    SpinnerService,
   ],
-  providers: [SetService],
   bootstrap: [AppComponent],
 })
 export class AppModule {}

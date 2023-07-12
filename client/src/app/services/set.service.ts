@@ -13,4 +13,11 @@ export class SetService {
   getSet(setId: string): Observable<Set> {
     return this.http.get<Set>(`${environment.apiUrl}/sets/${setId}`);
   }
+
+  // TODO: Test
+  getUserSets(userId: string): Observable<Set[]> {
+    return new Observable<Set[]>((subscriber) => {
+      subscriber.next([]);
+    });
+  }
 }
