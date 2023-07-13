@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
+import { ReactiveFormsModule } from '@angular/forms';
 
 import { AppRoutingModule } from './app-routing.module';
 
@@ -18,6 +19,8 @@ import { AuthModule } from './auth/auth.module';
 
 import { TokenRequestInterceptor } from './auth/token-request.interceptor';
 import { TokenResponseInterceptor } from './auth/token-response.interceptor';
+import { PopupService } from './services/popup.service';
+
 @NgModule({
   declarations: [AppComponent],
   imports: [
@@ -28,12 +31,14 @@ import { TokenResponseInterceptor } from './auth/token-response.interceptor';
     UserModule,
     AuthModule,
     AppRoutingModule,
+    ReactiveFormsModule,
   ],
   providers: [
     SetService,
     AuthService,
     TokenService,
     SpinnerService,
+    PopupService,
     {
       provide: HTTP_INTERCEPTORS,
       useClass: TokenRequestInterceptor,

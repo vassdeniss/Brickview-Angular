@@ -12,7 +12,7 @@ import { TokenService } from './token.service';
 export class AuthService {
   constructor(private http: HttpClient, private token: TokenService) {}
 
-  // TODO: CS validatin
+  // TODO: clean input
   // TODO: test
   register(credentials: RegisterCredentials): Observable<JwtTokens> {
     return this.http.post<JwtTokens>(
