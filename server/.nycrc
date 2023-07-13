@@ -3,6 +3,7 @@
     "middlewares/**/*.js",
     "tests/**/*.spec.js",
     "server.js",
-    "routes.js"
+    "routes.js",
+    "services/nextcloudService.js"
   ]
 }
