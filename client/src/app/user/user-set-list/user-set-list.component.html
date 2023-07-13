@@ -1,11 +1,11 @@
 <app-popup
-  *ngIf="showPopup"
+  *ngIf="popup.isActive"
   title="Nothing found here!"
-  (closed)="closePopup()"
+  (closed)="popup.hide()"
 >
   <p>You have no sets in your collection!</p>
 </app-popup>
 
-<ul *ngIf="sets.length > 0">
+<ul *ngIf="!popup.isActive">
   <app-user-set *ngFor="let set of sets" [legoSet]="set" />
 </ul>

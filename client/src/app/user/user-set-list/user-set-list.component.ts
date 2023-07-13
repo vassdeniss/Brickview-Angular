@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import { PopupService } from 'src/app/services/popup.service';
 
-import { SetService } from 'src/app/services/set.service';
 import { Set } from 'src/app/types/setType';
 
 @Component({
@@ -11,38 +12,14 @@ import { Set } from 'src/app/types/setType';
 export class UserSetListComponent {
   sets: Set[] = [];
 
-  showPopup = false;
-
-  constructor(private set: SetService) {}
+  constructor(private route: ActivatedRoute, public popup: PopupService) {}
 
   ngOnInit(): void {
-    this.set.getSet('10129').subscribe({
-      next: (data) => this.sets.push(data),
-      error: (err) => console.error(err),
-      complete: () => {
-        if (this.sets.length <= 0) {
-          this.showPopup = true;
-        }
-      },
+    this.route.data.subscribe(({ sets }) => {
+      this.sets = sets;
+      if (this.sets.length <= 0) {
+        this.popup.show();
+      }
     });
-    // this.set.getSet('10179').subscribe((data) => {
-    //   this.sets.push(data);
-    // });
-    // this.set.getSet('10030').subscribe((data) => {
-    //   this.sets.push(data);
-    // });
-    // this.set.getSet('10174').subscribe((data) => {
-    //   this.sets.push(data);
-    // });
-    // this.set.getSet('71374').subscribe((data) => {
-    //   this.sets.push(data);
-    // });
-    // this.set.getSet('1111').subscribe((data) => {
-    //   this.sets.push(data);
-    // });
-  }
-
-  closePopup(): void {
-    this.showPopup = false;
   }
 }
