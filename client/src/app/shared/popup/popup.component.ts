@@ -6,7 +6,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
   styleUrls: ['./popup.component.css'],
 })
 export class PopupComponent {
-  @Input() title!: string;
+  @Input() title: string = '';
   @Output() closed = new EventEmitter();
 
   closePopup(): void {
