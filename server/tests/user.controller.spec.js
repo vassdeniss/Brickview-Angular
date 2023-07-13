@@ -8,6 +8,7 @@ chai.use(sinonChai);
 
 const User = require('../models/User');
 const userService = require('../services/userService');
+const nextcloudService = require('../services/nextcloudService');
 const authMiddleware = require('../middlewares/auth');
 
 let app;
@@ -51,6 +52,31 @@ describe('User controller routes', function () {
 
       expect(response.status).to.equal(200);
       expect(response.body).to.deep.equal(expectedData);
+    });
+
+    it('should save image when image is provided', async () => {
+      const userData = {
+        username: 'test',
+        email: 'test@example.com',
+        password: 'testtesttest',
+        repeatPassword: 'testtesttest',
+        image: 'data:image/png;base64,base64String',
+      };
+
+      sinon.stub(userService, 'register');
+      const stub = sinon
+        .stub(nextcloudService, 'saveUserImage')
+        .resolves('base64String');
+
+      const response = await request(app)
+        .post('/users/register')
+        .send(userData);
+
+      expect(response.status).to.equal(200);
+      expect(stub).to.have.been.calledOnceWith(
+        userData.email,
+        Buffer.from('base64String', 'base64')
+      );
     });
 
     it('should return status 400 when registration fails', async () => {

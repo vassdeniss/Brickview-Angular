@@ -43,6 +43,7 @@ const router = require('express').Router();
 
 const { mustBeAuth } = require('../middlewares/auth');
 const userService = require('../services/userService');
+const nexcloudService = require('../services/nextcloudService');
 
 /**
  * @swagger
@@ -73,6 +74,13 @@ const userService = require('../services/userService');
  */
 router.post('/register', async (req, res) => {
   try {
+    if (req.body.image) {
+      const base64String = req.body.image;
+      const base64Data = base64String.replace(/^data:image\/(\w+);base64,/, '');
+      const file = Buffer.from(base64Data, 'base64');
+      await nexcloudService.saveUserImage(req.body.email, file);
+    }
+
     const result = await userService.register(req.body);
     res.status(200).json(result);
   } catch (err) {
