@@ -9,6 +9,7 @@ import { SetService } from './services/set.service';
 import { AuthService } from './services/auth.service';
 import { TokenService } from './services/token.service';
 import { SpinnerService } from './services/spinner.service';
+import { PopupService } from './services/popup.service';
 
 import { AppComponent } from './app.component';
 
@@ -19,7 +20,6 @@ import { AuthModule } from './auth/auth.module';
 
 import { TokenRequestInterceptor } from './auth/token-request.interceptor';
 import { TokenResponseInterceptor } from './auth/token-response.interceptor';
-import { PopupService } from './services/popup.service';
 
 @NgModule({
   declarations: [AppComponent],
