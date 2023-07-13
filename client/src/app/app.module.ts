@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 
 import { AppRoutingModule } from './app-routing.module';
 
@@ -16,6 +16,8 @@ import { UserModule } from './user/user.module';
 import { SharedModule } from './shared/shared.module';
 import { AuthModule } from './auth/auth.module';
 
+import { TokenRequestInterceptor } from './auth/token-request.interceptor';
+import { TokenResponseInterceptor } from './auth/token-response.interceptor';
 @NgModule({
   declarations: [AppComponent],
   imports: [
@@ -32,6 +34,16 @@ import { AuthModule } from './auth/auth.module';
     AuthService,
     TokenService,
     SpinnerService,
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: TokenRequestInterceptor,
+      multi: true,
+    },
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: TokenResponseInterceptor,
+      multi: true,
+    },
   ],
   bootstrap: [AppComponent],
 })
