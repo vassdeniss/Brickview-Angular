@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { FormBuilder, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { PopupService } from 'src/app/services/popup.service';
 import { getFormValidationErrors } from '../helpers';
 import { Router } from '@angular/router';
@@ -7,6 +7,7 @@ import { AuthService } from 'src/app/services/auth.service';
 import { RegisterCredentials } from 'src/app/types/credentialsType';
 import { JwtTokens } from 'src/app/types/tokenType';
 import { TokenService } from 'src/app/services/token.service';
+import { checkPasswords } from '../confirm-password.validator';
 
 @Component({
   selector: 'app-register',
@@ -14,13 +15,18 @@ import { TokenService } from 'src/app/services/token.service';
   styleUrls: ['./register.component.css'],
 })
 export class RegisterComponent {
-  registerForm = this.fb.group({
-    username: ['', [Validators.required, Validators.minLength(4)]],
-    email: ['', [Validators.required, Validators.email]],
-    password: ['', [Validators.required, Validators.minLength(8)]],
-    repeatPassword: ['', [Validators.required]],
-    image: [''],
-  });
+  registerForm = this.fb.group(
+    {
+      username: ['', [Validators.required, Validators.minLength(4)]],
+      email: ['', [Validators.required, Validators.email]],
+      password: ['', [Validators.required, Validators.minLength(8)]],
+      repeatPassword: ['', [Validators.required]],
+      image: [''],
+    },
+    {
+      validator: this.confirmedValidator('password', 'repeatPassword'),
+    }
+  );
   errors: string[] = [];
 
   constructor(
@@ -41,6 +47,7 @@ export class RegisterComponent {
       });
       this.popup.show();
       button.disabled = false;
+      return;
     }
 
     this.user
@@ -73,6 +80,26 @@ export class RegisterComponent {
     reader.readAsDataURL(image);
     reader.onload = () => {
       this.registerForm.patchValue({ image: reader.result as string });
+    };
+  }
+
+  confirmedValidator(controlName: string, matchingControlName: string) {
+    return (formGroup: FormGroup) => {
+      const control = formGroup.controls[controlName];
+      const matchingControl = formGroup.controls[matchingControlName];
+
+      if (
+        matchingControl.errors &&
+        !matchingControl.errors['confirmedValidator']
+      ) {
+        return;
+      }
+
+      if (control.value !== matchingControl.value) {
+        control.setErrors({ notSame: true });
+      } else {
+        control.setErrors(null);
+      }
     };
   }
 }

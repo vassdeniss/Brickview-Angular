@@ -13,6 +13,8 @@ export function getFormValidationErrors(form: FormGroup) {
           message = `should be at least ${controlErrors[keyError].requiredLength} characters!`;
         } else if (keyError === 'email') {
           message = 'is not valid!';
+        } else if (keyError === 'notSame') {
+          message = 'must match repeat password!';
         }
 
         result.push({
