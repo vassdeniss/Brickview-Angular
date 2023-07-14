@@ -3,14 +3,18 @@ import { Injectable } from '@angular/core';
 
 import { Observable, catchError, map, of } from 'rxjs';
 
-import { RegisterCredentials } from '../types/credentialsType';
+import {
+  LoginCredentials,
+  RegisterCredentials,
+} from '../types/credentialsType';
 import { JwtTokens } from '../types/tokenType';
 import { environment } from '../../environments/environment';
-import { TokenService } from './token.service';
+import { User } from '../types/userType';
+import { Router, UrlTree } from '@angular/router';
 
 @Injectable()
 export class AuthService {
-  constructor(private http: HttpClient, private token: TokenService) {}
+  constructor(private http: HttpClient, private router: Router) {}
 
   // TODO: clean input
   // TODO: test
@@ -22,10 +26,19 @@ export class AuthService {
   }
 
   // TODO: test
-  isAuthenticated(): Observable<boolean> {
-    return this.http.get(`${environment.apiUrl}/validate-token`).pipe(
+  login(credentials: LoginCredentials): Observable<any> {
+    return this.http.post(`${environment.apiUrl}/users/login`, credentials);
+  }
+
+  // TODO: test
+  isAuthenticated(): Observable<boolean | UrlTree> {
+    return this.http.get<boolean>(`${environment.apiUrl}/validate-token`).pipe(
       map((data: any) => data.resolution === 'Authenticated'),
-      catchError(() => of(false))
+      catchError(() => of(this.router.createUrlTree(['auth/login'])))
     );
+  }
+
+  getUser(): Observable<User> {
+    return this.http.get<User>(`${environment.apiUrl}/users/getCurrentUser`);
   }
 }

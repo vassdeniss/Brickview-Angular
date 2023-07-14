@@ -5,3 +5,8 @@ export interface RegisterCredentials {
   repeatPassword: string;
   image: string;
 }
+
+export interface LoginCredentials {
+  email: string;
+  password: string;
+}
