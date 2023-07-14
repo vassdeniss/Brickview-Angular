@@ -7,7 +7,6 @@ import { AuthService } from 'src/app/services/auth.service';
 import { RegisterCredentials } from 'src/app/types/credentialsType';
 import { JwtTokens } from 'src/app/types/tokenType';
 import { TokenService } from 'src/app/services/token.service';
-import { checkPasswords } from '../confirm-password.validator';
 
 @Component({
   selector: 'app-register',
@@ -54,6 +53,7 @@ export class RegisterComponent {
       .register(this.registerForm.value as RegisterCredentials)
       .subscribe({
         next: (tokens: JwtTokens) => {
+          localStorage.setItem('image', this.registerForm.value.image);
           this.token.saveToken(tokens.accessToken);
           this.token.saveRefreshToken(tokens.refreshToken);
           button.disabled = false;

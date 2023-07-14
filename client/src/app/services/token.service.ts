@@ -1,14 +1,17 @@
-import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 
 import { CookieService } from 'ngx-cookie-service';
 
 @Injectable()
 export class TokenService {
-  constructor(private http: HttpClient, private cookie: CookieService) {}
+  constructor(private cookie: CookieService) {}
 
   saveToken(token: string): void {
-    this.cookie.set('accessToken', token, { expires: 2, secure: true });
+    this.cookie.set('accessToken', token, {
+      expires: 2,
+      secure: true,
+      path: '/',
+    });
   }
 
   getToken(): string {
@@ -16,7 +19,11 @@ export class TokenService {
   }
 
   saveRefreshToken(refreshToken: string): void {
-    this.cookie.set('refreshToken', refreshToken, { expires: 2, secure: true });
+    this.cookie.set('refreshToken', refreshToken, {
+      expires: 2,
+      secure: true,
+      path: '/',
+    });
   }
 
   getRefreshToken(): string {
