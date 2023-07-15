@@ -113,6 +113,7 @@ router.post('/register', async (req, res) => {
  *             example:
  *               accessToken: some_jwt_token
  *               refreshToken: some_jwt_token
+ *               image: some_base64_image
  *       400:
  *         description: Login failed
  *         content:

@@ -3,27 +3,13 @@ const sinon = require('sinon');
 const bcrypt = require('bcrypt');
 const jwt = require('../lib/jwt');
 const User = require('../models/User');
+const nextcloudService = require('../services/nextcloudService');
 
 const rewire = require('rewire');
 const service = rewire('../services/userService');
 
 describe('User service methods', function () {
-  let generateTokenStubResetter;
-  const generateTokenStub = sinon.stub().returns({
-    accessToken: 'access_token',
-    refreshToken: 'refresh_token',
-  });
-
-  // beforeEach(() => {
-  //   generateTokenStubResetter = service.__set__(
-  //     'generateToken',
-  //     generateTokenStub
-  //   );
-  // });
-
   afterEach(() => {
-    //generateTokenStubResetter();
-    //generateTokenStub.resetHistory();
     sinon.restore();
   });
 
@@ -31,15 +17,13 @@ describe('User service methods', function () {
     it('should create a new user and return a token', async () => {
       const userData = {
         username: 'testuser',
+        email: 'testuser@mail.com',
         password: 'testpassword',
+        repeatPassword: 'testpassword',
       };
       const user = new User(userData);
       const createStub = sinon.stub(User, 'create').resolves(user);
-      // const generateTokenExportedStub = sinon.stub(service, 'generateToken').resolves({
-      //   accessToken: 'access_token',
-      //   refreshToken: 'refresh_token',
-      // });
-      const generateTokenStub = sinon.stub().returns({
+      const generateTokenStub = sinon.stub().resolves({
         accessToken: 'access_token',
         refreshToken: 'refresh_token',
       });
@@ -60,13 +44,12 @@ describe('User service methods', function () {
   });
 
   describe('login', () => {
-    it('should login with valid credentials and return a token', async () => {
+    it('should login with valid credentials and return a token (with image)', async () => {
       const userData = {
         email: 'testuser@mail.com',
         password: 'testpassword',
       };
-      const user = new User(userData);
-      const findOneStub = sinon.stub(User, 'findOne').resolves(user);
+      const findOneStub = sinon.stub(User, 'findOne').resolves(userData);
       const compareStub = sinon.stub(bcrypt, 'compare').resolves(true);
       const generateTokenStub = sinon.stub().returns({
         accessToken: 'access_token',
@@ -76,15 +59,53 @@ describe('User service methods', function () {
         'generateToken',
         generateTokenStub
       );
+      const saveUserImageStub = sinon
+        .stub(nextcloudService, 'getUserImage')
+        .resolves('image');
 
       const result = await service.login(userData);
 
       expect(findOneStub.calledOnceWith({ email: userData.email })).to.be.true;
-      expect(compareStub.calledOnceWith(userData.password, user.password)).to.be
-        .true;
-      expect(generateTokenStub.calledOnceWith(user)).to.be.true;
+      expect(compareStub.calledOnceWith(userData.password, userData.password))
+        .to.be.true;
+      expect(generateTokenStub.calledOnceWith(userData)).to.be.true;
+      expect(saveUserImageStub.calledOnceWith(userData.email)).to.be.true;
       expect(result.accessToken).to.equal('access_token');
       expect(result.refreshToken).to.equal('refresh_token');
+      expect(result.image).to.equal('data:image/png;base64,image');
+
+      generateTokenStubResetter();
+    });
+
+    it('should login with valid credentials and return a token (no image)', async () => {
+      const userData = {
+        email: 'testuser@mail.com',
+        password: 'testpassword',
+      };
+      const findOneStub = sinon.stub(User, 'findOne').resolves(userData);
+      const compareStub = sinon.stub(bcrypt, 'compare').resolves(true);
+      const generateTokenStub = sinon.stub().returns({
+        accessToken: 'access_token',
+        refreshToken: 'refresh_token',
+      });
+      const generateTokenStubResetter = service.__set__(
+        'generateToken',
+        generateTokenStub
+      );
+      const saveUserImageStub = sinon
+        .stub(nextcloudService, 'getUserImage')
+        .resolves(null);
+
+      const result = await service.login(userData);
+
+      expect(findOneStub.calledOnceWith({ email: userData.email })).to.be.true;
+      expect(compareStub.calledOnceWith(userData.password, userData.password))
+        .to.be.true;
+      expect(generateTokenStub.calledOnceWith(userData)).to.be.true;
+      expect(saveUserImageStub.calledOnceWith(userData.email)).to.be.true;
+      expect(result.accessToken).to.equal('access_token');
+      expect(result.refreshToken).to.equal('refresh_token');
+      expect(result.image).to.not.exist;
 
       generateTokenStubResetter();
     });
@@ -138,6 +159,16 @@ describe('User service methods', function () {
       expect(user.refreshToken).to.equal('');
       expect(user.save.calledOnce).to.be.true;
       expect(result).to.deep.equal({ refreshToken: '' });
+    });
+
+    it('should return if user is not found', async () => {
+      const findOneStub = sinon.stub(User, 'findOne').resolves(null);
+
+      const result = await service.logout('oldRefreshToken');
+
+      expect(findOneStub.calledOnceWith({ refreshToken: 'oldRefreshToken' })).to
+        .be.true;
+      expect(result).to.be.undefined;
     });
   });
 

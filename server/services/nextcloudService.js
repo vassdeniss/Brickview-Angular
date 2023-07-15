@@ -3,10 +3,13 @@ const { Client } = require('nextcloud-node-client');
 const client = new Client();
 
 exports.saveUserImage = async (fileName, file) => {
-  process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
-
   const folder = await client.getFolder('/pfp');
   await folder.createFile(`${fileName}.png`, file);
+};
 
-  process.env.NODE_TLS_REJECT_UNAUTHORIZED = '1';
+exports.getUserImage = async (fileName) => {
+  const folder = await client.getFolder('/pfp');
+  const file = await folder.getFile(`${fileName}.png`);
+
+  return file === null ? null : file.getContent();
 };

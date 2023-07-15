@@ -1,6 +1,7 @@
 const User = require('../models/User');
 const jwt = require('../lib/jwt');
 const bcrypt = require('bcrypt');
+const nextcloudService = require('../services/nextcloudService');
 
 exports.register = async (userData) => {
   const user = await User.create(userData);
@@ -20,7 +21,16 @@ exports.login = async ({ email, password }) => {
   }
 
   const result = await generateToken(user);
-  return result;
+  const image = await nextcloudService.getUserImage(user.email);
+
+  if (image === null) {
+    return result;
+  }
+
+  return {
+    ...result,
+    image: `data:image/png;base64,${image.toString('base64')}`,
+  };
 };
 
 exports.generateToken = (user) => generateToken(user);
@@ -62,6 +72,10 @@ exports.validateRefreshToken = async (refreshToken) => {
 
 exports.logout = async (refreshToken) => {
   const user = await User.findOne({ refreshToken });
+  if (!user) {
+    return;
+  }
+
   user.refreshToken = '';
   return await user.save();
 };
