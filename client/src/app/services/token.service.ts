@@ -29,4 +29,9 @@ export class TokenService {
   getRefreshToken(): string {
     return this.cookie.get('refreshToken');
   }
+
+  clearTokens(): void {
+    this.cookie.delete('accessToken', '/');
+    this.cookie.delete('refreshToken', '/');
+  }
 }

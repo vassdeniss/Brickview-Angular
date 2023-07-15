@@ -31,6 +31,11 @@ export class AuthService {
   }
 
   // TODO: test
+  logout(): Observable<any> {
+    return this.http.get(`${environment.apiUrl}/users/logout`);
+  }
+
+  // TODO: test
   isAuthenticated(): Observable<boolean | UrlTree> {
     return this.http.get<boolean>(`${environment.apiUrl}/validate-token`).pipe(
       map((data: any) => data.resolution === 'Authenticated'),
