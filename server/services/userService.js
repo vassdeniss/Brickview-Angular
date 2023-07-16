@@ -80,6 +80,9 @@ exports.logout = async (refreshToken) => {
   return await user.save();
 };
 
+exports.getLoggedInUser = async (refreshToken) =>
+  User.findOne({ refreshToken });
+
 // exports.getCollection = async () => {
 //   const id = 'idkWhereToGetIdFrom'; // TODO: figure out client side requests
 

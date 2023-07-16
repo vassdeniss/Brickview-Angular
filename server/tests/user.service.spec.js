@@ -229,4 +229,19 @@ describe('User service methods', function () {
       }
     });
   });
+
+  describe('getLoggedInUser', () => {
+    it('should return correct user when given refresh token', async () => {
+      const user = {
+        username: 'testuser',
+      };
+      const refreshToken = 'some-refresh-token';
+      const findOneStub = sinon.stub(User, 'findOne').resolves(user);
+
+      const gotUser = await service.getLoggedInUser(refreshToken);
+
+      expect(findOneStub.calledOnceWith({ refreshToken })).to.be.true;
+      expect(gotUser).to.deep.equal(user);
+    });
+  });
 });
