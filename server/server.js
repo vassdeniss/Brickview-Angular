@@ -62,8 +62,6 @@ app.get('/validate-token', mustBeAuth, (req, res) => {
 
 app.use(routes);
 
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
-
 app.listen(PORT, () => console.log(`Server listenng on ${HOST}`));
 
 module.exports = app;

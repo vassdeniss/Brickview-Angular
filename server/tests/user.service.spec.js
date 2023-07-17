@@ -272,6 +272,7 @@ describe('User service methods', function () {
         username: 'testuser',
         email: 'testuser@gmail.com',
         image: 'image',
+        sets: [],
       };
       const refreshToken = 'some-refresh-token';
       const findOneStub = sinon.stub(User, 'findOne').resolves(user);

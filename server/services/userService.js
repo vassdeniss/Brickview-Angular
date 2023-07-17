@@ -89,7 +89,9 @@ exports.getLoggedInUser = async (refreshToken) => {
   const image = await minioService.getUserImage(user.email);
 
   return {
-    ...user,
+    username: user.username,
+    email: user.email,
+    sets: user.sets,
     image,
   };
 };
