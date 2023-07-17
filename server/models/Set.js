@@ -14,6 +14,7 @@ const setSchema = new mongoose.Schema({
       image: String,
     },
   ],
+  isReviewed: Boolean,
 });
 
 const Set = mongoose.model('Set', setSchema);

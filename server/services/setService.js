@@ -57,3 +57,15 @@ exports.getWithMinifigs = async (setId) => {
     results: figs.data.results,
   };
 };
+
+exports.getLoggedInUserCollection = async (refreshToken) => {
+  const user = await User.findOne({ refreshToken })
+    .populate('sets')
+    .select('sets');
+
+  if (!user) {
+    throw new Error('Invalid refresh token!');
+  }
+
+  return user.sets;
+};

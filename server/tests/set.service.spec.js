@@ -2,10 +2,14 @@ const chai = require('chai');
 const { expect } = chai;
 const chaiAsPromised = require('chai-as-promised');
 const sinon = require('sinon');
+const sinonChai = require('sinon-chai');
 const axios = require('axios');
+
+chai.use(sinonChai);
 
 const setService = require('../services/setService');
 const { mockedSetData, mockedFigData } = require('./mockedData');
+const User = require('../models/User');
 
 chai.use(chaiAsPromised);
 
@@ -79,6 +83,50 @@ describe('Set service methods', function () {
       await expect(setService.getWithMinifigs(setId)).to.be.rejectedWith(
         'Invalid setId'
       );
+    });
+  });
+
+  describe('getLoggedInUserCollection', () => {
+    it('should return user collection with valid refresh token', async () => {
+      const user = {
+        sets: ['someSet'],
+      };
+      const refreshToken = 'someToken';
+      const populateStub = sinon.stub().returnsThis();
+      const selectStub = sinon.stub().resolves(user);
+      const findOneStub = sinon.stub(User, 'findOne').returns({
+        populate: populateStub,
+        select: selectStub,
+      });
+
+      const sets = await setService.getLoggedInUserCollection(refreshToken);
+
+      expect(findOneStub).to.have.been.calledWith({ refreshToken });
+      expect(populateStub).to.have.been.calledWith('sets');
+      expect(selectStub).to.have.been.calledWith('sets');
+      expect(sets).to.deep.equal(user.sets);
+    });
+
+    it('should throw error with invalid refresh token', async () => {
+      const refreshToken = 'someToken';
+      const populateStub = sinon.stub().returnsThis();
+      const selectStub = sinon.stub().resolves(null);
+      const findOneStub = sinon.stub(User, 'findOne').returns({
+        populate: populateStub,
+        select: selectStub,
+      });
+
+      try {
+        await setService.getLoggedInUserCollection(refreshToken);
+        expect.fail('Expected an error but none was thrown');
+      } catch (error) {
+        expect(error).to.be.an.instanceOf(Error);
+        expect(error.message).to.equal('Invalid token');
+      }
+
+      expect(findOneStub).to.have.been.calledWith({ refreshToken });
+      expect(populateStub).to.have.been.calledWith('sets');
+      expect(selectStub).to.have.been.calledWith('sets');
     });
   });
 });
