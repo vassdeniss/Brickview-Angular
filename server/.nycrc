@@ -4,6 +4,6 @@
     "tests/**/*.spec.js",
     "server.js",
     "routes.js",
-    "services/nextcloudService.js"
+    "services/minioService.js"
   ]
 }
