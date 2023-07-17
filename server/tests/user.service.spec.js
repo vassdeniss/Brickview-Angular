@@ -3,7 +3,7 @@ const sinon = require('sinon');
 const bcrypt = require('bcrypt');
 const jwt = require('../lib/jwt');
 const User = require('../models/User');
-const nextcloudService = require('../services/nextcloudService');
+const minioService = require('../services/minioService');
 
 const rewire = require('rewire');
 const service = rewire('../services/userService');
@@ -14,7 +14,43 @@ describe('User service methods', function () {
   });
 
   describe('register', () => {
-    it('should create a new user and return a token', async () => {
+    it('should create a new user and return a token (with image)', async () => {
+      const userData = {
+        username: 'testuser',
+        email: 'testuser@mail.com',
+        password: 'testpassword',
+        repeatPassword: 'testpassword',
+        image: 'data:image/png;base64,base64String',
+      };
+      const user = new User(userData);
+      const createStub = sinon.stub(User, 'create').resolves(user);
+      const generateTokenStub = sinon.stub().resolves({
+        accessToken: 'access_token',
+        refreshToken: 'refresh_token',
+      });
+      const generateTokenStubResetter = service.__set__(
+        'generateToken',
+        generateTokenStub
+      );
+      const saveUserImageStub = sinon.stub(minioService, 'saveUserImage');
+
+      const result = await service.register(userData);
+
+      expect(createStub.calledOnceWith(userData)).to.be.true;
+      expect(generateTokenStub.calledOnceWith(user)).to.be.true;
+      expect(
+        saveUserImageStub.calledOnceWith(
+          userData.email,
+          Buffer.from('base64String', 'base64')
+        )
+      ).to.be.true;
+      expect(result.accessToken).to.equal('access_token');
+      expect(result.refreshToken).to.equal('refresh_token');
+
+      generateTokenStubResetter();
+    });
+
+    it('should create a new user and return a token (no image)', async () => {
       const userData = {
         username: 'testuser',
         email: 'testuser@mail.com',
@@ -60,8 +96,8 @@ describe('User service methods', function () {
         generateTokenStub
       );
       const saveUserImageStub = sinon
-        .stub(nextcloudService, 'getUserImage')
-        .resolves('image');
+        .stub(minioService, 'getUserImage')
+        .resolves('data:image/png;base64,image');
 
       const result = await service.login(userData);
 
@@ -93,7 +129,7 @@ describe('User service methods', function () {
         generateTokenStub
       );
       const saveUserImageStub = sinon
-        .stub(nextcloudService, 'getUserImage')
+        .stub(minioService, 'getUserImage')
         .resolves(null);
 
       const result = await service.login(userData);
@@ -105,7 +141,7 @@ describe('User service methods', function () {
       expect(saveUserImageStub.calledOnceWith(userData.email)).to.be.true;
       expect(result.accessToken).to.equal('access_token');
       expect(result.refreshToken).to.equal('refresh_token');
-      expect(result.image).to.not.exist;
+      expect(result.image).to.be.null;
 
       generateTokenStubResetter();
     });
@@ -234,13 +270,19 @@ describe('User service methods', function () {
     it('should return correct user when given refresh token', async () => {
       const user = {
         username: 'testuser',
+        email: 'testuser@gmail.com',
+        image: 'image',
       };
       const refreshToken = 'some-refresh-token';
       const findOneStub = sinon.stub(User, 'findOne').resolves(user);
+      const getUserImageStub = sinon
+        .stub(minioService, 'getUserImage')
+        .resolves('image');
 
       const gotUser = await service.getLoggedInUser(refreshToken);
 
       expect(findOneStub.calledOnceWith({ refreshToken })).to.be.true;
+      expect(getUserImageStub.calledOnceWith(user.email)).to.be.true;
       expect(gotUser).to.deep.equal(user);
     });
   });

@@ -1,11 +1,19 @@
 const User = require('../models/User');
 const jwt = require('../lib/jwt');
 const bcrypt = require('bcrypt');
-const nextcloudService = require('../services/nextcloudService');
+const minioService = require('./minioService');
 
 exports.register = async (userData) => {
   const user = await User.create(userData);
   const result = await generateToken(user);
+
+  if (userData.image) {
+    const base64String = userData.image;
+    const base64Data = base64String.replace(/^data:image\/(\w+);base64,/, '');
+    const file = Buffer.from(base64Data, 'base64');
+    minioService.saveUserImage(user.email, file);
+  }
+
   return result;
 };
 
@@ -21,15 +29,11 @@ exports.login = async ({ email, password }) => {
   }
 
   const result = await generateToken(user);
-  const image = await nextcloudService.getUserImage(user.email);
-
-  if (image === null) {
-    return result;
-  }
+  const image = await minioService.getUserImage(user.email);
 
   return {
     ...result,
-    image: `data:image/png;base64,${image.toString('base64')}`,
+    image,
   };
 };
 
@@ -80,8 +84,15 @@ exports.logout = async (refreshToken) => {
   return await user.save();
 };
 
-exports.getLoggedInUser = async (refreshToken) =>
-  User.findOne({ refreshToken });
+exports.getLoggedInUser = async (refreshToken) => {
+  const user = await User.findOne({ refreshToken });
+  const image = await minioService.getUserImage(user.email);
+
+  return {
+    ...user,
+    image,
+  };
+};
 
 // exports.getCollection = async () => {
 //   const id = 'idkWhereToGetIdFrom'; // TODO: figure out client side requests
