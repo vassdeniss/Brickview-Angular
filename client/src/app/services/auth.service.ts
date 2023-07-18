@@ -11,10 +11,15 @@ import { JwtTokens } from '../types/tokenType';
 import { environment } from '../../environments/environment';
 import { User } from '../types/userType';
 import { Router, UrlTree } from '@angular/router';
+import { TokenService } from './token.service';
 
 @Injectable()
 export class AuthService {
-  constructor(private http: HttpClient, private router: Router) {}
+  constructor(
+    private http: HttpClient,
+    private router: Router,
+    private token: TokenService
+  ) {}
 
   // TODO: clean input
   // TODO: test
@@ -39,11 +44,14 @@ export class AuthService {
   isAuthenticated(): Observable<boolean | UrlTree> {
     return this.http.get<boolean>(`${environment.apiUrl}/validate-token`).pipe(
       map((data: any) => data.resolution === 'Authenticated'),
-      catchError(() => of(this.router.createUrlTree(['auth/login'])))
+      catchError(() => {
+        this.token.clearTokens();
+        return of(this.router.createUrlTree(['auth/login']));
+      })
     );
   }
 
-  getUser(): Observable<User> {
-    return this.http.get<User>(`${environment.apiUrl}/users/getCurrentUser`);
+  getLoggedUser(): Observable<User> {
+    return this.http.get<User>(`${environment.apiUrl}/users/get-logged-user`);
   }
 }
