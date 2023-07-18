@@ -8,7 +8,6 @@ chai.use(sinonChai);
 
 const User = require('../models/User');
 const userService = require('../services/userService');
-const minioService = require('../services/minioService');
 const authMiddleware = require('../middlewares/auth');
 
 let app;
