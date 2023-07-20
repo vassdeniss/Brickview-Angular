@@ -5,5 +5,6 @@ export type Set = {
   parts: number;
   image: string;
   minifigCount: number;
-  // results: [];
+  // minifigs: [];
+  isReviewed: boolean;
 };

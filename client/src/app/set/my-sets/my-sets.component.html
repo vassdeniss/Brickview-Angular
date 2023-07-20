@@ -7,5 +7,5 @@
 </app-popup>
 
 <ul *ngIf="!popup.isActive">
-  <app-user-set *ngFor="let set of sets" [legoSet]="set" />
+  <app-set *ngFor="let set of sets" [legoSet]="set" />
 </ul>
