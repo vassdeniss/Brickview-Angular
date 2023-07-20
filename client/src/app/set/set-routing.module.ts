@@ -3,6 +3,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { MySetsComponent } from './my-sets/my-sets.component';
 import { routeGuard } from '../auth/route.guard';
 import { mySetsResolver } from './my-sets/my-sets.resolver';
+import { AddSetComponent } from './add-set/add-set.component';
 
 const routes: Routes = [
   {
@@ -10,6 +11,11 @@ const routes: Routes = [
     component: MySetsComponent,
     canActivate: [routeGuard],
     resolve: { sets: mySetsResolver },
+  },
+  {
+    path: 'sets/add-set',
+    component: AddSetComponent,
+    canActivate: [routeGuard],
   },
 ];
 
