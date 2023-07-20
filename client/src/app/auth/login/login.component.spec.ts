@@ -63,7 +63,7 @@ describe('LoginComponent', () => {
     // Act: call the onSubmit method with a fake button element
     component.onSubmit(button);
 
-    // Assert: check if the popup is shown and form validation errors are displayed
+    // Assert: check that the popup is shown and form validation errors are displayed
     expect(component.errors).toContain('email is not valid!');
     expect(component.errors).toContain('password is required!');
     expect(popupService.show).toHaveBeenCalled();
@@ -89,8 +89,8 @@ describe('LoginComponent', () => {
     component.onSubmit(button);
     tick();
 
-    // Assert: if AuthService.login was called with the correct credentials
-    // and if tokens are saved and navigation to home is triggered
+    // Assert: that AuthService.login was called with the correct credentials
+    // and that tokens are saved and navigation to home is triggered
     expect(localStorage.getItem('image')).toBe('profile.jpg');
     expect(authService.login).toHaveBeenCalledWith({
       email: 'test@example.com',
@@ -124,7 +124,7 @@ describe('LoginComponent', () => {
     component.onSubmit(button);
     tick();
 
-    // Assert: if an error message is displayed in the popup
+    // Assert: that an error message is displayed in the popup
     expect(component.errors).toEqual([errorMessage]);
     expect(popupService.show).toHaveBeenCalled();
     expect(button.disabled).toBe(false);

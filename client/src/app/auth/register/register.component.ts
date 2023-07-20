@@ -88,10 +88,7 @@ export class RegisterComponent {
       const control = formGroup.controls[controlName];
       const matchingControl = formGroup.controls[matchingControlName];
 
-      if (
-        matchingControl.errors &&
-        !matchingControl.errors['confirmedValidator']
-      ) {
+      if (control.errors && !control.errors['notSame']) {
         return;
       }
 
