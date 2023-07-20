@@ -1,52 +1,82 @@
-// import { TestBed } from '@angular/core/testing';
-// import {
-//   HttpClientTestingModule,
-//   HttpTestingController,
-// } from '@angular/common/http/testing';
+import { TestBed, inject } from '@angular/core/testing';
+import {
+  HttpClientTestingModule,
+  HttpTestingController,
+} from '@angular/common/http/testing';
 
-// import { SetService } from './set.service';
-// import { Set } from '../types/setType';
-// import { environment } from '../../environments/environment';
+import { SetService } from './set.service';
+import { Set } from '../types/setType';
+import { environment } from '../../environments/environment';
 
-// describe('SetService', () => {
-//   let service: SetService;
-//   let httpMock: HttpTestingController;
+describe('SetService', () => {
+  let setService: SetService;
+  let httpTestingController: HttpTestingController;
 
-//   beforeEach(() => {
-//     TestBed.configureTestingModule({
-//       imports: [HttpClientTestingModule],
-//       providers: [SetService],
-//     });
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      imports: [HttpClientTestingModule],
+      providers: [SetService],
+    });
 
-//     service = TestBed.inject(SetService);
-//     httpMock = TestBed.inject(HttpTestingController);
-//   });
+    setService = TestBed.inject(SetService);
+    httpTestingController = TestBed.inject(HttpTestingController);
+  });
 
-//   afterEach(() => {
-//     httpMock.verify();
-//   });
+  afterEach(() => {
+    httpTestingController.verify();
+  });
 
-//   it('should retrieve a set', () => {
-//     // Arrange: setup mock set / id
-//     const setId = '1234';
-//     const mockSet: Set = {
-//       setNum: '12345',
-//       name: 'Test Set',
-//       year: 2023,
-//       parts: 100,
-//       image: 'https://example.com/test-set.jpg',
-//       minifigCount: 1,
-//     };
+  it('should get the current user sets', () => {
+    // Arrange: make dummy sets
+    const dummySets: Set[] = [
+      {
+        setNum: '12345',
+        name: 'Set 1',
+        year: 2022,
+        parts: 500,
+        image: 'set1.jpg',
+        minifigCount: 5,
+        isReviewed: true,
+      },
+      {
+        setNum: '67890',
+        name: 'Set 2',
+        year: 2023,
+        parts: 300,
+        image: 'set2.jpg',
+        minifigCount: 3,
+        isReviewed: false,
+      },
+    ];
 
-//     // Act / Assert: call service method / assert return set is the mocked one
-//     service.getSet(setId).subscribe((set: Set) => {
-//       expect(set).toEqual(mockSet);
-//     });
+    // Act: call get current user sets
+    setService.getCurrentUserSets().subscribe((sets: Set[]) => {
+      expect(sets).toEqual(dummySets);
+    });
 
-//     // Assert: that the request has been made correctly
-//     const request = httpMock.expectOne(`${environment.apiUrl}/sets/${setId}`);
-//     expect(request.request.method).toBe('GET');
+    // Assert: method has been called, compare retrieved sets
+    const req = httpTestingController.expectOne(
+      `${environment.apiUrl}/sets/logged-user-collection`
+    );
+    expect(req.request.method).toBe('GET');
+    req.flush(dummySets);
+  });
 
-//     request.flush(mockSet);
-//   });
-// });
+  it('should add a set', () => {
+    // Arrange: make dummy set id
+    const setId = '123';
+
+    // Act: call add set
+    setService.addSet(setId).subscribe((response: any) => {
+      expect(response).toBeTruthy();
+    });
+
+    // Assert: method has been called, compare retrieved sets
+    const req = httpTestingController.expectOne(
+      `${environment.apiUrl}/sets/add-set`
+    );
+    expect(req.request.method).toBe('POST');
+    expect(req.request.body).toEqual({ setId });
+    req.flush({});
+  });
+});
