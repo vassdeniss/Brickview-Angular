@@ -7,9 +7,13 @@
       <span>Parts: {{ legoSet?.parts }}</span>
     </div>
     <div class="card-actions">
-      <button *ngIf="!isReviewed" class="card-button">Add Review</button>
-      <button *ngIf="isReviewed" class="card-button">Edit Review</button>
-      <button *ngIf="isReviewed" class="card-button-danger">
+      <button *ngIf="!legoSet?.isReviewed" class="card-button">
+        Add Review
+      </button>
+      <button *ngIf="legoSet?.isReviewed" class="card-button">
+        Edit Review
+      </button>
+      <button *ngIf="legoSet?.isReviewed" class="card-button-danger">
         Remove Review
       </button>
     </div>

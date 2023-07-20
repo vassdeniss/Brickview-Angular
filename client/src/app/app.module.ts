@@ -17,6 +17,7 @@ import { CoreModule } from './core/core.module';
 import { UserModule } from './user/user.module';
 import { SharedModule } from './shared/shared.module';
 import { AuthModule } from './auth/auth.module';
+import { SetModule } from './set/set.module';
 
 import { TokenRequestInterceptor } from './auth/token-request.interceptor';
 import { TokenResponseInterceptor } from './auth/token-response.interceptor';
@@ -30,6 +31,7 @@ import { TokenResponseInterceptor } from './auth/token-response.interceptor';
     SharedModule,
     UserModule,
     AuthModule,
+    SetModule,
     AppRoutingModule,
     ReactiveFormsModule,
   ],
