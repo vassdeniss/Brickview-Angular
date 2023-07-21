@@ -37,6 +37,10 @@
  *           type: integer
  *           description: The total count of minifigures.
  *           example: 4
+ *         isReviewed:
+ *           type: boolean
+ *           description: Whether the set is reviewed or not.
+ *           example: false
  *         results:
  *           type: array
  *           items:
@@ -48,6 +52,7 @@
  *         parts: 176
  *         image: "https://cdn.rebrickable.com/media/sets/8091-1/3953.jpg"
  *         minifigCount: 4
+ *         isReviewed: false
  *         results:
  *           - id: 9227
  *             set_num: "fig-003834"
@@ -97,44 +102,30 @@
  */
 
 const router = require('express').Router();
-
+const { mustBeAuth } = require('../middlewares/auth');
 const setService = require('../services/setService');
 
-/**
- * @swagger
- * /sets/{setId}:
- *   get:
- *     summary: Get set with minifigs by ID
- *     description: Retrieve a set with its associated minifigs based on the provided set ID.
- *     parameters:
- *       - in: path
- *         name: setId
- *         required: true
- *         description: The ID of the set to retrieve.
- *         schema:
- *           type: string
- *     responses:
- *       '200':
- *         description: OK. Returns the set with minifigs.
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Set'
- *       '404':
- *         description: Set not found.
- *         content:
- *           text/plain:
- *             schema:
- *               type: string
- *     tags:
- *       - Sets
- */
-router.get('/:setId', async (req, res) => {
+router.get('/logged-user-collection', mustBeAuth, async (req, res) => {
   try {
-    const set = await setService.getWithMinifigs(req.params.setId);
-    res.status(200).json(set);
+    const collection = await setService.getLoggedInUserCollection(
+      req.header('X-Refresh')
+    );
+    res.status(200).json(collection);
   } catch (err) {
-    res.status(404).send('Set not found!');
+    res.status(404).json({
+      message: err.message,
+    });
+  }
+});
+
+router.post('/add-set', mustBeAuth, async (req, res) => {
+  try {
+    await setService.addSet(req.body.setId, req.header('X-Refresh'));
+    res.status(204).end();
+  } catch (_) {
+    res.status(404).json({
+      message: 'Set not found!',
+    });
   }
 });
 

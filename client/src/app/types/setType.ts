@@ -1,9 +1,10 @@
 export type Set = {
-  set_num: string;
+  setNum: string;
   name: string;
   year: number;
-  theme_id: number;
-  num_parts: number;
-  set_img_url: string;
-  set_url: string;
+  parts: number;
+  image: string;
+  minifigCount: number;
+  // minifigs: [];
+  isReviewed: boolean;
 };

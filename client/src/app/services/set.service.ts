@@ -10,7 +10,13 @@ import { environment } from '../../environments/environment';
 export class SetService {
   constructor(private http: HttpClient) {}
 
-  getSet(setId: string): Observable<Set> {
-    return this.http.get<Set>(`${environment.apiUrl}/sets/${setId}`);
+  getCurrentUserSets(): Observable<Set[]> {
+    return this.http.get<Set[]>(
+      `${environment.apiUrl}/sets/logged-user-collection`
+    );
+  }
+
+  addSet(setId: string): Observable<any> {
+    return this.http.post(`${environment.apiUrl}/sets/add-set`, { setId });
   }
 }

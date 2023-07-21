@@ -1,0 +1,66 @@
+<app-popup *ngIf="popup.isActive" title="Error!" (closed)="popup.hide()">
+  <p *ngFor="let error of errors">{{ error }}</p>
+</app-popup>
+<form
+  [formGroup]="registerForm"
+  class="register-form"
+  (ngSubmit)="onSubmit(button)"
+>
+  <h2>Register</h2>
+  <div class="form-group">
+    <label for="username">Username</label>
+    <input
+      type="text"
+      id="username"
+      name="username"
+      placeholder="Enter username"
+      formControlName="username"
+    />
+  </div>
+  <div class="form-group">
+    <label for="email">Email</label>
+    <input
+      type="email"
+      id="email"
+      name="email"
+      placeholder="Enter email"
+      formControlName="email"
+    />
+  </div>
+  <div class="form-group">
+    <label for="password">Password</label>
+    <input
+      type="password"
+      id="password"
+      name="password"
+      placeholder="Enter password"
+      formControlName="password"
+    />
+  </div>
+  <div class="form-group">
+    <label for="repeat-password">Repeat Password</label>
+    <input
+      type="password"
+      id="repeat-password"
+      name="repeat-password"
+      placeholder="Repeat password"
+      formControlName="repeatPassword"
+    />
+  </div>
+  <div class="form-group">
+    <label for="image">Profile Image</label>
+    <input
+      type="file"
+      id="image"
+      name="image"
+      accept="image/*"
+      (change)="onFileChange($event)"
+    />
+  </div>
+  <img
+    [src]="registerForm.value.image"
+    alt="Selected Image"
+    *ngIf="registerForm.value.image"
+  />
+  <button #button>Register</button>
+</form>

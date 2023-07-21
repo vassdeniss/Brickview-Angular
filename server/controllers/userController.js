@@ -24,11 +24,15 @@
  *         repeatPassword:
  *           type: string
  *           description: The repeated password.
+ *         image:
+ *           type: string
+ *           description: The base64 encoded image.
  *       example:
  *         username: john_doe
  *         email: john_doe@example.com
  *         password: password123
  *         repeatPassword: password123
+ *         image: some_base64_image
  *     Error:
  *       type: object
  *       properties:
@@ -105,6 +109,7 @@ router.post('/register', async (req, res) => {
  *             example:
  *               accessToken: some_jwt_token
  *               refreshToken: some_jwt_token
+ *               image: some_base64_image
  *       400:
  *         description: Login failed
  *         content:
@@ -132,21 +137,42 @@ router.post('/login', async (req, res) => {
  *     security:
  *       - bearerAuth: []
  *     responses:
- *       200:
+ *       204:
  *         description: Logout successful
- *       400:
- *         description: Logout failed
+ */
+router.get('/logout', mustBeAuth, async (req, res) => {
+  await userService.logout(req.header('X-Refresh'));
+  res.status(204).end();
+});
+
+/**
+ * @swagger
+ * /get-logged-user:
+ *   get:
+ *     summary: Get current looged in user
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *        200:
+ *         description: The user was found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/User'
+ *        404:
+ *         description: The user was not found
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.get('/logout', mustBeAuth, async (req, res) => {
+router.get('/get-logged-user', mustBeAuth, async (req, res) => {
   try {
-    await userService.logout(res.user.refreshToken);
-    res.status(200).end();
+    const user = await userService.getLoggedInUser(req.header('X-Refresh'));
+    res.status(200).json(user);
   } catch (err) {
-    res.status(400).json({
+    res.status(404).json({
       message: err.message,
     });
   }

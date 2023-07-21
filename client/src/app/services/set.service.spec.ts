@@ -6,10 +6,11 @@ import {
 
 import { SetService } from './set.service';
 import { Set } from '../types/setType';
+import { environment } from '../../environments/environment';
 
 describe('SetService', () => {
-  let service: SetService;
-  let httpMock: HttpTestingController;
+  let setService: SetService;
+  let httpTestingController: HttpTestingController;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -17,36 +18,65 @@ describe('SetService', () => {
       providers: [SetService],
     });
 
-    service = TestBed.inject(SetService);
-    httpMock = TestBed.inject(HttpTestingController);
+    setService = TestBed.inject(SetService);
+    httpTestingController = TestBed.inject(HttpTestingController);
   });
 
   afterEach(() => {
-    httpMock.verify();
+    httpTestingController.verify();
   });
 
-  it('should be created', () => {
-    expect(service).toBeTruthy();
-  });
+  it('should get the current user sets', () => {
+    // Arrange: make dummy sets
+    const dummySets: Set[] = [
+      {
+        setNum: '12345',
+        name: 'Set 1',
+        year: 2022,
+        parts: 500,
+        image: 'set1.jpg',
+        minifigCount: 5,
+        isReviewed: true,
+      },
+      {
+        setNum: '67890',
+        name: 'Set 2',
+        year: 2023,
+        parts: 300,
+        image: 'set2.jpg',
+        minifigCount: 3,
+        isReviewed: false,
+      },
+    ];
 
-  it('should retrieve a set', () => {
-    const setId = '1234';
-    const mockSet: Set = {
-      set_num: '12345',
-      name: 'Test Set',
-      year: 2023,
-      theme_id: 1,
-      num_parts: 100,
-      set_img_url: 'https://example.com/test-set.jpg',
-      set_url: 'https://example.com/test-set',
-    };
-
-    service.getSet(setId).subscribe((set: Set) => {
-      expect(set).toEqual(mockSet);
+    // Act: call get current user sets
+    setService.getCurrentUserSets().subscribe((sets: Set[]) => {
+      expect(sets).toEqual(dummySets);
     });
 
-    const request = httpMock.expectOne(`http://localhost:3000/sets/${setId}`);
-    expect(request.request.method).toBe('GET');
-    request.flush(mockSet);
+    // Assert: method has been called, compare retrieved sets
+    const req = httpTestingController.expectOne(
+      `${environment.apiUrl}/sets/logged-user-collection`
+    );
+    expect(req.request.method).toBe('GET');
+    req.flush(dummySets);
+  });
+
+  it('should add a set', () => {
+    // Arrange: make dummy set id
+    const setId = '123';
+
+    // Act: call add set
+    setService.addSet(setId).subscribe((response: any) => {
+      expect(response).toBeTruthy();
+    });
+
+    // Assert: method has been called, compare retrieved sets
+    const req = httpTestingController.expectOne(
+      `${environment.apiUrl}/sets/add-set`
+    );
+    expect(req.request.method).toBe('POST');
+    expect(req.request.body).toEqual({ setId });
+    req.flush({});
   });
 });

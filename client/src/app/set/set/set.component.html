@@ -1,0 +1,21 @@
+<div class="card">
+  <img src="{{ legoSet?.image }}" alt="set {{ legoSet?.setNum }}" />
+  <div class="card-content">
+    <div class="card-title">{{ legoSet?.name }}</div>
+    <div class="card-details">
+      <span>Year: {{ legoSet?.year }}</span>
+      <span>Parts: {{ legoSet?.parts }}</span>
+    </div>
+    <div class="card-actions">
+      <button *ngIf="!legoSet?.isReviewed" class="card-button">
+        Add Review
+      </button>
+      <button *ngIf="legoSet?.isReviewed" class="card-button">
+        Edit Review
+      </button>
+      <button *ngIf="legoSet?.isReviewed" class="card-button-danger">
+        Remove Review
+      </button>
+    </div>
+  </div>
+</div>

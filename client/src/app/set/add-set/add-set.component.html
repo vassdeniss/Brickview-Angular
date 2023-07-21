@@ -1,0 +1,17 @@
+<app-popup *ngIf="popup.isActive" title="Error!" (closed)="popup.hide()">
+  <p *ngFor="let error of errors">{{ error }}</p>
+</app-popup>
+<form [formGroup]="setForm" class="set-form" (ngSubmit)="onSubmit(button)">
+  <h2>Add Set to Collection</h2>
+  <div class="form-group">
+    <label for="setId">Set Number</label>
+    <input
+      type="setId"
+      id="setId"
+      name="setId"
+      placeholder="Enter set number"
+      formControlName="setId"
+    />
+  </div>
+  <button #button>Add Set</button>
+</form>
