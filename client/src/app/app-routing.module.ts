@@ -4,8 +4,18 @@ import { PagenotfoundComponent } from './core/pagenotfound/pagenotfound.componen
 import { HomeComponent } from './core/home/home.component';
 
 const routes: Routes = [
-  { path: '', pathMatch: 'full', component: HomeComponent },
-  { path: '**', pathMatch: 'full', component: PagenotfoundComponent },
+  {
+    path: '',
+    pathMatch: 'full',
+    component: HomeComponent,
+    title: 'Home',
+  },
+  {
+    path: '**',
+    pathMatch: 'full',
+    component: PagenotfoundComponent,
+    title: '404',
+  },
 ];
 
 @NgModule({

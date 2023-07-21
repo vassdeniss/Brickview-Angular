@@ -10,15 +10,18 @@ const routes: Routes = [
   {
     path: 'auth/register',
     component: RegisterComponent,
+    title: 'Register',
   },
   {
     path: 'auth/login',
     component: LoginComponent,
+    title: 'Login',
   },
   {
     path: 'auth/logout',
     component: LogoutComponent,
     canActivate: [routeGuard],
+    title: 'Logout',
   },
 ];
 

@@ -11,6 +11,7 @@ const routes: Routes = [
     component: UserCurrentProfileComponent,
     canActivate: [routeGuard],
     resolve: { user: userCurrentProfileResolver },
+    title: 'My Profile',
   },
 ];
 
