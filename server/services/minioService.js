@@ -38,3 +38,57 @@ exports.getUserImage = async (fileName) => {
     });
   });
 };
+
+exports.saveReview = (username, setId, files) => {
+  return new Promise(async (resolve, reject) => {
+    const exists = await doesBucketExist(`${username}-${setId}`);
+    if (!exists) {
+      await createBucket(`${username}-${setId}`);
+    }
+
+    const uploadPromises = files.map((file, i) => {
+      return new Promise((resolve, reject) => {
+        minioClient.putObject(
+          `${username}-${setId}`,
+          `${i}.png`,
+          file,
+          (err, _) => {
+            if (err) {
+              reject(err);
+            } else {
+              resolve();
+            }
+          }
+        );
+      });
+    });
+
+    Promise.all(uploadPromises)
+      .then(() => resolve())
+      .catch((err) => reject(err));
+  });
+};
+
+function doesBucketExist(bucketName) {
+  return new Promise((resolve, reject) => {
+    minioClient.bucketExists(bucketName, (err, exists) => {
+      if (err) {
+        reject(err);
+      }
+
+      resolve(exists);
+    });
+  });
+}
+
+function createBucket(bucketName) {
+  return new Promise((resolve, reject) => {
+    minioClient.makeBucket(bucketName, 'eu-central-1', (err) => {
+      if (err) {
+        reject(err);
+      }
+
+      resolve();
+    });
+  });
+}
