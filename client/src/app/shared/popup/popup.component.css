@@ -38,4 +38,6 @@
 .popup-body {
   padding: 10px;
   color: white;
+  display: flex;
+  justify-content: center;
 }

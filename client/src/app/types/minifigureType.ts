@@ -1,5 +1,5 @@
 export interface Minigifure {
-  name: String;
+  name: string;
   quantity: Number;
-  image: String;
+  image: string;
 }

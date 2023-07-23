@@ -11,6 +11,7 @@ import { AuthService } from './services/auth.service';
 import { TokenService } from './services/token.service';
 import { SpinnerService } from './services/spinner.service';
 import { PopupService } from './services/popup.service';
+import { ReviewService } from './services/review.service';
 import { PageTitleStrategy } from './services/pageTitleStrategy.service';
 
 import { AppComponent } from './app.component';
@@ -20,6 +21,7 @@ import { UserModule } from './user/user.module';
 import { SharedModule } from './shared/shared.module';
 import { AuthModule } from './auth/auth.module';
 import { SetModule } from './set/set.module';
+import { ReviewModule } from './review/review.module';
 
 import { TokenRequestInterceptor } from './auth/token-request.interceptor';
 import { TokenResponseInterceptor } from './auth/token-response.interceptor';
@@ -34,6 +36,7 @@ import { TokenResponseInterceptor } from './auth/token-response.interceptor';
     UserModule,
     AuthModule,
     SetModule,
+    ReviewModule,
     AppRoutingModule,
     ReactiveFormsModule,
   ],
@@ -43,6 +46,7 @@ import { TokenResponseInterceptor } from './auth/token-response.interceptor';
     TokenService,
     SpinnerService,
     PopupService,
+    ReviewService,
     {
       provide: HTTP_INTERCEPTORS,
       useClass: TokenRequestInterceptor,

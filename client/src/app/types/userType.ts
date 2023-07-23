@@ -1,8 +1,8 @@
 import { Set } from './setType';
 
 export interface User {
-  username: String;
-  email: String;
-  image: String;
+  username: string;
+  email: string;
+  image: string;
   sets: Set[];
 }
