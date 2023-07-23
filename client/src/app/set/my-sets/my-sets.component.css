@@ -1,16 +1,16 @@
 ul {
   display: grid;
-  grid-template-columns: repeat(5, 300px);
-  padding: 0;
+  grid-template-columns: repeat(5, 270px);
   gap: 20px;
   justify-content: center;
   align-items: center;
+  padding: 0px;
 }
 
 /* For Tablet View */
 @media screen and (min-device-width: 768px) and (max-device-width: 1024px) {
   ul {
-    grid-template-columns: repeat(2, 300px);
+    grid-template-columns: repeat(3, 300px);
   }
 }
 
@@ -24,20 +24,20 @@ ul {
 /* For Mobile Portrait View */
 @media screen and (max-device-width: 480px) and (orientation: portrait) {
   ul {
-    grid-template-columns: repeat(1, 300px);
+    grid-template-columns: 1fr;
   }
 }
 
 /* For Mobile Landscape View */
 @media screen and (max-device-width: 640px) and (orientation: landscape) {
   ul {
-    grid-template-columns: repeat(1, 300px);
+    grid-template-columns: 1fr;
   }
 }
 
 /* For Mobile Phones Portrait or Landscape View */
 @media screen and (max-device-width: 640px) {
   ul {
-    grid-template-columns: repeat(1, 300px);
+    grid-template-columns: 1fr;
   }
 }
