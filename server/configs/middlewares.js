@@ -4,7 +4,7 @@ const cors = require('cors');
 function addMiddlewares(app) {
   app.use(
     cors({
-      origin: ['http://localhost:3000', 'https://legoview-api.onrender.com'],
+      origin: ['http://localhost:4200', 'https://vassdeniss.github.io'],
     })
   );
   app.use(express.json({ limit: '500mb' }));
