@@ -1,11 +1,11 @@
 <nav class="navbar">
   <div class="navbar-title">Legoview</div>
   <div *ngIf="!isLogged" class="navbar-buttons">
-    <button routerLink="auth/login" class="navbar-button">Login</button>
-    <button routerLink="auth/register" class="navbar-button">Register</button>
+    <button routerLink="/auth/login" class="navbar-button">Login</button>
+    <button routerLink="/auth/register" class="navbar-button">Register</button>
   </div>
   <div *ngIf="isLogged" class="navbar-buttons">
-    <img [src]="image" routerLink="users/my-profile" />
-    <button routerLink="auth/logout" class="navbar-button">Logout</button>
+    <img [src]="image" routerLink="/users/my-profile" />
+    <button routerLink="/auth/logout" class="navbar-button">Logout</button>
   </div>
 </nav>
