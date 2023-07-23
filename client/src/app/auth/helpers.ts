@@ -11,6 +11,8 @@ export function getFormValidationErrors(form: FormGroup) {
           message = 'is required!';
         } else if (keyError === 'minlength') {
           message = `should be at least ${controlErrors[keyError].requiredLength} characters!`;
+        } else if (keyError === 'maxlength') {
+          message = `cannot be longer than ${controlErrors[keyError].requiredLength} characters long!`;
         } else if (keyError === 'email') {
           message = 'is not valid!';
         } else if (keyError === 'notSame') {

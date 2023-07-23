@@ -37,10 +37,11 @@ export class AddSetComponent {
     }
 
     this.set.addSet(this.setForm.value.setId!).subscribe({
-      next: (_) => {
+      next: () => {
         this.route.navigate(['sets/my-sets']);
       },
       error: (err) => {
+        this.errors = [];
         this.errors.push(err.error.message);
         this.popup.show();
         button.disabled = false;

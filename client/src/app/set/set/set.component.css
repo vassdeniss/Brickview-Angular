@@ -72,6 +72,11 @@
   justify-content: space-around;
 }
 
+.link-div {
+  cursor: pointer;
+  color: rgb(209, 137, 4);
+}
+
 @media (max-width: 600px) {
   .card {
     max-width: 100%;

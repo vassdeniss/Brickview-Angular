@@ -15,7 +15,6 @@ export class MySetsComponent {
 
   ngOnInit(): void {
     this.route.data.subscribe(({ sets }) => {
-      console.log(sets);
       this.sets = sets;
       if (this.sets.length <= 0) {
         this.popup.show();

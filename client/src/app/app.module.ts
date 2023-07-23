@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { ReactiveFormsModule } from '@angular/forms';
+import { TitleStrategy } from '@angular/router';
 
 import { AppRoutingModule } from './app-routing.module';
 
@@ -10,6 +11,7 @@ import { AuthService } from './services/auth.service';
 import { TokenService } from './services/token.service';
 import { SpinnerService } from './services/spinner.service';
 import { PopupService } from './services/popup.service';
+import { PageTitleStrategy } from './services/pageTitleStrategy.service';
 
 import { AppComponent } from './app.component';
 
@@ -50,6 +52,10 @@ import { TokenResponseInterceptor } from './auth/token-response.interceptor';
       provide: HTTP_INTERCEPTORS,
       useClass: TokenResponseInterceptor,
       multi: true,
+    },
+    {
+      provide: TitleStrategy,
+      useClass: PageTitleStrategy,
     },
   ],
   bootstrap: [AppComponent],

@@ -49,6 +49,7 @@ export class LoginComponent {
         this.route.navigate(['']);
       },
       error: (err) => {
+        this.errors = [];
         this.errors.push(err.error.message);
         this.popup.show();
         button.disabled = false;
