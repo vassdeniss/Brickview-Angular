@@ -17,26 +17,7 @@ exports.saveUserImage = async (fileName, file) => {
 };
 
 exports.getUserImage = async (fileName) => {
-  return new Promise((resolve, reject) => {
-    minioClient.getObject('pfp', `${fileName}.png`, (err, stream) => {
-      if (err) {
-        reject(err);
-      }
-
-      const chunks = [];
-
-      stream.on('data', function (chunk) {
-        chunks.push(chunk);
-      });
-
-      stream.on('end', function () {
-        const objectContent = Buffer.concat(chunks);
-        const base64String = objectContent.toString('base64');
-
-        resolve(`data:image/png;base64,${base64String}`);
-      });
-    });
-  });
+  return getObjectAsBase64('pfp', `${fileName}.png`);
 };
 
 exports.saveReview = (username, setId, files) => {
@@ -69,6 +50,10 @@ exports.saveReview = (username, setId, files) => {
   });
 };
 
+exports.getReviewImages = (username, setId) => {
+  return getAllObjectsAsBase64(`${username}-${setId}`);
+};
+
 function doesBucketExist(bucketName) {
   return new Promise((resolve, reject) => {
     minioClient.bucketExists(bucketName, (err, exists) => {
@@ -91,4 +76,57 @@ function createBucket(bucketName) {
       resolve();
     });
   });
+}
+
+function getObjectAsBase64(bucketName, objectName) {
+  return new Promise(async (resolve, reject) => {
+    const exists = await doesBucketExist(bucketName);
+    if (!exists) {
+      reject({
+        message: 'Bucket does not exist!',
+      });
+    }
+
+    minioClient.getObject(bucketName, objectName, (err, dataStream) => {
+      if (err) {
+        reject(err);
+      }
+
+      const chunks = [];
+
+      dataStream.on('data', (chunk) => chunks.push(chunk));
+
+      dataStream.on('end', () => {
+        const objectData = Buffer.concat(chunks);
+        const base64String = objectData.toString('base64');
+        resolve(`data:image/png;base64,${base64String}`);
+      });
+
+      dataStream.on('error', (err) => reject(err));
+    });
+  });
+}
+
+function listObjects(bucketName) {
+  return new Promise((resolve, reject) => {
+    const objectsList = [];
+    const stream = minioClient.listObjects(bucketName, '', true);
+    stream.on('data', (obj) => objectsList.push(obj.name));
+    stream.on('end', () => resolve(objectsList));
+    stream.on('error', (err) => reject(err));
+  });
+}
+
+async function getAllObjectsAsBase64(bucketName) {
+  const exists = await doesBucketExist(bucketName);
+  if (!exists) {
+    throw {
+      message: 'Bucket does not exist!',
+    };
+  }
+
+  const objectsList = await listObjects(bucketName);
+  return Promise.all(
+    objectsList.map((objectName) => getObjectAsBase64(bucketName, objectName))
+  );
 }

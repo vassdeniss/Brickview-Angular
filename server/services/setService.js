@@ -39,8 +39,16 @@ exports.addSet = async (setId, refreshToken) => {
     parts: foundSet.data.num_parts,
     image: foundSet.data.set_img_url,
     minifigCount: figs.data.count,
-    minifigs: figs.data.results,
+    minifigs: [],
   };
+
+  for (const fig of figs.data.results) {
+    setData.minifigs.push({
+      name: fig.set_name,
+      quantity: fig.quantity,
+      image: fig.set_img_url,
+    });
+  }
 
   const set = await Set.create(setData);
 
