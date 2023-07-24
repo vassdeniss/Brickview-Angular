@@ -30,21 +30,25 @@ describe('SetService', () => {
     // Arrange: make dummy sets
     const dummySets: Set[] = [
       {
+        _id: 'some-id',
         setNum: '12345',
         name: 'Set 1',
         year: 2022,
         parts: 500,
         image: 'set1.jpg',
         minifigCount: 5,
+        minifigs: [],
         isReviewed: true,
       },
       {
+        _id: 'some-id',
         setNum: '67890',
         name: 'Set 2',
         year: 2023,
         parts: 300,
         image: 'set2.jpg',
         minifigCount: 3,
+        minifigs: [],
         isReviewed: false,
       },
     ];
