@@ -76,6 +76,53 @@ describe('Review service methods', () => {
     });
   });
 
+  describe('getReview', () => {
+    it('should return the correct review object', async () => {
+      // Arrange: test data, stubs
+      const setId = 'someSetId';
+      const reviewData = {
+        buildExperience: 'Good',
+        design: 'Excellent',
+        minifigures: 'Average',
+        value: 'Great',
+        other: 'Nice',
+        verdict: 'Recommended',
+        set: { setNum: '12345' },
+        user: { email: 'user@example.com' },
+      };
+      const images = ['image1.jpg', 'image2.jpg'];
+      const findStub = sinon.stub(Review, 'find').returns({
+        populate: sinon.stub().returns({
+          populate: sinon.stub().resolves([reviewData]),
+        }),
+      });
+      const getReviewImagesStub = sinon
+        .stub(minioService, 'getReviewImages')
+        .resolves(images);
+
+      // Act: call the method being tested
+      const result = await service.getReview(setId);
+
+      // Assert: that the returned result is expected
+      expect(result).to.deep.equal({
+        buildExperience: reviewData.buildExperience,
+        design: reviewData.design,
+        minifigures: reviewData.minifigures,
+        value: reviewData.value,
+        other: reviewData.other,
+        verdict: reviewData.verdict,
+        set: reviewData.set,
+        user: reviewData.user,
+        imageSources: images,
+      });
+      expect(findStub).to.be.calledOnceWithExactly({ set: setId });
+      expect(getReviewImagesStub).to.be.calledOnceWithExactly(
+        reviewData.user.email.replace(/[.@]/g, ''),
+        reviewData.set.setNum
+      );
+    });
+  });
+
   describe('getSetNumAndMarkReviewed', () => {
     it('should get setNum and mark set as reviewed', async () => {
       // Arrange: mock data, create stubs
