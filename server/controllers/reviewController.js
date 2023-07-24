@@ -13,4 +13,15 @@ router.post('/create', mustBeAuth, async (req, res) => {
   }
 });
 
+router.get('/get/:id', async (req, res) => {
+  try {
+    const review = await reviewService.getReview(req.params.id);
+    res.status(200).json(review);
+  } catch (err) {
+    res.status(404).json({
+      message: err.message,
+    });
+  }
+});
+
 module.exports = router;
