@@ -4,12 +4,12 @@ import { User } from './userType';
 
 export interface Review {
   buildExperience: string;
-  design: string;
+  design?: string;
   minifigures?: Minigifure[] | string;
-  value: string;
-  other: string;
-  verdict: string;
-  imageSources: string[];
+  value?: string;
+  other?: string;
+  verdict?: string;
+  imageSources?: string[];
   set: Set | string;
   user?: User | string;
 }
