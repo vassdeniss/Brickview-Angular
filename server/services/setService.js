@@ -50,9 +50,12 @@ exports.addSet = async (setId, refreshToken) => {
     });
   }
 
-  const set = await Set.create(setData);
+  const user = await User.findOne({ refreshToken }).populate('sets');
+  if (user.sets.find((set) => setData.setNum.includes(set.setNum))) {
+    throw new Error('Set already exists in collection!');
+  }
 
-  const user = await User.findOne({ refreshToken });
+  const set = await Set.create(setData);
   user.sets.push(set._id);
   await user.save();
 };
