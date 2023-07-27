@@ -41,6 +41,7 @@ exports.getReview = async (setId) => {
   );
 
   return {
+    _id: review[0]._id,
     buildExperience: review[0].buildExperience,
     design: review[0].design,
     minifigures: review[0].minifigures,

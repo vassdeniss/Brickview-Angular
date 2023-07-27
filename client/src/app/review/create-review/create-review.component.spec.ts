@@ -71,7 +71,7 @@ describe('CreateReviewComponent', () => {
       imageSources: [],
       set: 'test_set_id',
     };
-    mockReviewService.create.and.returnValue(of(reviewData));
+    mockReviewService.createReview.and.returnValue(of(reviewData));
     const button = {} as HTMLButtonElement;
     component.reviewForm.patchValue({
       buildExperience:
@@ -85,7 +85,7 @@ describe('CreateReviewComponent', () => {
     tick();
 
     // Assert: check that the review was created and the user was navigated to "sets/my-sets"
-    expect(mockReviewService.create).toHaveBeenCalledWith(reviewData);
+    expect(mockReviewService.createReview).toHaveBeenCalledWith(reviewData);
     expect(navigateSpy).toHaveBeenCalledWith(['sets/my-sets']);
     expect(button.disabled).toBe(false);
   }));
@@ -93,7 +93,7 @@ describe('CreateReviewComponent', () => {
   it('should show error popup when review creation fails', () => {
     // Arrange: setup service to throw error
     const button = {} as HTMLButtonElement;
-    mockReviewService.create.and.returnValue(
+    mockReviewService.createReview.and.returnValue(
       throwError(() => {
         return {
           error: {

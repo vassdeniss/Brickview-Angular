@@ -8,7 +8,11 @@ import { environment } from 'src/environments/environment';
 export class ReviewService {
   constructor(private http: HttpClient) {}
 
-  create(review: Review): Observable<any> {
+  createReview(review: Review): Observable<any> {
     return this.http.post(`${environment.apiUrl}/reviews/create`, review);
+  }
+
+  getReview(setId: string): Observable<Review> {
+    return this.http.get<Review>(`${environment.apiUrl}/reviews/get/${setId}`);
   }
 }

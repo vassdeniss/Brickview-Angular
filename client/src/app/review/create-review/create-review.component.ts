@@ -60,7 +60,7 @@ export class CreateReviewComponent implements OnInit {
       return;
     }
 
-    this.review.create(this.reviewForm.value as Review).subscribe({
+    this.review.createReview(this.reviewForm.value as Review).subscribe({
       next: () => {
         button.disabled = false;
         this.route.navigate(['sets/my-sets']);
