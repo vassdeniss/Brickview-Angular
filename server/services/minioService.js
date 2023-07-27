@@ -54,6 +54,9 @@ exports.getReviewImages = (username, setId) => {
   return getAllObjectsAsBase64(`${username}-${setId}`);
 };
 
+exports.deleteReviewImages = async (username, setId) =>
+  deleteImagesWithBucket(`${username}-${setId}`);
+
 function doesBucketExist(bucketName) {
   return new Promise((resolve, reject) => {
     minioClient.bucketExists(bucketName, (err, exists) => {
@@ -76,6 +79,18 @@ function createBucket(bucketName) {
       resolve();
     });
   });
+}
+
+async function deleteImagesWithBucket(bucketName) {
+  const exists = await doesBucketExist(bucketName);
+  if (!exists) {
+    throw new Error('Bucket does not exist!');
+  }
+
+  const objectsList = await listObjects(bucketName);
+
+  await minioClient.removeObjects(bucketName, objectsList);
+  await minioClient.removeBucket(bucketName);
 }
 
 function getObjectAsBase64(bucketName, objectName) {
