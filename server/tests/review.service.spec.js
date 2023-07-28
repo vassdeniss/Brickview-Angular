@@ -22,6 +22,10 @@ const testData = {
 };
 
 describe('Review service methods', () => {
+  afterEach(() => {
+    sinon.restore();
+  });
+
   describe('addReview', () => {
     it('should create a review', async () => {
       // Arrange: mock dependencies and data
@@ -81,6 +85,7 @@ describe('Review service methods', () => {
       // Arrange: test data, stubs
       const setId = 'someSetId';
       const reviewData = {
+        _id: 'some-id',
         buildExperience: 'Good',
         design: 'Excellent',
         minifigures: 'Average',
@@ -105,6 +110,7 @@ describe('Review service methods', () => {
 
       // Assert: that the returned result is expected
       expect(result).to.deep.equal({
+        _id: reviewData._id,
         buildExperience: reviewData.buildExperience,
         design: reviewData.design,
         minifigures: reviewData.minifigures,
@@ -144,6 +150,116 @@ describe('Review service methods', () => {
       expect(result).to.equal(setNum);
       expect(findByIdStub).to.have.been.calledOnceWith(setId);
       expect(setInstance.isReviewed).to.be.true;
+    });
+  });
+
+  describe('deleteReview', () => {
+    it('should delete the review if the user is authorized', async () => {
+      // Arrange: setup mock data, stubs
+      const reviewId = '123456';
+      const token = 'valid-token';
+      const review = {
+        _id: reviewId,
+        user: { _id: 'user-id' },
+        set: {
+          setNum: '12345',
+          isReviewed: true,
+          save: sinon.stub().resolves(),
+        },
+        deleteOne: sinon.stub().resolves(),
+      };
+
+      const findByIdStub = sinon.stub(Review, 'findById').returns({
+        populate: sinon.stub().returns({
+          populate: sinon.stub().resolves(review),
+        }),
+      });
+      const jwtStub = {
+        decode: sinon
+          .stub()
+          .returns({ email: 'test@example.com', _id: 'user-id' }),
+      };
+      service.__set__('jwt', jwtStub);
+      const deleteReviewImagesStub = sinon
+        .stub(minioService, 'deleteReviewImages')
+        .resolves();
+
+      // Act: call the serviec method
+      await service.deleteReview(reviewId, token);
+
+      // Assert: that the methods were called
+      expect(findByIdStub).to.have.been.calledOnceWith(reviewId);
+      expect(jwtStub.decode).to.have.been.calledOnceWith(token);
+      expect(deleteReviewImagesStub).to.have.been.calledOnceWith(
+        'testexamplecom',
+        '12345'
+      );
+      expect(review.set.isReviewed).to.be.false;
+      expect(review.set.save.calledOnce).to.be.true;
+      expect(review.deleteOne.calledOnce).to.be.true;
+    });
+
+    it('should throw an error if the review is not found', async () => {
+      // Arrange: setup mock data, stubs
+      const reviewId = 'non-existent-id';
+      const token = 'valid-token';
+      const findByIdStub = sinon.stub(Review, 'findById').returns({
+        populate: sinon.stub().returns({
+          populate: sinon.stub().resolves(null),
+        }),
+      });
+
+      const jwtStub = {
+        decode: sinon
+          .stub()
+          .returns({ email: 'test@example.com', _id: 'user-id' }),
+      };
+      service.__set__('jwt', jwtStub);
+
+      // Act: call the service method
+      try {
+        await service.deleteReview(reviewId, token);
+        expect.fail('Expected an error but none was thrown');
+      } catch (error) {
+        expect(error.message).to.equal('Review not found!');
+      }
+
+      // Assert: that the methods were called
+      expect(findByIdStub).to.have.been.calledOnceWith(reviewId);
+      expect(jwtStub.decode).to.have.been.calledOnceWith(token);
+    });
+
+    it('should throw an error if the user is not authorized to delete the review', async () => {
+      // Arrange: setup mock data, stubs
+      const reviewId = 'valid-review-id';
+      const token = 'invalid-token';
+      const review = { _id: reviewId, user: { _id: 'user-id' } };
+      const findByIdStub = sinon.stub(Review, 'findById').returns({
+        populate: sinon.stub().returns({
+          populate: sinon.stub().resolves(review),
+        }),
+      });
+
+      const jwtStub = {
+        decode: sinon
+          .stub()
+          .returns({ email: 'test@example.com', _id: 'different-user-id' }),
+      };
+      service.__set__('jwt', jwtStub);
+
+      // Act: call the service method
+      try {
+        await service.deleteReview(reviewId, token);
+        expect.fail('Expected an error but none was thrown');
+      } catch (error) {
+        expect(error.message).to.equal(
+          'You are not authorized to delete this review'
+        );
+      }
+
+      // Assert: that the methods were called
+      expect(findByIdStub).to.have.been.calledOnceWith(review);
+      expect(jwtStub.decode).to.have.been.calledOnceWith(token);
     });
   });
 });

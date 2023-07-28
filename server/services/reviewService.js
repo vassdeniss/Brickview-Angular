@@ -54,6 +54,28 @@ exports.getReview = async (setId) => {
   };
 };
 
+exports.deleteReview = async (reviewId, token) => {
+  const payload = jwt.decode(token);
+  const email = payload.email.replace(/[.@]/g, '');
+  const id = payload._id;
+
+  const review = await Review.findById(reviewId)
+    .populate('set')
+    .populate('user');
+  if (!review) {
+    throw new Error('Review not found!');
+  }
+
+  if (review.user._id.toString() !== id) {
+    throw new Error('You are not authorized to delete this review');
+  }
+
+  await minioService.deleteReviewImages(email, review.set.setNum);
+  review.set.isReviewed = false;
+  await review.set.save();
+  await review.deleteOne();
+};
+
 async function getSetNumAndMarkReviewed(setId) {
   const set = await Set.findById(setId).select('setNum');
   set.isReviewed = true;
