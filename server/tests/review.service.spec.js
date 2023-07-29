@@ -258,7 +258,7 @@ describe('Review service methods', () => {
       }
 
       // Assert: that the methods were called
-      expect(findByIdStub).to.have.been.calledOnceWith(review);
+      expect(findByIdStub).to.have.been.calledOnceWith(reviewId);
       expect(jwtStub.decode).to.have.been.calledOnceWith(token);
     });
   });
