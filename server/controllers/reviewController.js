@@ -24,4 +24,15 @@ router.get('/get/:id', async (req, res) => {
   }
 });
 
+router.delete('/delete/:id', async (req, res) => {
+  try {
+    await reviewService.deleteReview(req.params.id, req.header('X-Refresh'));
+    res.status(204).end();
+  } catch (err) {
+    res.status(404).json({
+      message: err.message,
+    });
+  }
+});
+
 module.exports = router;
