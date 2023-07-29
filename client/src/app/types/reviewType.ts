@@ -3,7 +3,7 @@ import { Set } from './setType';
 import { User } from './userType';
 
 export interface Review {
-  _id: string;
+  _id?: string;
   buildExperience: string;
   design?: string;
   minifigures?: Minigifure[] | string;

@@ -20,12 +20,15 @@ export class DetailReviewComponent implements OnInit {
   minifigures: Minigifure[] = [];
   isImageEnlarged: boolean = false;
   enlargeImageSource: string = '';
+  token: string | null = this.tokenService.getToken();
   customPopupContent: string | undefined = undefined;
 
   constructor(
     private reviewService: ReviewService,
     private route: ActivatedRoute,
+    private routeNavigate: Router,
     public popup: PopupService,
+    private tokenService: TokenService
   ) {}
 
   ngOnInit(): void {
@@ -42,5 +45,17 @@ export class DetailReviewComponent implements OnInit {
   enlargeImage(image?: string): void {
     this.popup.show();
     this.enlargeImageSource = image || '';
+  }
+
+  deleteReview(): void {
+    this.reviewService.deleteReview(this.review?._id as string).subscribe({
+      next: () => {
+        this.routeNavigate.navigate(['sets/my-sets']);
+      },
+      error: (err) => {
+        this.customPopupContent = err.error.message;
+        this.popup.show();
+      },
+    });
   }
 }

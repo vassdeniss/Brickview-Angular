@@ -88,3 +88,18 @@
   max-width: 60%;
 }
 
+.button-danger {
+  color: #fff;
+  border: none;
+  outline: none;
+  border-radius: 5px;
+  padding: 8px 16px;
+  font-size: 14px;
+  margin-top: 10px;
+  cursor: pointer;
+  background-color: #bd1405;
+}
+
+.button-danger:hover {
+  background-color: #9e2203;
+}

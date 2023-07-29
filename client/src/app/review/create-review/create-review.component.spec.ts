@@ -11,6 +11,7 @@ import { CreateReviewComponent } from './create-review.component';
 import { PopupService } from 'src/app/services/popup.service';
 import { ReviewService } from 'src/app/services/review.service';
 import { Router } from '@angular/router';
+import { Review } from 'src/app/types/reviewType';
 
 describe('CreateReviewComponent', () => {
   let component: CreateReviewComponent;
@@ -21,7 +22,7 @@ describe('CreateReviewComponent', () => {
 
   beforeEach(() => {
     const popupSpy = jasmine.createSpyObj('PopupService', ['show']);
-    const reviewSpy = jasmine.createSpyObj('ReviewService', ['create']);
+    const reviewSpy = jasmine.createSpyObj('ReviewService', ['createReview']);
 
     TestBed.configureTestingModule({
       declarations: [CreateReviewComponent],

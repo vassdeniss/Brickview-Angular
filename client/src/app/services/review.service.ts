@@ -15,4 +15,8 @@ export class ReviewService {
   getReview(setId: string): Observable<Review> {
     return this.http.get<Review>(`${environment.apiUrl}/reviews/get/${setId}`);
   }
+
+  deleteReview(reviewId: string): Observable<any> {
+    return this.http.delete(`${environment.apiUrl}/reviews/delete/${reviewId}`);
+  }
 }
