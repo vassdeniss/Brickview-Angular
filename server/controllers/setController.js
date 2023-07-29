@@ -122,9 +122,9 @@ router.post('/add-set', mustBeAuth, async (req, res) => {
   try {
     await setService.addSet(req.body.setId, req.header('X-Refresh'));
     res.status(204).end();
-  } catch (_) {
+  } catch (err) {
     res.status(404).json({
-      message: 'Set not found!',
+      message: err.message,
     });
   }
 });

@@ -60,6 +60,7 @@ export class RegisterComponent {
           this.route.navigate(['']);
         },
         error: (err) => {
+          this.errors = [];
           this.errors.push(err.error.message);
           this.popup.show();
           button.disabled = false;

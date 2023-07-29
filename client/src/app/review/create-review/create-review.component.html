@@ -1,0 +1,88 @@
+<app-popup *ngIf="popup.isActive" title="Error!" (closed)="popup.hide()">
+  <p *ngFor="let error of errors">{{ error }}</p>
+</app-popup>
+<form
+  [formGroup]="reviewForm"
+  class="review-form"
+  (ngSubmit)="onSubmit(button)"
+>
+  <h2>Write your Review</h2>
+  <div class="form-group">
+    <label for="buildExperience">Build Experience</label>
+    <textarea
+      type="text"
+      id="buildExperience"
+      name="buildExperience"
+      placeholder="Enter building experience"
+      formControlName="buildExperience"
+    ></textarea>
+  </div>
+  <div class="form-group">
+    <label for="buildExperience">Design</label>
+    <textarea
+      type="text"
+      id="design"
+      name="design"
+      placeholder="Enter design opinion"
+      formControlName="design"
+    ></textarea>
+  </div>
+  <div class="form-group">
+    <label for="minifigures">Minifigures</label>
+    <textarea
+      type="text"
+      id="minifigures"
+      name="minifigures"
+      placeholder="Enter minifigures opinion"
+      formControlName="minifigures"
+    ></textarea>
+  </div>
+  <div class="form-group">
+    <label for="value">Value</label>
+    <textarea
+      type="text"
+      id="value"
+      name="value"
+      placeholder="Enter value for money opinion"
+      formControlName="value"
+    ></textarea>
+  </div>
+  <div class="form-group">
+    <label for="other">Other Opinions</label>
+    <textarea
+      type="text"
+      id="other"
+      name="other"
+      placeholder="Enter other opinions"
+      formControlName="other"
+    ></textarea>
+  </div>
+  <div class="form-group">
+    <label for="Verdict">Verdict</label>
+    <textarea
+      type="text"
+      id="Verdict"
+      name="Verdict"
+      placeholder="Enter final opinion"
+      formControlName="verdict"
+    ></textarea>
+  </div>
+  <div class="form-group">
+    <label for="images">Set Images</label>
+    <input
+      type="file"
+      id="setImages"
+      name="images"
+      multiple=""
+      accept="image/*"
+      formControlName="images"
+      (change)="onFileChange($event)"
+    />
+  </div>
+  <div class="image-wrapper" *ngFor="let url of images; let i = index">
+    <img [src]="url" />
+    <a class="delete-button" (click)="deleteImage(i)">&times;</a>
+  </div>
+  <input type="hidden" id="set" name="set" formControlName="set" />
+  <button #button>Create</button>
+</form>

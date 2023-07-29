@@ -11,7 +11,6 @@ const addMiddlewares = require('./configs/middlewares');
 const connectDb = require('./configs/database');
 
 const routes = require('./routes');
-const { mustBeAuth } = require('./middlewares/auth');
 
 addMiddlewares(app);
 
@@ -39,7 +38,7 @@ const options = {
     },
     servers: [
       {
-        url: process.env.HOST,
+        url: process.env.HOST || 'localhost:3000',
       },
     ],
   },
@@ -49,16 +48,6 @@ const options = {
 const specs = swaggerJsdoc(options);
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
-
-app.get('/health', (req, res) => {
-  res.status(200).send('Server health OK!');
-});
-
-app.get('/validate-token', mustBeAuth, (req, res) => {
-  res.status(200).json({
-    resolution: 'Authenticated',
-  });
-});
 
 app.use(routes);
 

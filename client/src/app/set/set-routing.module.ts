@@ -11,11 +11,13 @@ const routes: Routes = [
     component: MySetsComponent,
     canActivate: [routeGuard],
     resolve: { sets: mySetsResolver },
+    title: 'My Sets',
   },
   {
     path: 'sets/add-set',
     component: AddSetComponent,
     canActivate: [routeGuard],
+    title: 'Add Sets',
   },
 ];
 

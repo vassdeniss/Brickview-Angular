@@ -39,12 +39,23 @@ exports.addSet = async (setId, refreshToken) => {
     parts: foundSet.data.num_parts,
     image: foundSet.data.set_img_url,
     minifigCount: figs.data.count,
-    minifigs: figs.data.results,
+    minifigs: [],
   };
 
-  const set = await Set.create(setData);
+  for (const fig of figs.data.results) {
+    setData.minifigs.push({
+      name: fig.set_name,
+      quantity: fig.quantity,
+      image: fig.set_img_url,
+    });
+  }
 
-  const user = await User.findOne({ refreshToken });
+  const user = await User.findOne({ refreshToken }).populate('sets');
+  if (user.sets.find((set) => setData.setNum.includes(set.setNum))) {
+    throw new Error('Set already exists in collection!');
+  }
+
+  const set = await Set.create(setData);
   user.sets.push(set._id);
   await user.save();
 };

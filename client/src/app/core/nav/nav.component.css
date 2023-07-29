@@ -48,6 +48,10 @@ img {
   margin-right: 10px;
 }
 
+.navbar-title {
+  cursor: pointer;
+}
+
 @media (max-width: 768px) {
   .navbar {
     flex-direction: column;

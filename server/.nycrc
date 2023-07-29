@@ -4,6 +4,7 @@
     "tests/**/*.spec.js",
     "server.js",
     "routes.js",
-    "services/minioService.js"
+    "services/minioService.js",
+    "controllers/rootController.js"
   ]
 }
