@@ -85,8 +85,7 @@ describe('AuthService', () => {
   });
 
   it('should check if a user is authenticated', () => {
-    // Arrange: create mock response
-    const mockResponse = { resolution: 'Authenticated' };
+    // Arrange:
 
     // Act: check if authenticated
     authService.isAuthenticated().subscribe((result) => {
@@ -96,24 +95,7 @@ describe('AuthService', () => {
     // Assert: check that the request was sent correctly
     const req = httpMock.expectOne(`${environment.apiUrl}/validate-token`);
     expect(req.request.method).toBe('GET');
-    req.flush(mockResponse);
-  });
-
-  it('should clear tokens and redirect to login if token validation fails', () => {
-    // Arrange: create spies
-    spyOn(tokenService, 'clearTokens');
-    spyOn(router, 'createUrlTree').and.returnValue(new UrlTree());
-
-    // Act: check if authenticated
-    authService.isAuthenticated().subscribe((result) => {
-      expect(result).toBeInstanceOf(UrlTree);
-    });
-
-    // Assert: check that the request was sent correctly
-    const req = httpMock.expectOne(`${environment.apiUrl}/validate-token`);
-    req.flush(null, { status: 401, statusText: 'Unauthorized' });
-    expect(tokenService.clearTokens).toHaveBeenCalled();
-    expect(router.createUrlTree).toHaveBeenCalledWith(['auth/login']);
+    req.flush(null, { status: 204, statusText: 'No Content' });
   });
 
   it('should get the logged-in user', () => {

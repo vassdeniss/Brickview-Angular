@@ -23,8 +23,7 @@ import { AuthModule } from './auth/auth.module';
 import { SetModule } from './set/set.module';
 import { ReviewModule } from './review/review.module';
 
-import { TokenRequestInterceptor } from './auth/token-request.interceptor';
-import { TokenResponseInterceptor } from './auth/token-response.interceptor';
+import { TokenInterceptor } from './auth/token.interceptor';
 
 @NgModule({
   declarations: [AppComponent],
@@ -49,12 +48,7 @@ import { TokenResponseInterceptor } from './auth/token-response.interceptor';
     ReviewService,
     {
       provide: HTTP_INTERCEPTORS,
-      useClass: TokenRequestInterceptor,
-      multi: true,
-    },
-    {
-      provide: HTTP_INTERCEPTORS,
-      useClass: TokenResponseInterceptor,
+      useClass: TokenInterceptor,
       multi: true,
     },
     {
