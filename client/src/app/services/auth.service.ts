@@ -35,14 +35,12 @@ export class AuthService {
     return this.http.get(`${environment.apiUrl}/users/logout`);
   }
 
-  isAuthenticated(): Observable<boolean | UrlTree> {
-    return this.http.get<boolean>(`${environment.apiUrl}/validate-token`).pipe(
-      map((data: any) => data.resolution === 'Authenticated'),
-      catchError(() => {
-        this.token.clearTokens();
-        return of(this.router.createUrlTree(['auth/login']));
+  isAuthenticated(): Observable<boolean> {
+    return this.http
+      .get<boolean>(`${environment.apiUrl}/validate-token`, {
+        observe: 'response',
       })
-    );
+      .pipe(map((response) => response.status === 204));
   }
 
   getLoggedUser(): Observable<User> {

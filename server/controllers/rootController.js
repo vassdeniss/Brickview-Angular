@@ -35,17 +35,11 @@ router.get('/health', (req, res) => {
  *     security:
  *       - bearerAuth: []
  *     responses:
- *       200:
+ *       204:
  *         description: Token is valid
- *         content:
- *           application/json:
- *             example:
- *               resolution: 'Authenticated'
  */
 router.get('/validate-token', mustBeAuth, (req, res) => {
-  res.status(200).json({
-    resolution: 'Authenticated',
-  });
+  res.status(204).end();
 });
 
 module.exports = router;
