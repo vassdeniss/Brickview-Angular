@@ -1,11 +1,7 @@
 <div class="card">
   <img src="{{ legoSet?.image }}" alt="set {{ legoSet?.setNum }}" />
   <div class="card-content">
-    <div
-      [routerLink]="legoSet?.isReviewed ? ['/reviews', legoSet?._id] : []"
-      class="card-title"
-      [ngClass]="{ 'link-div': legoSet?.isReviewed }"
-    >
+    <div class="card-title" [ngClass]="{ 'review-div': legoSet?.isReviewed }">
       {{ legoSet?.name }}
     </div>
     <div class="card-details">
@@ -20,12 +16,14 @@
       >
         Add Review
       </button>
-      <button *ngIf="legoSet?.isReviewed" class="card-button">
-        Edit Review
+      <button
+        *ngIf="legoSet?.isReviewed"
+        [routerLink]="['/reviews', legoSet?._id]"
+        class="card-button"
+      >
+        View Review
       </button>
-      <button *ngIf="legoSet?.isReviewed" class="card-button-danger">
-        Remove Review
-      </button>
+      <button class="card-button-danger">Remove Set</button>
     </div>
   </div>
 </div>
