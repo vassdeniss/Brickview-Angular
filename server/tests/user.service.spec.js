@@ -40,7 +40,7 @@ describe('User service methods', function () {
       expect(generateTokenStub.calledOnceWith(user)).to.be.true;
       expect(
         saveUserImageStub.calledOnceWith(
-          userData.email,
+          'testusermailcom',
           Buffer.from('base64String', 'base64')
         )
       ).to.be.true;
@@ -105,7 +105,7 @@ describe('User service methods', function () {
       expect(compareStub.calledOnceWith(userData.password, userData.password))
         .to.be.true;
       expect(generateTokenStub.calledOnceWith(userData)).to.be.true;
-      expect(getUserImageStub.calledOnceWith(userData.email)).to.be.true;
+      expect(getUserImageStub.calledOnceWith('testusermailcom')).to.be.true;
       expect(result.accessToken).to.equal('access_token');
       expect(result.refreshToken).to.equal('refresh_token');
       expect(result.image).to.equal('data:image/png;base64,image');
@@ -138,7 +138,7 @@ describe('User service methods', function () {
       expect(compareStub.calledOnceWith(userData.password, userData.password))
         .to.be.true;
       expect(generateTokenStub.calledOnceWith(userData)).to.be.true;
-      expect(getUserImageStub.calledOnceWith(userData.email)).to.be.true;
+      expect(getUserImageStub.calledOnceWith('testusermailcom')).to.be.true;
       expect(result.accessToken).to.equal('access_token');
       expect(result.refreshToken).to.equal('refresh_token');
       expect(result.image).to.be.null;
@@ -283,7 +283,7 @@ describe('User service methods', function () {
       const gotUser = await service.getLoggedInUser(refreshToken);
 
       expect(findOneStub.calledOnceWith({ refreshToken })).to.be.true;
-      expect(getUserImageStub.calledOnceWith(user.email)).to.be.true;
+      expect(getUserImageStub.calledOnceWith('testusergmailcom')).to.be.true;
       expect(gotUser).to.deep.equal(user);
     });
   });

@@ -11,7 +11,7 @@ exports.register = async (userData) => {
     const base64String = userData.image;
     const base64Data = base64String.replace(/^data:image\/(\w+);base64,/, '');
     const file = Buffer.from(base64Data, 'base64');
-    minioService.saveUserImage(user.email, file);
+    minioService.saveUserImage(user.email.replace(/[.@]/g, ''), file);
   }
 
   return result;
@@ -29,7 +29,9 @@ exports.login = async ({ email, password }) => {
   }
 
   const result = await generateToken(user);
-  const image = await minioService.getUserImage(user.email);
+  const image = await minioService.getUserImage(
+    user.email.replace(/[.@]/g, '')
+  );
 
   return {
     ...result,
@@ -86,7 +88,9 @@ exports.logout = async (refreshToken) => {
 
 exports.getLoggedInUser = async (refreshToken) => {
   const user = await User.findOne({ refreshToken });
-  const image = await minioService.getUserImage(user.email);
+  const image = await minioService.getUserImage(
+    user.email.replace(/[.@]/g, '')
+  );
 
   return {
     username: user.username,
