@@ -38,7 +38,7 @@ describe('Set controller routes', function () {
       expect(response.body).to.deep.equal({ mockData: 'collection' });
     });
 
-    it('should return 404 if an error occurs', async () => {
+    it('should return 401 if an error occurs', async () => {
       sinon
         .stub(setService, 'getLoggedInUserCollection')
         .throws(new Error('mockError'));
@@ -47,7 +47,7 @@ describe('Set controller routes', function () {
         .get('/sets/logged-user-collection')
         .set('X-Refresh', 'mockRefreshToken');
 
-      expect(response.status).to.equal(404);
+      expect(response.status).to.equal(401);
       expect(response.body.message).to.equal('mockError');
     });
   });

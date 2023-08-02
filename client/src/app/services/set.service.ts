@@ -19,4 +19,8 @@ export class SetService {
   addSet(setId: string): Observable<any> {
     return this.http.post(`${environment.apiUrl}/sets/add-set`, { setId });
   }
+
+  deleteSet(setId: string): Observable<any> {
+    return this.http.delete(`${environment.apiUrl}/sets/delete/${setId}`);
+  }
 }

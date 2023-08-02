@@ -1,4 +1,5 @@
-import { Component, Input } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { SetService } from 'src/app/services/set.service';
 import { Set } from 'src/app/types/setType';
 
 @Component({
@@ -8,4 +9,15 @@ import { Set } from 'src/app/types/setType';
 })
 export class SetComponent {
   @Input() legoSet: Set | undefined = undefined;
+  @Output() setRemoved = new EventEmitter<string>();
+
+  constructor(private setService: SetService) {}
+
+  deleteSet(setId: string) {
+    this.setService.deleteSet(setId).subscribe({
+      complete: () => {
+        this.setRemoved.emit(setId);
+      },
+    });
+  }
 }
