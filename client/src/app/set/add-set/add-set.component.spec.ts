@@ -27,7 +27,7 @@ describe('AddSetComponent', () => {
         { provide: PopupService, useValue: mockPopupService },
         { provide: SetService, useValue: mockSetService },
       ],
-    }).compileComponents();
+    });
 
     fixture = TestBed.createComponent(AddSetComponent);
     component = fixture.componentInstance;
