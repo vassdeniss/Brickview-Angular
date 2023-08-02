@@ -14,19 +14,24 @@
  *       properties:
  *         username:
  *           type: string
- *           description: The username of the user.
+ *           description: The username of the user
+ *           example: john_doe
  *         email:
  *           type: string
  *           description: The email of the user.
+ *           example: john_doe@example.com
  *         password:
  *           type: string
  *           description: The password of the user.
+ *           example: password123
  *         repeatPassword:
  *           type: string
  *           description: The repeated password.
+ *           example: password123
  *         image:
  *           type: string
  *           description: The base64 encoded image.
+ *           example: some_base64_image
  *       example:
  *         username: john_doe
  *         email: john_doe@example.com
