@@ -4,8 +4,33 @@ const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 const { deleteReview } = require('./reviewService');
 const Review = require('../models/Review');
+const minioService = require('../services/minioService');
 
 const host = 'https://rebrickable.com';
+
+exports.getAllWithReview = async () => {
+  const sets = await Set.find()
+    .where('isReviewed')
+    .equals(true)
+    .select('name image')
+    .populate('user', 'username email');
+
+  const setsWithImages = await Promise.all(
+    sets.map(async (set) => {
+      return {
+        _id: set._id,
+        name: set.name,
+        image: set.image,
+        username: set.user.username,
+        userImage: await minioService.getUserImage(
+          set.user.email.replace(/[.@]/g, '')
+        ),
+      };
+    })
+  );
+
+  return setsWithImages;
+};
 
 exports.getLoggedInUserCollection = async (refreshToken) => {
   const user = await User.findOne({ refreshToken })
