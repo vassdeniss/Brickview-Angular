@@ -55,14 +55,15 @@ export class TokenInterceptor implements HttpInterceptor {
           }
         }
       }),
-      catchError((err: HttpErrorResponse) => {
+      catchError((err) => {
         if (err.status === 401) {
           this.token.clearTokens();
           localStorage.removeItem('image');
           this.router.navigate(['auth/login']);
+          return EMPTY;
         }
 
-        return EMPTY;
+        return throwError(() => err);
       }),
       finalize(() => {
         this.spinner.hide();

@@ -21,4 +21,11 @@ export class MySetsComponent {
       }
     });
   }
+
+  deleteSet(setId: string) {
+    const index = this.sets.findIndex((set) => set._id === setId);
+    if (index !== -1) {
+      this.sets.splice(index, 1);
+    }
+  }
 }
