@@ -15,6 +15,10 @@ const setSchema = new mongoose.Schema({
     },
   ],
   isReviewed: Boolean,
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+  },
 });
 
 const Set = mongoose.model('Set', setSchema);

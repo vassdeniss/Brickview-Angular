@@ -1,6 +1,9 @@
 const axios = require('axios');
 const Set = require('../models/Set');
 const User = require('../models/User');
+const jwt = require('jsonwebtoken');
+const { deleteReview } = require('./reviewService');
+const Review = require('../models/Review');
 
 const host = 'https://rebrickable.com';
 
@@ -32,6 +35,11 @@ exports.addSet = async (setId, refreshToken) => {
     }
   );
 
+  const user = await User.findOne({ refreshToken }).populate('sets');
+  if (user.sets.find((set) => foundSet.data.set_num.includes(set.setNum))) {
+    throw new Error('Set already exists in collection!');
+  }
+
   const setData = {
     setNum: foundSet.data.set_num,
     name: foundSet.data.name,
@@ -40,6 +48,7 @@ exports.addSet = async (setId, refreshToken) => {
     image: foundSet.data.set_img_url,
     minifigCount: figs.data.count,
     minifigs: [],
+    user: user._id,
   };
 
   for (const fig of figs.data.results) {
@@ -50,12 +59,31 @@ exports.addSet = async (setId, refreshToken) => {
     });
   }
 
-  const user = await User.findOne({ refreshToken }).populate('sets');
-  if (user.sets.find((set) => setData.setNum.includes(set.setNum))) {
-    throw new Error('Set already exists in collection!');
-  }
-
   const set = await Set.create(setData);
   user.sets.push(set._id);
   await user.save();
+};
+
+exports.deleteSet = async (setId, token) => {
+  const payload = jwt.decode(token);
+  const id = payload._id;
+
+  const set = await Set.findById(setId).populate('user');
+  if (!set) {
+    throw new Error('Set not found!');
+  }
+
+  if (set.user._id.toString() !== id) {
+    throw new Error('You are not authorized to delete this set!');
+  }
+
+  const review = await Review.findOne({ set: set._id }).select('_id');
+  if (review) {
+    await deleteReview(review._id.toString(), token);
+  }
+
+  set.user.sets.splice(set.user.sets.indexOf(set._id), 1);
+  await set.user.save();
+
+  await set.deleteOne();
 };
