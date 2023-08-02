@@ -64,7 +64,7 @@ describe('Set controller routes', function () {
       expect(response.status).to.equal(204);
     });
 
-    it('should return 404 if the set is not found', async () => {
+    it('should return 401 if the set is not found', async () => {
       sinon.stub(setService, 'addSet').throws(new Error('Set not found!'));
 
       const response = await request(app)
@@ -72,7 +72,7 @@ describe('Set controller routes', function () {
         .set('X-Refresh', 'mockRefreshToken')
         .send({ setId: 'mockSetId' });
 
-      expect(response.status).to.equal(404);
+      expect(response.status).to.equal(401);
       expect(response.body.message).to.equal('Set not found!');
     });
   });
