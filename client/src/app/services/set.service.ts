@@ -10,6 +10,10 @@ import { environment } from '../../environments/environment';
 export class SetService {
   constructor(private http: HttpClient) {}
 
+  getAll(): Observable<Set[]> {
+    return this.http.get<Set[]>(`${environment.apiUrl}/sets/allWithReviews`);
+  }
+
   getCurrentUserSets(): Observable<Set[]> {
     return this.http.get<Set[]>(
       `${environment.apiUrl}/sets/logged-user-collection`
