@@ -20,7 +20,7 @@ export class CreateReviewComponent implements OnInit {
       [
         Validators.required,
         Validators.minLength(50),
-        Validators.maxLength(550),
+        Validators.maxLength(5000),
       ],
     ],
     design: ['', [Validators.maxLength(550)]],
