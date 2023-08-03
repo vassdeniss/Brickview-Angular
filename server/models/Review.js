@@ -5,8 +5,8 @@ const reviewSchema = new mongoose.Schema({
     type: String,
     minLength: [50, 'Build experience must be at least 50 characters long!'],
     maxLength: [
-      550,
-      'Build experience cannot be longer than 550 characters long!',
+      5000,
+      'Build experience cannot be longer than 5000 characters long!',
     ],
   },
   design: {
