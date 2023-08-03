@@ -13,7 +13,7 @@
   />
 </app-popup>
 <div class="user-container">
-  <h2>{{ set?.name }} Review by: {{ user?.username }}</h2>
+  <h2>{{ review?.setName }} Review by: {{ review?.userUsername }}</h2>
   <div>
     <button class="button-danger" *ngIf="token" (click)="deleteReview()">
       Delete
@@ -23,57 +23,35 @@
 <div class="container">
   <div class="set-image">
     <img
-      (click)="enlargeImage(set?.image)"
-      [src]="set?.image"
+      (click)="enlargeImage(review?.setImage)"
+      [src]="review?.setImage"
       alt="set?.name"
       width="100%"
     />
   </div>
   <div class="set-info">
-    <h1>{{ set?.name }}</h1>
-    <p><strong>Set Number:</strong> {{ set?.setNum }}</p>
-    <p><strong>Parts:</strong> {{ set?.parts }}</p>
-    <p><strong>Year:</strong> {{ set?.year }}</p>
-    <p><strong>Minifigures:</strong> {{ set?.minifigCount }}</p>
+    <h1>{{ review?.setName }}</h1>
+    <p><strong>Set Number:</strong> {{ review?.setNumber }}</p>
+    <p><strong>Parts:</strong> {{ review?.setParts }}</p>
+    <p><strong>Year:</strong> {{ review?.setYear }}</p>
+    <p><strong>Minifigures:</strong> {{ review?.setMinifigCount }}</p>
   </div>
 </div>
 <div class="review-section">
-  <h2>Build Experience</h2>
-  <p>
-    {{ review?.buildExperience }}
-  </p>
-  <h2>Design</h2>
-  <p>
-    {{ review?.design }}
-  </p>
-  <h2>Minifigures</h2>
-  <p>
-    {{ review?.minifigures }}
-  </p>
-  <h2>Value</h2>
-  <p>
-    {{ review?.value }}
-  </p>
-  <h2>Other</h2>
-  <p>
-    {{ review?.other }}
-  </p>
-  <h2>Verdict</h2>
-  <p>
-    {{ review?.verdict }}
-  </p>
+  <h2>Review</h2>
+  <div [innerHTML]="review?.content"></div>
 </div>
 <div class="set-images">
   <img
     (click)="enlargeImage(image)"
     [src]="image"
-    *ngFor="let image of review?.imageSources"
+    *ngFor="let image of review?.setImages"
   />
 </div>
-<div class="minifigures">
+<div *ngIf="review!.setMinifigures!.length > 0" class="minifigures">
   <h2>Minifigures</h2>
   <div class="minifigure-container">
-    <div class="minifigure" *ngFor="let fig of minifigures">
+    <div class="minifigure" *ngFor="let fig of review?.setMinifigures">
       <img [src]="fig.image" (click)="enlargeImage(fig.image)" alt="fig.name" />
       <h4>{{ fig.name }}</h4>
       <p>Qty: {{ fig.quantity }}</p>

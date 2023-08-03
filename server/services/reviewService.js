@@ -1,4 +1,3 @@
-const Review = require('../models/Review');
 const Set = require('../models/Set');
 const jwt = require('jsonwebtoken');
 const minioService = require('../services/minioService');
@@ -6,79 +5,61 @@ const minioService = require('../services/minioService');
 exports.addReview = async (data, token) => {
   const payload = jwt.decode(token);
   const email = payload.email.replace(/[.@]/g, '');
-  const id = payload._id;
 
   const buffers = [];
-  for (const file of data.imageSources) {
+  for (const file of data.setImages) {
     const base64Data = file.replace(/^data:image\/(\w+);base64,/, '');
     const buffer = Buffer.from(base64Data, 'base64');
     buffers.push(buffer);
   }
 
-  const setNum = await getSetNumAndMarkReviewed(data.set);
-  await minioService.saveReview(email, setNum, buffers);
-
-  return Review.create({
-    buildExperience: data.buildExperience,
-    design: data.design,
-    minifigures: data.minifigures,
-    value: data.value,
-    other: data.other,
-    verdict: data.verdict,
-    set: data.set,
-    user: id,
-  });
+  const set = await Set.findById(data._id).select('setNum');
+  await minioService.saveReview(email, set.setNum, buffers);
+  set.review = data.content;
+  return set.save();
 };
 
 exports.getReview = async (setId) => {
-  const review = await Review.find({ set: setId })
-    .populate('user')
-    .populate('set');
+  const set = await Set.findById(setId).populate('user');
+  if (!set.review) {
+    throw new Error('Review not found!');
+  }
 
   const images = await minioService.getReviewImages(
-    review[0].user.email.replace(/[.@]/g, ''),
-    review[0].set.setNum
+    set.user.email.replace(/[.@]/g, ''),
+    set.setNum
   );
 
   return {
-    _id: review[0]._id,
-    buildExperience: review[0].buildExperience,
-    design: review[0].design,
-    minifigures: review[0].minifigures,
-    value: review[0].value,
-    other: review[0].other,
-    verdict: review[0].verdict,
-    set: review[0].set,
-    user: review[0].user,
-    imageSources: images,
+    _id: set._id,
+    setName: set.name,
+    setImage: set.image,
+    setNumber: set.setNum,
+    setParts: set.parts,
+    setYear: set.year,
+    setMinifigCount: set.minifigCount,
+    setImages: images,
+    setMinifigures: set.minifigs,
+    userUsername: set.user.username,
+    content: set.review,
   };
 };
 
-exports.deleteReview = async (reviewId, token) => {
+exports.deleteReview = async (setId, token) => {
   const payload = jwt.decode(token);
   const email = payload.email.replace(/[.@]/g, '');
   const id = payload._id;
 
-  const review = await Review.findById(reviewId)
-    .populate('set')
-    .populate('user');
-  if (!review) {
+  const set = await Set.findById(setId).populate('user');
+  if (!set.review) {
     throw new Error('Review not found!');
   }
 
-  if (review.user._id.toString() !== id) {
+  if (set.user._id.toString() !== id) {
     throw new Error('You are not authorized to delete this review');
   }
 
-  await minioService.deleteReviewImages(email, review.set.setNum);
-  review.set.isReviewed = false;
-  await review.set.save();
-  await review.deleteOne();
-};
-
-async function getSetNumAndMarkReviewed(setId) {
-  const set = await Set.findById(setId).select('setNum');
-  set.isReviewed = true;
+  await minioService.deleteReviewImages(email, set.setNum);
+  set.review = null;
   await set.save();
-  return set.setNum;
-}
+};

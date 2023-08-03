@@ -2,16 +2,16 @@ const axios = require('axios');
 const Set = require('../models/Set');
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
-const { deleteReview } = require('./reviewService');
-const Review = require('../models/Review');
 const minioService = require('../services/minioService');
 
 const host = 'https://rebrickable.com';
 
 exports.getAllWithReview = async () => {
   const sets = await Set.find()
-    .where('isReviewed')
-    .equals(true)
+    .where('review')
+    .ne(null)
+    .ne('')
+    .ne(undefined)
     .select('name image')
     .populate('user', 'username email');
 
@@ -102,13 +102,8 @@ exports.deleteSet = async (setId, token) => {
     throw new Error('You are not authorized to delete this set!');
   }
 
-  const review = await Review.findOne({ set: set._id }).select('_id');
-  if (review) {
-    await deleteReview(review._id.toString(), token);
-  }
-
   set.user.sets.splice(set.user.sets.indexOf(set._id), 1);
   await set.user.save();
 
-  await set.deleteOne();
+  return set.deleteOne();
 };
