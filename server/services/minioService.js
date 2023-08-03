@@ -45,33 +45,34 @@ async function deleteImagesWithBucket(bucketName) {
   await minioClient.removeBucket(bucketName);
 }
 
-function getObjectAsBase64(bucketName, objectName) {
-  return new Promise(async (resolve, reject) => {
-    const exists = await minioClient.bucketExists(bucketName);
-    if (!exists) {
-      reject({
-        message: 'Bucket does not exist!',
+async function getObjectAsBase64(bucketName, objectName) {
+  const exists = await minioClient.bucketExists(bucketName);
+  if (!exists) {
+    throw new Error('Bucket does not exist!');
+  }
+
+  try {
+    const dataStream = await minioClient.getObject(bucketName, objectName);
+    if (dataStream) {
+      return new Promise((resolve, reject) => {
+        const chunks = [];
+
+        dataStream.on('data', (chunk) => chunks.push(chunk));
+
+        dataStream.on('end', () => {
+          const objectData = Buffer.concat(chunks);
+          const base64String = objectData.toString('base64');
+          resolve(`data:image/png;base64,${base64String}`);
+        });
+
+        dataStream.on('error', (err) => {
+          reject(err);
+        });
       });
     }
-
-    minioClient.getObject(bucketName, objectName, (err, dataStream) => {
-      if (err) {
-        reject(err);
-      }
-
-      const chunks = [];
-
-      dataStream.on('data', (chunk) => chunks.push(chunk));
-
-      dataStream.on('end', () => {
-        const objectData = Buffer.concat(chunks);
-        const base64String = objectData.toString('base64');
-        resolve(`data:image/png;base64,${base64String}`);
-      });
-
-      dataStream.on('error', (err) => reject(err));
-    });
-  });
+  } catch (_) {
+    return '';
+  }
 }
 
 function listObjects(bucketName) {

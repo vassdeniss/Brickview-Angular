@@ -100,6 +100,17 @@ const router = require('express').Router();
 const { mustBeAuth } = require('../middlewares/auth');
 const setService = require('../services/setService');
 
+router.get('/allWithReviews', async (req, res) => {
+  try {
+    const reviews = await setService.getAllWithReview();
+    res.status(200).json(reviews);
+  } catch (err) {
+    res.status(404).json({
+      message: err.message,
+    });
+  }
+});
+
 /**
  * @swagger
  * /logged-user-collection:

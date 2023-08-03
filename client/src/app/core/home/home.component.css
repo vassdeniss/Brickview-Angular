@@ -1,4 +1,124 @@
-p {
-  color: white;
-  font-size: 24px;
+ul {
+  display: grid;
+  grid-template-columns: repeat(4, 270px);
+  gap: 20px;
+  justify-content: center;
+  align-items: center;
+  padding: 0px;
+}
+
+/* For Tablet View */
+@media screen and (min-device-width: 768px) and (max-device-width: 1024px) {
+  ul {
+    grid-template-columns: repeat(2, 300px);
+  }
+}
+
+/* For Tablet Landscape View */
+/* @media screen and (max-device-width: 1180px) and (max-device-width: 1024px) {
+  ul {
+    grid-template-columns: repeat(2, 1fr);
+  }
+} */
+
+/* For Mobile Portrait View */
+@media screen and (max-device-width: 480px) and (orientation: portrait) {
+  ul {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* For Mobile Landscape View */
+@media screen and (max-device-width: 640px) and (orientation: landscape) {
+  ul {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* For Mobile Phones Portrait or Landscape View */
+@media screen and (max-device-width: 640px) {
+  ul {
+    grid-template-columns: 1fr;
+  }
+}
+
+.card {
+  background-color: #fff;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  max-width: 300px;
+  height: 340px;
+}
+
+.card img {
+  width: auto;
+  height: 200px;
+  object-fit: contain;
+}
+
+.card-content {
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+}
+
+.card-title {
+  font-weight: bold;
+  align-self: center;
+  margin-bottom: 5px;
+}
+
+.card-details {
+  display: flex;
+  gap: 10px;
+  font-size: 14px;
+  color: #888;
+  margin-top: 10px;
+  align-items: center;
+  justify-content: center;
+  height: 35px;
+}
+
+.card-details img {
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.card-button {
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  padding: 8px 16px;
+  font-size: 14px;
+  margin-top: 10px;
+  cursor: pointer;
+}
+
+.card-button:focus {
+  outline: none;
+}
+
+.card-button {
+  background-color: #4caf50;
+}
+
+.card-button:hover {
+  background-color: #45a049;
+}
+
+.card-actions {
+  display: flex;
+  justify-content: space-around;
+}
+
+@media (max-width: 600px) {
+  .card {
+    max-width: 100%;
+    height: auto;
+  }
 }

@@ -1,1 +1,19 @@
-<p>home works!</p>
+<ul>
+  <div *ngFor="let set of sets" class="card">
+    <img src="{{ set.image }}" />
+    <div class="card-content">
+      <div class="card-title">
+        {{ set.name }}
+      </div>
+      <div class="card-details">
+        <img *ngIf="set.userImage" src="{{ set.userImage }}" />
+        <span>Review by: {{ set.username }}</span>
+      </div>
+      <div class="card-actions">
+        <button [routerLink]="['/reviews', set._id]" class="card-button">
+          View Review
+        </button>
+      </div>
+    </div>
+  </div>
+</ul>
