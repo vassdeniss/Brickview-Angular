@@ -8,7 +8,7 @@ ul {
 }
 
 /* For Tablet View */
-@media screen and (min-device-width: 768px) and (max-device-width: 1024px) {
+@media screen and (min-device-width: 668px) and (max-device-width: 1124px) {
   ul {
     grid-template-columns: repeat(2, 300px);
   }
