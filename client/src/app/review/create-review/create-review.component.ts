@@ -1,18 +1,18 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { PopupService } from 'src/app/services/popup.service';
 import { getFormValidationErrors } from '../../auth/helpers';
 import { ReviewService } from 'src/app/services/review.service';
 import { ActivatedRoute, Router } from '@angular/router';
-import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import { Review } from 'src/app/types/reviewType';
+import { Editor, Toolbar } from 'ngx-editor';
 
 @Component({
   selector: 'app-create-review',
   templateUrl: './create-review.component.html',
   styleUrls: ['./create-review.component.css'],
 })
-export class CreateReviewComponent implements OnInit {
+export class CreateReviewComponent implements OnInit, OnDestroy {
   errors: string[] = [];
   images: string[] = [];
   reviewForm = this.fb.group({
@@ -29,7 +29,15 @@ export class CreateReviewComponent implements OnInit {
     _id: [''],
   });
 
-  public Editor = ClassicEditor;
+  editor!: Editor;
+  toolbar: Toolbar = [
+    ['bold', 'italic'],
+    ['underline', 'strike'],
+    ['ordered_list', 'bullet_list'],
+    [{ heading: ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'] }],
+    ['text_color', 'background_color'],
+    ['align_left', 'align_center', 'align_right', 'align_justify'],
+  ];
 
   constructor(
     private activated: ActivatedRoute,
@@ -43,6 +51,11 @@ export class CreateReviewComponent implements OnInit {
     this.reviewForm.patchValue({
       _id: this.activated.snapshot.params['id'],
     });
+    this.editor = new Editor();
+  }
+
+  ngOnDestroy(): void {
+    this.editor.destroy();
   }
 
   onSubmit(button: HTMLButtonElement): void {

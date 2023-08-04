@@ -39,7 +39,11 @@
 </div>
 <div class="review-section">
   <h2>Review</h2>
-  <div [innerHTML]="review?.content"></div>
+  <ngx-editor
+    [editor]="editor"
+    [(ngModel)]="review!.content"
+    [disabled]="true"
+  ></ngx-editor>
 </div>
 <div class="set-images">
   <img

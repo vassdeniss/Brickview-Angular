@@ -1,5 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { Editor } from 'ngx-editor';
 import { PopupService } from 'src/app/services/popup.service';
 import { ReviewService } from 'src/app/services/review.service';
 import { TokenService } from 'src/app/services/token.service';
@@ -10,12 +11,13 @@ import { Review } from 'src/app/types/reviewType';
   templateUrl: './detail-review.component.html',
   styleUrls: ['./detail-review.component.css'],
 })
-export class DetailReviewComponent implements OnInit {
+export class DetailReviewComponent implements OnInit, OnDestroy {
   review: Review | undefined = undefined;
   isImageEnlarged: boolean = false;
   enlargeImageSource: string = '';
   token: string | null = this.tokenService.getToken();
   customPopupContent: string | undefined = undefined;
+  editor!: Editor;
 
   constructor(
     private reviewService: ReviewService,
@@ -31,6 +33,11 @@ export class DetailReviewComponent implements OnInit {
       .subscribe((data) => {
         this.review = data;
       });
+    this.editor = new Editor();
+  }
+
+  ngOnDestroy(): void {
+    this.editor.destroy();
   }
 
   enlargeImage(image?: string): void {

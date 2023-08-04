@@ -26,8 +26,7 @@ label {
   margin-bottom: 12px;
 }
 
-input,
-textarea {
+input {
   width: 95%;
   padding: 10px;
   border: 1px solid #ccc;
@@ -74,11 +73,10 @@ img {
   z-index: 1;
 }
 
-textarea {
-  resize: none;
+.form-group {
+  margin-top: 10px;
 }
 
-:host ::ng-deep .ck-editor__editable_inline {
-  min-height: 400px !important;
-  margin-bottom: 10px;
+:host ::ng-deep .NgxEditor__Content {
+  min-height: 300px !important;
 }

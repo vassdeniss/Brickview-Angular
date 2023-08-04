@@ -7,12 +7,14 @@
   (ngSubmit)="onSubmit(button)"
 >
   <h2>Write your Review</h2>
-  <ckeditor
-    [editor]="Editor"
+  <ngx-editor-menu [editor]="editor" [toolbar]="toolbar"></ngx-editor-menu>
+  <ngx-editor
+    [editor]="editor"
+    [placeholder]="'Type here...'"
     id="content"
     name="content"
     formControlName="content"
-  ></ckeditor>
+  ></ngx-editor>
   <div class="form-group">
     <label for="images">Set Images</label>
     <input
