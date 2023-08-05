@@ -5,15 +5,15 @@ const sinon = require('sinon');
 const sinonChai = require('sinon-chai');
 const axios = require('axios');
 const rewire = require('rewire');
+const setService = rewire('../services/setService');
+const minioService = require('../services/minioService');
 
 chai.use(sinonChai);
+chai.use(chaiAsPromised);
 
-const setService = rewire('../services/setService');
 const User = require('../models/User');
 const Set = require('../models/Set');
-const Review = require('../models/Review');
-
-chai.use(chaiAsPromised);
+// const Review = require('../models/Review');
 
 describe('Set service methods', function () {
   afterEach(() => {
@@ -21,13 +21,18 @@ describe('Set service methods', function () {
   });
 
   describe('getLoggedInUserCollection', () => {
+    let refreshToken;
+    let populateStub;
+    beforeEach(() => {
+      refreshToken = 'someToken';
+      populateStub = sinon.stub().returnsThis();
+    });
+
     it('should return user collection with valid refresh token', async () => {
       // Arrange: mock dependencies and data
       const user = {
         sets: ['someSet'],
       };
-      const refreshToken = 'someToken';
-      const populateStub = sinon.stub().returnsThis();
       const selectStub = sinon.stub().resolves(user);
       const findOneStub = sinon.stub(User, 'findOne').returns({
         populate: populateStub,
@@ -46,8 +51,6 @@ describe('Set service methods', function () {
 
     it('should throw error with invalid refresh token', async () => {
       // Arrange: mock dependencies and data
-      const refreshToken = 'someToken';
-      const populateStub = sinon.stub().returnsThis();
       const selectStub = sinon.stub().resolves(null);
       const findOneStub = sinon.stub(User, 'findOne').returns({
         populate: populateStub,
@@ -71,9 +74,11 @@ describe('Set service methods', function () {
   });
 
   describe('addSet', () => {
-    it('should not add set if already exists', async () => {
-      // Arrange: mock dependencies and data
-      const axiosGetStub = sinon
+    let axiosGetStub;
+    let setId;
+    let refreshToken;
+    beforeEach(() => {
+      axiosGetStub = sinon
         .stub(axios, 'get')
         .onFirstCall()
         .resolves({
@@ -96,6 +101,12 @@ describe('Set service methods', function () {
             ],
           },
         });
+      setId = '123';
+      refreshToken = 'test_refresh_token';
+    });
+
+    it('should not add set if already exists', async () => {
+      // Arrange: mock dependencies and data
       const userFindOneStub = sinon.stub(User, 'findOne').returns({
         populate: sinon.stub().resolves({
           sets: [
@@ -105,9 +116,6 @@ describe('Set service methods', function () {
           ],
         }),
       });
-
-      const setId = '123';
-      const refreshToken = 'test_refresh_token';
 
       // Act: call the method (expect error)
       try {
@@ -125,29 +133,6 @@ describe('Set service methods', function () {
 
     it('should add set to users sets array', async () => {
       // Arrange: mock dependencies and data
-      const axiosGetStub = sinon
-        .stub(axios, 'get')
-        .onFirstCall()
-        .resolves({
-          data: {
-            set_num: '12345',
-            name: 'Test Set',
-            year: 2023,
-            num_parts: 100,
-            set_img_url: 'https://example.com/test_set.jpg',
-          },
-        })
-        .onSecondCall()
-        .resolves({
-          data: {
-            count: 3,
-            results: [
-              { name: 'Fig 1', image_url: 'https://example.com/fig1.jpg' },
-              { name: 'Fig 2', image_url: 'https://example.com/fig2.jpg' },
-              { name: 'Fig 3', image_url: 'https://example.com/fig3.jpg' },
-            ],
-          },
-        });
       const setCreateStub = sinon.stub(Set, 'create').resolves({
         _id: 'some_fake_id',
         setNum: '12345',
@@ -169,8 +154,6 @@ describe('Set service methods', function () {
           save: userSaveStub,
         }),
       });
-      const setId = '123';
-      const refreshToken = 'test_refresh_token';
 
       // Act: call the method
       await setService.addSet(setId, refreshToken);
@@ -188,28 +171,27 @@ describe('Set service methods', function () {
       // Arrange: mock the necessary data
       const setId = 'set123';
       const userId = 'user123';
+      const email = 'testemail@gmail.com';
       const token = 'your_test_token';
-      const decodedToken = { _id: userId };
 
+      const decodedToken = { _id: userId, email };
       const jwtStub = { decode: sinon.stub().returns(decodedToken) };
       setService.__set__('jwt', jwtStub);
 
-      const set = {
+      const setData = {
         _id: setId,
+        setNum: '12345',
         user: { _id: userId, sets: [setId], save: sinon.stub().resolves() },
+        review: 'a',
         deleteOne: sinon.stub(),
       };
       const findByIdStub = sinon.stub(Set, 'findById').returns({
-        populate: sinon.stub().resolves(set),
+        populate: sinon.stub().resolves(setData),
       });
 
-      const reviewId = 'review123';
-      const findOneStub = sinon.stub(Review, 'findOne').returns({
-        select: sinon.stub().resolves({ _id: reviewId }),
-      });
-
-      const deleteReviewStub = sinon.stub().resolves();
-      setService.__set__('deleteReview', deleteReviewStub);
+      const deleteReviewImagesStub = sinon
+        .stub(minioService, 'deleteReviewImages')
+        .resolves();
 
       // Act: call the function under test
       await setService.deleteSet(setId, token);
@@ -217,20 +199,22 @@ describe('Set service methods', function () {
       // Assert: check if the methods were called
       expect(jwtStub.decode).to.have.been.calledOnceWith(token);
       expect(findByIdStub).to.have.been.calledOnceWith(setId);
-      expect(findOneStub).to.have.been.calledOnceWith({ set: setId });
-      expect(deleteReviewStub).to.have.been.calledOnceWith(reviewId, token);
-      expect(set.deleteOne).to.have.been.calledOnce;
-      expect(set.user.save).to.have.been.calledOnce;
-      expect(set.user.sets).to.not.include(setId);
+      expect(setData.user.save).to.have.been.calledOnce;
+      expect(setData.user.sets).to.not.include(setId);
+      expect(deleteReviewImagesStub).to.have.been.calledOnceWith(
+        'testemailgmailcom',
+        setData.setNum
+      );
     });
 
     it('should delete a set without a review if authorized', async () => {
       // Arrange: mock the necessary data
       const setId = 'set123';
       const userId = 'user123';
+      const email = 'testemail';
       const token = 'your_test_token';
-      const decodedToken = { _id: userId };
 
+      const decodedToken = { _id: userId, email };
       const jwtStub = { decode: sinon.stub().returns(decodedToken) };
       setService.__set__('jwt', jwtStub);
 
@@ -243,13 +227,9 @@ describe('Set service methods', function () {
         populate: sinon.stub().resolves(set),
       });
 
-      const reviewId = 'review123';
-      const findOneStub = sinon.stub(Review, 'findOne').returns({
-        select: sinon.stub().resolves(null),
-      });
-
-      const deleteReviewStub = sinon.stub().resolves();
-      setService.__set__('deleteReview', deleteReviewStub);
+      const deleteReviewImagesStub = sinon
+        .stub(minioService, 'deleteReviewImages')
+        .resolves();
 
       // Act: call the function under test
       await setService.deleteSet(setId, token);
@@ -257,11 +237,9 @@ describe('Set service methods', function () {
       // Assert: check if the methods were called
       expect(jwtStub.decode).to.have.been.calledOnceWith(token);
       expect(findByIdStub).to.have.been.calledOnceWith(setId);
-      expect(findOneStub).to.have.been.calledOnceWith({ set: setId });
-      expect(deleteReviewStub).to.have.not.been.called;
-      expect(set.deleteOne).to.have.been.calledOnce;
       expect(set.user.save).to.have.been.calledOnce;
       expect(set.user.sets).to.not.include(setId);
+      expect(deleteReviewImagesStub).to.have.not.been.called;
     });
 
     it('should throw an error if the set is not found', async () => {
@@ -288,9 +266,12 @@ describe('Set service methods', function () {
       const token = 'your_test_token';
 
       const jwtStub = {
-        decode: sinon.stub().returns({ _id: 'different_user' }),
+        decode: sinon
+          .stub()
+          .returns({ _id: 'different_user', email: 'testemail@mail.com' }),
       };
       setService.__set__('jwt', jwtStub);
+
       sinon.stub(Set, 'findById').returns({
         populate: sinon.stub().resolves({ _id: setId, user: { _id: userId } }),
       });
@@ -304,6 +285,65 @@ describe('Set service methods', function () {
           'You are not authorized to delete this set!'
         );
       }
+    });
+  });
+
+  describe('getAllWithReview', () => {
+    afterEach(() => {
+      sinon.restore();
+    });
+
+    it('should return an array of sets with review and user data', async () => {
+      // Arrange: mock data and stubs
+      const mockSet1 = {
+        _id: '123',
+        name: 'Set 1',
+        image: 'image-url-1',
+        user: { username: 'user1', email: 'user1@example.com' },
+      };
+      const mockSet2 = {
+        _id: '456',
+        name: 'Set 2',
+        image: 'image-url-2',
+        user: { username: 'user2', email: 'user2@example.com' },
+      };
+      const mockSets = [mockSet1, mockSet2];
+
+      sinon.stub(Set, 'find').returns({
+        where: sinon.stub().returns({
+          ne: sinon.stub().returns({
+            ne: sinon.stub().returns({
+              ne: sinon.stub().returns({
+                select: sinon.stub().returns({
+                  populate: sinon.stub().resolves(mockSets),
+                }),
+              }),
+            }),
+          }),
+        }),
+      });
+
+      sinon.stub(minioService, 'getUserImage').resolves('user-image-url');
+
+      // Act: call the service
+      const result = await setService.getAllWithReview();
+
+      // Assert: verify the result
+      expect(result).to.be.an('array').with.lengthOf(2);
+      expect(result[0]).to.deep.equal({
+        _id: '123',
+        name: 'Set 1',
+        image: 'image-url-1',
+        username: 'user1',
+        userImage: 'user-image-url',
+      });
+      expect(result[1]).to.deep.equal({
+        _id: '456',
+        name: 'Set 2',
+        image: 'image-url-2',
+        username: 'user2',
+        userImage: 'user-image-url',
+      });
     });
   });
 });

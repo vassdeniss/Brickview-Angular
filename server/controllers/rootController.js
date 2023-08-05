@@ -37,6 +37,8 @@ router.get('/health', (req, res) => {
  *     responses:
  *       204:
  *         description: Token is valid
+ *       401:
+ *         description: Unauthorized - User not authenticated
  */
 router.get('/validate-token', mustBeAuth, (req, res) => {
   res.status(204).end();

@@ -28,13 +28,8 @@ describe('ReviewService', () => {
     // Arrange: create mock review
     const mockReview: Review = {
       _id: 'some-id',
-      buildExperience: 'This was a fun build.',
-      design: 'This set looks great.',
-      value: 'This set is a great value.',
-      other: 'This set is awesome.',
-      verdict: 'This set is great.',
-      imageSources: [],
-      set: '1',
+      content: 'This was a fun build.',
+      setImages: [],
     };
 
     // Act: create a new review with mock review
@@ -54,13 +49,8 @@ describe('ReviewService', () => {
     const setId = '1';
     const mockReview: Review = {
       _id: 'some-id',
-      buildExperience: 'This was a fun build.',
-      design: 'This set looks great.',
-      value: 'This set is a great value.',
-      other: 'This set is awesome.',
-      verdict: 'This set is great.',
-      imageSources: [],
-      set: '1',
+      content: 'This was a fun build.',
+      setImages: [],
     };
 
     // Act: get a review by set ID

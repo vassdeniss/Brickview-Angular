@@ -3,7 +3,7 @@
 }
 
 .review-form {
-  max-width: 400px;
+  max-width: 700px;
   margin: 0 auto;
   padding: 20px;
   background-color: #f7f7f7;
@@ -26,8 +26,7 @@ label {
   margin-bottom: 12px;
 }
 
-input,
-textarea {
+input {
   width: 95%;
   padding: 10px;
   border: 1px solid #ccc;
@@ -74,6 +73,10 @@ img {
   z-index: 1;
 }
 
-textarea {
-  resize: none;
+.form-group {
+  margin-top: 10px;
+}
+
+:host ::ng-deep .NgxEditor__Content {
+  min-height: 300px !important;
 }

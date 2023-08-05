@@ -55,7 +55,7 @@ const userService = require('../services/userService');
 
 /**
  * @swagger
- * /register:
+ * /users/register:
  *   post:
  *     summary: Register a new user
  *     tags: [Users]
@@ -93,7 +93,7 @@ router.post('/register', async (req, res) => {
 
 /**
  * @swagger
- * /login:
+ * /users/login:
  *   post:
  *     summary: Log in as a user
  *     tags: [Users]
@@ -135,7 +135,7 @@ router.post('/login', async (req, res) => {
 
 /**
  * @swagger
- * /logout:
+ * /users/logout:
  *   get:
  *     summary: Log out a user
  *     tags: [Users]
@@ -144,6 +144,8 @@ router.post('/login', async (req, res) => {
  *     responses:
  *       204:
  *         description: Logout successful
+ *       401:
+ *         description: Unauthorized - User not authenticated
  */
 router.get('/logout', mustBeAuth, async (req, res) => {
   await userService.logout(req.header('X-Refresh'));
@@ -152,7 +154,7 @@ router.get('/logout', mustBeAuth, async (req, res) => {
 
 /**
  * @swagger
- * /get-logged-user:
+ * /users/get-logged-user:
  *   get:
  *     summary: Get current looged in user
  *     tags: [Users]
@@ -171,6 +173,8 @@ router.get('/logout', mustBeAuth, async (req, res) => {
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Error'
+ *        401:
+ *          description: Unauthorized - User not authenticated
  */
 router.get('/get-logged-user', mustBeAuth, async (req, res) => {
   try {

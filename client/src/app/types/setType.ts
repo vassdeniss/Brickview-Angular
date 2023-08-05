@@ -9,7 +9,7 @@ export type Set = {
   image: string;
   minifigCount: number;
   minifigs: Minigifure[];
-  isReviewed: boolean;
   userImage?: string;
   username?: string;
+  review?: string;
 };

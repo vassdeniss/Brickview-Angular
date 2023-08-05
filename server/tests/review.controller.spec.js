@@ -21,12 +21,15 @@ describe('Review controller routes', function () {
   });
 
   describe('POST /create', () => {
-    it('should return status 204 when the review has been created', async () => {
-      // Arrange: set up data, stubs
-      const reviewData = {
-        buildExperience: 'some build experience',
+    let reviewData;
+    beforeEach(() => {
+      reviewData = {
+        content: 'some build experience',
       };
+    });
 
+    it('should return status 204 when the review has been created', async () => {
+      // Arrange: set up stubs
       sinon.stub(reviewService, 'addReview').resolves();
 
       // Act: call the endpoint
@@ -40,11 +43,7 @@ describe('Review controller routes', function () {
     });
 
     it('should return status 400 when creation fails', async () => {
-      // Arrange: set up data, stubs
-      const reviewData = {
-        buildExperience: 'some build experience',
-      };
-
+      // Arrange: set up stubs
       sinon
         .stub(reviewService, 'addReview')
         .throws(new Error('Creation failed!'));
@@ -83,7 +82,7 @@ describe('Review controller routes', function () {
     });
 
     it('should return a 404 status with an error message when invalid id is provided', async () => {
-      // Arrange: Stub the reviewService.getReview method to throw an error
+      // Arrange: stub the reviewService.getReview method to throw an error
       const getReviewStub = sinon
         .stub(reviewService, 'getReview')
         .throws(new Error('Review not found'));
