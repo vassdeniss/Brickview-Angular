@@ -28,11 +28,9 @@ export class DetailReviewComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    this.reviewService
-      .getReview(this.route.snapshot.params['id'])
-      .subscribe((data) => {
-        this.review = data;
-      });
+    this.route.data.subscribe(({ review }) => {
+      this.review = review;
+    });
     this.editor = new Editor();
   }
 

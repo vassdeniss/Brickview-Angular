@@ -3,6 +3,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { routeGuard } from '../auth/route.guard';
 import { CreateReviewComponent } from './create-review/create-review.component';
 import { DetailReviewComponent } from './detail-review/detail-review.component';
+import { detailReviewResolver } from './detail-review/detail-review.resolver';
 
 const routes: Routes = [
   {
@@ -15,6 +16,7 @@ const routes: Routes = [
     path: 'reviews/:id',
     component: DetailReviewComponent,
     title: 'Review',
+    resolve: { review: detailReviewResolver },
   },
 ];
 
