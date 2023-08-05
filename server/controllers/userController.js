@@ -55,6 +55,60 @@ const userService = require('../services/userService');
 
 /**
  * @swagger
+ * /users/get-logged-user:
+ *   get:
+ *     summary: Get current looged in user
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *        200:
+ *         description: The user was found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/User'
+ *        404:
+ *         description: The user was not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *        401:
+ *          description: Unauthorized - User not authenticated
+ */
+router.get('/get-logged-user', mustBeAuth, async (req, res) => {
+  try {
+    const user = await userService.getLoggedInUser(req.header('X-Refresh'));
+    res.status(200).json(user);
+  } catch (err) {
+    res.status(404).json({
+      message: err.message,
+    });
+  }
+});
+
+/**
+ * @swagger
+ * /users/logout:
+ *   get:
+ *     summary: Log out a user
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       204:
+ *         description: Logout successful
+ *       401:
+ *         description: Unauthorized - User not authenticated
+ */
+router.get('/logout', mustBeAuth, async (req, res) => {
+  await userService.logout(req.header('X-Refresh'));
+  res.status(204).end();
+});
+
+/**
+ * @swagger
  * /users/register:
  *   post:
  *     summary: Register a new user
@@ -135,53 +189,44 @@ router.post('/login', async (req, res) => {
 
 /**
  * @swagger
- * /users/logout:
- *   get:
- *     summary: Log out a user
- *     tags: [Users]
+ * /users/edit:
+ *   put:
+ *     summary: Update user data
+ *     tags:
+ *       - Users
  *     security:
  *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               username:
+ *                 type: string
+ *               profilePicture:
+ *                 type: string
+ *               deleteProfilePicture:
+ *                 type: boolean
+ *             example:
+ *               username: john_doe
+ *               profilePicture: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA..."
+ *               deleteProfilePicture: false
  *     responses:
  *       204:
- *         description: Logout successful
+ *         description: Data updated successfully.
+ *       400:
+ *         description: Error updating.
  *       401:
- *         description: Unauthorized - User not authenticated
+ *         description: Unauthorized - User not authenticated.
  */
-router.get('/logout', mustBeAuth, async (req, res) => {
-  await userService.logout(req.header('X-Refresh'));
-  res.status(204).end();
-});
-
-/**
- * @swagger
- * /users/get-logged-user:
- *   get:
- *     summary: Get current looged in user
- *     tags: [Users]
- *     security:
- *       - bearerAuth: []
- *     responses:
- *        200:
- *         description: The user was found
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/User'
- *        404:
- *         description: The user was not found
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Error'
- *        401:
- *          description: Unauthorized - User not authenticated
- */
-router.get('/get-logged-user', mustBeAuth, async (req, res) => {
+router.put('/edit', mustBeAuth, async (req, res) => {
   try {
-    const user = await userService.getLoggedInUser(req.header('X-Refresh'));
-    res.status(200).json(user);
+    await userService.editData(req.body, req.header('X-Refresh'));
+    res.status(204).end();
   } catch (err) {
-    res.status(404).json({
+    res.status(400).json({
       message: err.message,
     });
   }
