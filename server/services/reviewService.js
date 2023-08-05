@@ -56,7 +56,7 @@ exports.deleteReview = async (setId, token) => {
   }
 
   if (set.user._id.toString() !== id) {
-    throw new Error('You are not authorized to delete this review');
+    throw new Error('You are not authorized to delete this review!');
   }
 
   await minioService.deleteReviewImages(email, set.setNum);

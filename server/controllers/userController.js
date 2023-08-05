@@ -144,6 +144,8 @@ router.post('/login', async (req, res) => {
  *     responses:
  *       204:
  *         description: Logout successful
+ *       401:
+ *         description: Unauthorized - User not authenticated
  */
 router.get('/logout', mustBeAuth, async (req, res) => {
   await userService.logout(req.header('X-Refresh'));
@@ -171,6 +173,8 @@ router.get('/logout', mustBeAuth, async (req, res) => {
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Error'
+ *        401:
+ *          description: Unauthorized - User not authenticated
  */
 router.get('/get-logged-user', mustBeAuth, async (req, res) => {
   try {
