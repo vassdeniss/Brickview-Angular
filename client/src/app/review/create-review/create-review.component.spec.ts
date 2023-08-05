@@ -11,7 +11,7 @@ import { CreateReviewComponent } from './create-review.component';
 import { PopupService } from 'src/app/services/popup.service';
 import { ReviewService } from 'src/app/services/review.service';
 import { Router } from '@angular/router';
-import { Review } from 'src/app/types/reviewType';
+import { NgxEditorModule } from 'ngx-editor';
 
 describe('CreateReviewComponent', () => {
   let component: CreateReviewComponent;
@@ -26,7 +26,7 @@ describe('CreateReviewComponent', () => {
 
     TestBed.configureTestingModule({
       declarations: [CreateReviewComponent],
-      imports: [ReactiveFormsModule, RouterTestingModule],
+      imports: [ReactiveFormsModule, RouterTestingModule, NgxEditorModule],
       providers: [
         { provide: PopupService, useValue: popupSpy },
         { provide: ReviewService, useValue: reviewSpy },
@@ -61,24 +61,19 @@ describe('CreateReviewComponent', () => {
   it('should create review and navigate to "sets/my-sets" on form submission', fakeAsync(() => {
     // Arrange: create mock review, setup service
     const reviewData = {
-      buildExperience:
-        'Test review content lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum',
-      design: '',
-      minifigures: '',
-      value: '',
-      other: '',
-      verdict: '',
+      content:
+        '<p>Test review content lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum</p>',
       images: '',
-      imageSources: [],
-      set: 'test_set_id',
+      setImages: [],
+      _id: 'test_set_id',
     };
     mockReviewService.createReview.and.returnValue(of(reviewData));
     const button = {} as HTMLButtonElement;
     component.reviewForm.patchValue({
-      buildExperience:
-        'Test review content lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum',
+      content:
+        '<p>Test review content lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum</p>',
     });
-    component.reviewForm.patchValue({ set: 'test_set_id' });
+    component.reviewForm.patchValue({ _id: 'test_set_id' });
     const navigateSpy = spyOn(router, 'navigate');
 
     // Act: submit the form
@@ -104,10 +99,10 @@ describe('CreateReviewComponent', () => {
       })
     );
     component.reviewForm.patchValue({
-      buildExperience:
+      content:
         'Test review content lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum',
     });
-    component.reviewForm.patchValue({ set: 'test_set_id' });
+    component.reviewForm.patchValue({ _id: 'test_set_id' });
 
     // Act: submit the form
     component.onSubmit(button);
@@ -122,7 +117,7 @@ describe('CreateReviewComponent', () => {
     // Arrange: setup images and imageSources
     component.images = ['image1', 'image2', 'image3'];
     component.reviewForm.patchValue({
-      imageSources: ['image1', 'image2', 'image3'],
+      setImages: ['image1', 'image2', 'image3'],
     });
 
     // Act: delete an image
@@ -130,7 +125,7 @@ describe('CreateReviewComponent', () => {
 
     // Assert: check that the image was deleted from the form
     expect(component.images).toEqual(['image1', 'image3']);
-    expect(component.reviewForm.get('imageSources')?.value).toEqual([
+    expect(component.reviewForm.get('setImages')?.value).toEqual([
       'image1',
       'image3',
     ]);

@@ -7,14 +7,14 @@ import { AddSetComponent } from './add-set/add-set.component';
 
 const routes: Routes = [
   {
-    path: 'sets/my-sets',
+    path: 'my-sets',
     component: MySetsComponent,
     canActivate: [routeGuard],
     resolve: { sets: mySetsResolver },
     title: 'My Sets',
   },
   {
-    path: 'sets/add-set',
+    path: 'add-set',
     component: AddSetComponent,
     canActivate: [routeGuard],
     title: 'Add Sets',

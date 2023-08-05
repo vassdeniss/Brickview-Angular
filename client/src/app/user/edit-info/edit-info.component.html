@@ -1,0 +1,40 @@
+<app-popup *ngIf="popup.isActive" title="Error!" (closed)="popup.hide()">
+  <p *ngFor="let error of errors">{{ error }}</p>
+</app-popup>
+<form [formGroup]="editForm" class="edit-form" (ngSubmit)="onSubmit(button)">
+  <h2>Edit your Information</h2>
+  <div class="form-group">
+    <label for="username">Username</label>
+    <input
+      type="text"
+      id="username"
+      name="username"
+      placeholder="Enter new username"
+      formControlName="username"
+    />
+  </div>
+  <div class="form-group">
+    <label for="image">Profile Image</label>
+    <input
+      type="file"
+      id="image"
+      name="image"
+      accept="image/*"
+      (change)="onFileChange($event)"
+    />
+  </div>
+  <img
+    [src]="currentProfilePicture"
+    alt="Selected Image"
+    *ngIf="currentProfilePicture"
+  />
+  <div *ngIf="currentProfilePicture" class="form-group-side">
+    <label for="deleteProfilePicture">Delete Picture?:</label>
+    <input
+      type="checkbox"
+      id="deleteProfilePicture"
+      formControlName="deleteProfilePicture"
+    />
+  </div>
+  <button #button>Save Changes</button>
+</form>

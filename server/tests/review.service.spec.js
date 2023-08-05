@@ -1,24 +1,16 @@
 const chai = require('chai');
+const { expect } = chai;
 const sinon = require('sinon');
 const sinonChai = require('sinon-chai');
 const rewire = require('rewire');
-const service = rewire('../services/reviewService');
-
-const Review = require('../models/Review');
-const Set = require('../models/Set');
+const reviewService = rewire('../services/reviewService');
 const minioService = require('../services/minioService');
+const Set = require('../models/Set');
 
 chai.use(sinonChai);
-const { expect } = chai;
 
 const testData = {
-  buildExperience: 'build experience was great and fun to build the set',
-  design: 'design',
-  minifigures: 'minifigures',
-  value: 'value',
-  other: 'other',
-  verdict: 'verdict',
-  set: '612345678912345678901234',
+  content: 'build experience was great and fun to build the set',
 };
 
 describe('Review service methods', () => {
@@ -30,126 +22,104 @@ describe('Review service methods', () => {
     it('should create a review', async () => {
       // Arrange: mock dependencies and data
       const token = 'sampleToken';
-      const email = 'user@example.com';
-      const _id = '618165678912345678901234';
-      const imageSources = ['file1', 'file2'];
+      const setImages = ['file1', 'file2'];
+      const setData = { setNum: 'setNum', save: sinon.stub() };
 
-      const jwtDecodeStub = sinon.stub().returns({ email, _id });
+      const jwtDecodeStub = sinon.stub().returns({ email: 'user@example.com' });
       const jwtStub = { decode: jwtDecodeStub };
-      service.__set__('jwt', jwtStub);
+      reviewService.__set__('jwt', jwtStub);
 
       const buffers = [
-        Buffer.from(imageSources[0], 'base64'),
-        Buffer.from(imageSources[1], 'base64'),
+        Buffer.from(setImages[0], 'base64'),
+        Buffer.from(setImages[1], 'base64'),
       ];
 
-      const getSetNumAndMarkReviewedStub = sinon.stub().resolves('setNum');
-      const reset = service.__set__(
-        'getSetNumAndMarkReviewed',
-        getSetNumAndMarkReviewedStub
-      );
-
+      const findByIdStub = sinon.stub(Set, 'findById').returns({
+        select: sinon.stub().resolves(setData),
+      });
       const saveReviewStub = sinon.stub(minioService, 'saveReview').resolves();
-      const createStub = sinon.stub(Review, 'create').resolves();
 
       // Act: call the method
-      await service.addReview({ ...testData, imageSources }, token);
+      await reviewService.addReview({ ...testData, setImages }, token);
 
       // Assert: check if methods were called
       expect(jwtDecodeStub).to.have.been.calledOnceWith(token);
-      expect(getSetNumAndMarkReviewedStub).to.have.been.calledOnceWith(
-        testData.set
-      );
+      expect(findByIdStub).to.have.been.calledOnceWith(testData._id);
       expect(saveReviewStub).to.have.been.calledOnceWith(
         'userexamplecom',
         'setNum',
         buffers
       );
-      expect(createStub).to.have.been.calledOnceWith({
-        buildExperience: testData.buildExperience,
-        design: testData.design,
-        minifigures: testData.minifigures,
-        value: testData.value,
-        other: testData.other,
-        verdict: testData.verdict,
-        set: testData.set,
-        user: _id,
-      });
-
-      reset();
+      expect(setData.review).to.equal(testData.content);
     });
   });
 
   describe('getReview', () => {
     it('should return the correct review object', async () => {
       // Arrange: test data, stubs
-      const setId = 'someSetId';
-      const reviewData = {
+      const setData = {
         _id: 'some-id',
-        buildExperience: 'Good',
-        design: 'Excellent',
-        minifigures: 'Average',
-        value: 'Great',
-        other: 'Nice',
-        verdict: 'Recommended',
-        set: { setNum: '12345' },
-        user: { email: 'user@example.com' },
+        setNum: '12345',
+        name: 'some-name',
+        image: 'some-image',
+        parts: '20',
+        year: '2003',
+        minifigCount: '5',
+        minifigs: [],
+        review: 'some-review-content',
+        user: {
+          username: 'some-username',
+          email: 'someEmail@mail.com',
+        },
       };
-      const images = ['image1.jpg', 'image2.jpg'];
-      const findStub = sinon.stub(Review, 'find').returns({
-        populate: sinon.stub().returns({
-          populate: sinon.stub().resolves([reviewData]),
-        }),
+
+      const findByIdStub = sinon.stub(Set, 'findById').returns({
+        populate: sinon.stub().resolves(setData),
       });
+
+      const images = ['image1.jpg', 'image2.jpg'];
       const getReviewImagesStub = sinon
         .stub(minioService, 'getReviewImages')
         .resolves(images);
 
       // Act: call the method being tested
-      const result = await service.getReview(setId);
+      const result = await reviewService.getReview(setData._id);
 
       // Assert: that the returned result is expected
       expect(result).to.deep.equal({
-        _id: reviewData._id,
-        buildExperience: reviewData.buildExperience,
-        design: reviewData.design,
-        minifigures: reviewData.minifigures,
-        value: reviewData.value,
-        other: reviewData.other,
-        verdict: reviewData.verdict,
-        set: reviewData.set,
-        user: reviewData.user,
-        imageSources: images,
+        _id: setData._id,
+        setName: setData.name,
+        setImage: setData.image,
+        setNumber: setData.setNum,
+        setParts: setData.parts,
+        setYear: setData.year,
+        setMinifigCount: setData.minifigCount,
+        setImages: images,
+        setMinifigures: [],
+        userUsername: setData.user.username,
+        content: setData.review,
       });
-      expect(findStub).to.be.calledOnceWithExactly({ set: setId });
+      expect(findByIdStub).to.be.calledOnceWithExactly(setData._id);
       expect(getReviewImagesStub).to.be.calledOnceWithExactly(
-        reviewData.user.email.replace(/[.@]/g, ''),
-        reviewData.set.setNum
+        setData.user.email.replace(/[.@]/g, ''),
+        setData.setNum
       );
     });
-  });
 
-  describe('getSetNumAndMarkReviewed', () => {
-    it('should get setNum and mark set as reviewed', async () => {
-      // Arrange: mock data, create stubs
-      const setId = 'sampleSetId';
-      const setNum = 'sampleSetNum';
-      const setInstance = {
-        save: sinon.stub().resolves(),
-        setNum,
-        isReviewed: false,
-      };
+    it('should throw error if review doesnt exist', async () => {
+      // Arrange: test stubs
       const findByIdStub = sinon.stub(Set, 'findById').returns({
-        select: sinon.stub().resolves(setInstance),
+        populate: sinon.stub().resolves({}),
       });
 
-      // Act: call service method
-      const result = await service.__get__('getSetNumAndMarkReviewed')(setId);
-
-      // Assert: that the methods were called and the result is correct
-      expect(result).to.equal(setNum);
-      expect(findByIdStub).to.have.been.calledOnceWith(setId);
-      expect(setInstance.isReviewed).to.be.true;
+      // Act+Assert: call the method, error was thrown
+      try {
+        await reviewService.getReview('some-id');
+        expect.fail('Expected an error to be thrown');
+      } catch (error) {
+        expect(error.message).to.equal('Review not found!');
+        expect(findByIdStub).to.be.calledOnceWith('some-id');
+      }
     });
   });
 
@@ -158,34 +128,31 @@ describe('Review service methods', () => {
       // Arrange: setup mock data, stubs
       const reviewId = '123456';
       const token = 'valid-token';
-      const review = {
+      const setData = {
         _id: reviewId,
+        setNum: '12345',
+        review: 'some-content',
         user: { _id: 'user-id' },
-        set: {
-          setNum: '12345',
-          isReviewed: true,
-          save: sinon.stub().resolves(),
-        },
-        deleteOne: sinon.stub().resolves(),
+        save: sinon.stub().resolves(),
       };
 
-      const findByIdStub = sinon.stub(Review, 'findById').returns({
-        populate: sinon.stub().returns({
-          populate: sinon.stub().resolves(review),
-        }),
+      const findByIdStub = sinon.stub(Set, 'findById').returns({
+        populate: sinon.stub().resolves(setData),
       });
+
       const jwtStub = {
         decode: sinon
           .stub()
           .returns({ email: 'test@example.com', _id: 'user-id' }),
       };
-      service.__set__('jwt', jwtStub);
+      reviewService.__set__('jwt', jwtStub);
+
       const deleteReviewImagesStub = sinon
         .stub(minioService, 'deleteReviewImages')
         .resolves();
 
       // Act: call the serviec method
-      await service.deleteReview(reviewId, token);
+      await reviewService.deleteReview(reviewId, token);
 
       // Assert: that the methods were called
       expect(findByIdStub).to.have.been.calledOnceWith(reviewId);
@@ -194,19 +161,16 @@ describe('Review service methods', () => {
         'testexamplecom',
         '12345'
       );
-      expect(review.set.isReviewed).to.be.false;
-      expect(review.set.save.calledOnce).to.be.true;
-      expect(review.deleteOne.calledOnce).to.be.true;
+      expect(setData.review).to.be.null;
     });
 
     it('should throw an error if the review is not found', async () => {
       // Arrange: setup mock data, stubs
-      const reviewId = 'non-existent-id';
+      const reviewId = '123456';
       const token = 'valid-token';
-      const findByIdStub = sinon.stub(Review, 'findById').returns({
-        populate: sinon.stub().returns({
-          populate: sinon.stub().resolves(null),
-        }),
+
+      const findByIdStub = sinon.stub(Set, 'findById').returns({
+        populate: sinon.stub().resolves({}),
       });
 
       const jwtStub = {
@@ -214,52 +178,50 @@ describe('Review service methods', () => {
           .stub()
           .returns({ email: 'test@example.com', _id: 'user-id' }),
       };
-      service.__set__('jwt', jwtStub);
+      reviewService.__set__('jwt', jwtStub);
 
-      // Act: call the service method
+      // Act+Assert: call the method, error was thrown
       try {
-        await service.deleteReview(reviewId, token);
-        expect.fail('Expected an error but none was thrown');
+        await reviewService.deleteReview(reviewId, token);
+        expect.fail('Expected an error to be thrown');
       } catch (error) {
         expect(error.message).to.equal('Review not found!');
+        expect(findByIdStub).to.have.been.calledOnceWith(reviewId);
+        expect(jwtStub.decode).to.have.been.calledOnceWith(token);
       }
-
-      // Assert: that the methods were called
-      expect(findByIdStub).to.have.been.calledOnceWith(reviewId);
-      expect(jwtStub.decode).to.have.been.calledOnceWith(token);
     });
 
     it('should throw an error if the user is not authorized to delete the review', async () => {
       // Arrange: setup mock data, stubs
-      const reviewId = 'valid-review-id';
-      const token = 'invalid-token';
-      const review = { _id: reviewId, user: { _id: 'user-id' } };
-      const findByIdStub = sinon.stub(Review, 'findById').returns({
-        populate: sinon.stub().returns({
-          populate: sinon.stub().resolves(review),
-        }),
+      const reviewId = '123456';
+      const token = 'valid-token';
+      const setData = {
+        review: 'some-content',
+        user: { _id: 'user-id' },
+      };
+
+      const findByIdStub = sinon.stub(Set, 'findById').returns({
+        populate: sinon.stub().resolves(setData),
       });
 
       const jwtStub = {
         decode: sinon
           .stub()
-          .returns({ email: 'test@example.com', _id: 'different-user-id' }),
+          .returns({ email: 'test@example.com', _id: 'other-user-id' }),
       };
-      service.__set__('jwt', jwtStub);
+      reviewService.__set__('jwt', jwtStub);
 
-      // Act: call the service method
+      // Act+Assert: call the method, error was thrown
       try {
-        await service.deleteReview(reviewId, token);
-        expect.fail('Expected an error but none was thrown');
+        await reviewService.deleteReview(reviewId, token);
+        expect.fail('Expected an error to be thrown');
       } catch (error) {
         expect(error.message).to.equal(
-          'You are not authorized to delete this review'
+          'You are not authorized to delete this review!'
         );
+        expect(findByIdStub).to.have.been.calledOnceWith(reviewId);
+        expect(jwtStub.decode).to.have.been.calledOnceWith(token);
       }
-
-      // Assert: that the methods were called
-      expect(findByIdStub).to.have.been.calledOnceWith(reviewId);
-      expect(jwtStub.decode).to.have.been.calledOnceWith(token);
     });
   });
 });

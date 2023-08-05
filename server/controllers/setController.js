@@ -186,6 +186,8 @@ router.get('/logged-user-collection', mustBeAuth, async (req, res) => {
  *                   type: string
  *                   description: Error message.
  *                   example: "Set already exists in collection!"
+ *       401:
+ *         description: Unauthorized - User not authenticated
  */
 router.post('/add-set', mustBeAuth, async (req, res) => {
   try {
@@ -228,6 +230,8 @@ router.post('/add-set', mustBeAuth, async (req, res) => {
  *                   type: string
  *                   description: Error message.
  *                   example: "Set not found!"
+ *       401:
+ *         description: Unauthorized - User not authenticated
  */
 router.delete('/delete/:id', mustBeAuth, async (req, res) => {
   try {

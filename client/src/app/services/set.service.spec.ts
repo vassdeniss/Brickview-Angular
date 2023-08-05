@@ -38,7 +38,7 @@ describe('SetService', () => {
         image: 'set1.jpg',
         minifigCount: 5,
         minifigs: [],
-        isReviewed: true,
+        review: '',
       },
       {
         _id: 'some-id',
@@ -49,7 +49,7 @@ describe('SetService', () => {
         image: 'set2.jpg',
         minifigCount: 3,
         minifigs: [],
-        isReviewed: false,
+        review: '',
       },
     ];
 

@@ -2,8 +2,8 @@
   margin: 2rem;
 }
 
-.review-form {
-  max-width: 700px;
+.edit-form {
+  max-width: 400px;
   margin: 0 auto;
   padding: 20px;
   background-color: #f7f7f7;
@@ -11,13 +11,20 @@
   border-radius: 4px;
 }
 
-.review-form h2 {
+.edit-form h2 {
   text-align: center;
   margin-bottom: 20px;
 }
 
-.form-group {
+.form-group,
+.form-group-side {
   margin-bottom: 15px;
+}
+
+.form-group-side {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 label {
@@ -31,6 +38,14 @@ input {
   padding: 10px;
   border: 1px solid #ccc;
   border-radius: 4px;
+}
+
+.form-group-side label {
+  margin: unset;
+}
+
+.form-group-side input {
+  width: unset;
 }
 
 button {
@@ -50,33 +65,8 @@ button:hover {
 }
 
 img {
-  width: 25%;
+  margin: 15px 0px;
+  width: 50%;
   height: auto;
   object-fit: cover;
-}
-
-.image-wrapper {
-  position: relative;
-  display: inline;
-}
-
-.delete-button {
-  position: absolute;
-  top: 0;
-  left: 0;
-  padding: 4px 8px;
-  background-color: red;
-  color: white;
-  border: none;
-  border-radius: 50%;
-  cursor: pointer;
-  z-index: 1;
-}
-
-.form-group {
-  margin-top: 10px;
-}
-
-:host ::ng-deep .NgxEditor__Content {
-  min-height: 300px !important;
 }

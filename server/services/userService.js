@@ -100,13 +100,20 @@ exports.getLoggedInUser = async (refreshToken) => {
   };
 };
 
-// exports.getCollection = async () => {
-//   const id = 'idkWhereToGetIdFrom'; // TODO: figure out client side requests
+exports.editData = async (
+  { username, profilePicture, deleteProfilePicture },
+  refreshToken
+) => {
+  const user = await User.findOne({ refreshToken });
+  user.username = username;
 
-//   const user = await User.findById(id).populate('sets');
-//   if (!user) {
-//     throw new Error('Invalid user ID!');
-//   }
+  if (deleteProfilePicture) {
+    minioService.deleteImage(user.email.replace(/[.@]/g, ''));
+  } else {
+    const base64Data = profilePicture.replace(/^data:image\/(\w+);base64,/, '');
+    const file = Buffer.from(base64Data, 'base64');
+    minioService.saveUserImage(user.email.replace(/[.@]/g, ''), file);
+  }
 
-//   return user.sets;
-// };
+  await user.save();
+};

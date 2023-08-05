@@ -14,10 +14,14 @@ const setSchema = new mongoose.Schema({
       image: String,
     },
   ],
-  isReviewed: Boolean,
   user: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
+  },
+  review: {
+    type: String,
+    minLength: [50, 'Review must be at least 50 characters long!'],
+    maxLength: [5000, 'Review cannot exceed 5000 characters!'],
   },
 });
 

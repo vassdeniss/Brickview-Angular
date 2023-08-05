@@ -3,18 +3,20 @@ import { RouterModule, Routes } from '@angular/router';
 import { routeGuard } from '../auth/route.guard';
 import { CreateReviewComponent } from './create-review/create-review.component';
 import { DetailReviewComponent } from './detail-review/detail-review.component';
+import { detailReviewResolver } from './detail-review/detail-review.resolver';
 
 const routes: Routes = [
   {
-    path: 'reviews/:id/create',
+    path: ':id/create',
     component: CreateReviewComponent,
     canActivate: [routeGuard],
     title: 'Create Review',
   },
   {
-    path: 'reviews/:id',
+    path: ':id',
     component: DetailReviewComponent,
     title: 'Review',
+    resolve: { review: detailReviewResolver },
   },
 ];
 

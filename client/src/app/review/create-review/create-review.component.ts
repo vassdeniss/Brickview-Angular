@@ -1,21 +1,22 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { PopupService } from 'src/app/services/popup.service';
 import { getFormValidationErrors } from '../../auth/helpers';
 import { ReviewService } from 'src/app/services/review.service';
-import { Review } from 'src/app/types/reviewType';
 import { ActivatedRoute, Router } from '@angular/router';
+import { Review } from 'src/app/types/reviewType';
+import { Editor, Toolbar } from 'ngx-editor';
 
 @Component({
   selector: 'app-create-review',
   templateUrl: './create-review.component.html',
   styleUrls: ['./create-review.component.css'],
 })
-export class CreateReviewComponent implements OnInit {
+export class CreateReviewComponent implements OnInit, OnDestroy {
   errors: string[] = [];
   images: string[] = [];
   reviewForm = this.fb.group({
-    buildExperience: [
+    content: [
       '',
       [
         Validators.required,
@@ -23,15 +24,20 @@ export class CreateReviewComponent implements OnInit {
         Validators.maxLength(5000),
       ],
     ],
-    design: ['', [Validators.maxLength(550)]],
-    minifigures: ['', [Validators.maxLength(550)]],
-    value: ['', [Validators.maxLength(550)]],
-    other: ['', [Validators.maxLength(550)]],
-    verdict: ['', [Validators.maxLength(550)]],
     images: [''],
-    imageSources: [this.images],
-    set: [''],
+    setImages: [this.images],
+    _id: [''],
   });
+
+  editor!: Editor;
+  toolbar: Toolbar = [
+    ['bold', 'italic'],
+    ['underline', 'strike'],
+    ['ordered_list', 'bullet_list'],
+    [{ heading: ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'] }],
+    ['text_color', 'background_color'],
+    ['align_left', 'align_center', 'align_right', 'align_justify'],
+  ];
 
   constructor(
     private activated: ActivatedRoute,
@@ -43,8 +49,13 @@ export class CreateReviewComponent implements OnInit {
 
   ngOnInit(): void {
     this.reviewForm.patchValue({
-      set: this.activated.snapshot.params['id'],
+      _id: this.activated.snapshot.params['id'],
     });
+    this.editor = new Editor();
+  }
+
+  ngOnDestroy(): void {
+    this.editor.destroy();
   }
 
   onSubmit(button: HTMLButtonElement): void {
@@ -88,7 +99,7 @@ export class CreateReviewComponent implements OnInit {
       reader.onload = () => {
         this.images.push(reader.result as string);
         this.reviewForm.patchValue({
-          imageSources: this.images,
+          setImages: this.images,
         });
       };
     }
@@ -97,7 +108,7 @@ export class CreateReviewComponent implements OnInit {
   deleteImage(index: number) {
     this.images.splice(index, 1);
     this.reviewForm.patchValue({
-      imageSources: this.images,
+      setImages: this.images,
     });
   }
 }

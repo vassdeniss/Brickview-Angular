@@ -12,16 +12,13 @@ import { TokenService } from './services/token.service';
 import { SpinnerService } from './services/spinner.service';
 import { PopupService } from './services/popup.service';
 import { ReviewService } from './services/review.service';
+import { UserService } from './services/user.service';
 import { PageTitleStrategy } from './services/pageTitleStrategy.service';
 
 import { AppComponent } from './app.component';
 
 import { CoreModule } from './core/core.module';
-import { UserModule } from './user/user.module';
 import { SharedModule } from './shared/shared.module';
-import { AuthModule } from './auth/auth.module';
-import { SetModule } from './set/set.module';
-import { ReviewModule } from './review/review.module';
 
 import { TokenInterceptor } from './auth/token.interceptor';
 
@@ -32,10 +29,6 @@ import { TokenInterceptor } from './auth/token.interceptor';
     HttpClientModule,
     CoreModule,
     SharedModule,
-    UserModule,
-    AuthModule,
-    SetModule,
-    ReviewModule,
     AppRoutingModule,
     ReactiveFormsModule,
   ],
@@ -46,6 +39,7 @@ import { TokenInterceptor } from './auth/token.interceptor';
     SpinnerService,
     PopupService,
     ReviewService,
+    UserService,
     {
       provide: HTTP_INTERCEPTORS,
       useClass: TokenInterceptor,

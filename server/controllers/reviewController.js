@@ -5,81 +5,63 @@
  *   description: Review management
  */
 
-/**
- * @swagger
- * components:
- *   schemas:
- *     Review:
- *       type: object
- *       properties:
- *         _id:
- *           type: string
- *           description: The id of the review.
- *         buildExperience:
- *           type: string
- *           description: The build experience part of the review.
- *         design:
- *           type: string
- *           description: The design part of the review.
- *         minifigures:
- *           type: string
- *           description: The minifigures part of the review.
- *         value:
- *           type: string
- *           description: The value part of the review.
- *         other:
- *           type: string
- *           description: The other part of the review.
- *         verdict:
- *           type: string
- *           description: The verdict part of the review.
- *         set:
- *           $ref: '#/components/schemas/Set'
- *       example:
- *         buildExperience: "This was a fun build, but I had some issues with the stickers."
- *         design: "The design is great, but the stickers are a bit hard to apply."
- *         minifigures: "The minifigures are great, but I wish there were more."
- *         value: "The value is great, I got it on sale."
- *         other: "The set is great, but I wish there were more minifigures."
- *         verdict: "Overall, I would recommend this set."
- *         set:
- *         setNum: "8091-1"
- *         name: "Republic Swamp Speeder"
- *         year: 2010
- *         parts: 176
- *         image: "https://cdn.rebrickable.com/media/sets/8091-1/3953.jpg"
- *         minifigCount: 4
- *         isReviewed: false
- *         minifigs:
- *           - name: "Barriss Offee, Black Hood and Cape"
- *             quantity: 1
- *             image: "https://cdn.rebrickable.com/media/sets/fig-003834/90508.jpg"
- *           - name: "Battle Droid, One Bent Arm, One Straight Arm"
- *             quantity: 2
- *             image: "https://cdn.rebrickable.com/media/sets/fig-002330/108353.jpg"
- *           - name: "Clone Trooper, Phase II Armor, Plain Black Head, Dotted Mouth"
- *             quantity: 1
- *             image: "https://cdn.rebrickable.com/media/sets/fig-003835/104299.jpg"
- *           - name: "Super Battle Droid, Pearl Dark Gray"
- *             quantity: 1
- *             image: "https://cdn.rebrickable.com/media/sets/fig-003668/102998.jpg"
- */
-
 const router = require('express').Router();
 const { mustBeAuth } = require('../middlewares/auth');
 const reviewService = require('../services/reviewService');
 
-router.post('/create', mustBeAuth, async (req, res) => {
-  try {
-    await reviewService.addReview(req.body, req.header('X-Refresh'));
-    res.status(204).end();
-  } catch (err) {
-    res.status(400).json({
-      message: err.message,
-    });
-  }
-});
-
+/**
+ * @swagger
+ * /reviews/get/{id}:
+ *   get:
+ *     summary: Get a review by its ID
+ *     tags:
+ *       - Reviews
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         description: ID of the review to retrieve
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Returns the review object
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 _id:
+ *                   type: string
+ *                 setName:
+ *                   type: string
+ *                 setImage:
+ *                   type: string
+ *                 setNumber:
+ *                   type: string
+ *                 setParts:
+ *                   type: array
+ *                   items:
+ *                     type: string
+ *                 setYear:
+ *                   type: string
+ *                 setMinifigCount:
+ *                   type: number
+ *                 setImages:
+ *                   type: array
+ *                   items:
+ *                     type: string
+ *                 setMinifigures:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                 userUsername:
+ *                   type: string
+ *                 content:
+ *                   type: string
+ *       404:
+ *         description: Review not found
+ */
 router.get('/get/:id', async (req, res) => {
   try {
     const review = await reviewService.getReview(req.params.id);
@@ -91,6 +73,77 @@ router.get('/get/:id', async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /reviews/create:
+ *   post:
+ *     summary: Create a new review
+ *     tags:
+ *       - Reviews
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               _id:
+ *                 type: string
+ *               setImages:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *               content:
+ *                 type: string
+ *             required:
+ *               - _id
+ *               - setImages
+ *               - content
+ *     responses:
+ *       204:
+ *         description: Review created successfully
+ *       400:
+ *         description: Bad request - Check the request payload
+ *       401:
+ *         description: Unauthorized - User not authenticated
+ */
+router.post('/create', mustBeAuth, async (req, res) => {
+  try {
+    await reviewService.addReview(req.body, req.header('X-Refresh'));
+    res.status(204).end();
+  } catch (err) {
+    res.status(400).json({
+      message: err.message,
+    });
+  }
+});
+
+/**
+ * @swagger
+ * /reviews/delete/{id}:
+ *   delete:
+ *     summary: Delete a review by its ID
+ *     tags:
+ *       - Reviews
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         description: ID of the review to delete
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       204:
+ *         description: Review deleted successfully
+ *       401:
+ *         description: Unauthorized - User not authenticated or not authorized to delete the review
+ *       404:
+ *         description: Review not found
+ */
 router.delete('/delete/:id', async (req, res) => {
   try {
     await reviewService.deleteReview(req.params.id, req.header('X-Refresh'));
