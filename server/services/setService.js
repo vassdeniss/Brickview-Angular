@@ -91,6 +91,7 @@ exports.addSet = async (setId, refreshToken) => {
 
 exports.deleteSet = async (setId, token) => {
   const payload = jwt.decode(token);
+  const email = payload.email.replace(/[.@]/g, '');
   const id = payload._id;
 
   const set = await Set.findById(setId).populate('user');
@@ -100,6 +101,10 @@ exports.deleteSet = async (setId, token) => {
 
   if (set.user._id.toString() !== id) {
     throw new Error('You are not authorized to delete this set!');
+  }
+
+  if (set.review) {
+    await minioService.deleteReviewImages(email, set.setNum);
   }
 
   set.user.sets.splice(set.user.sets.indexOf(set._id), 1);
