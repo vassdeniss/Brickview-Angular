@@ -12,6 +12,7 @@ import { TokenService } from './services/token.service';
 import { SpinnerService } from './services/spinner.service';
 import { PopupService } from './services/popup.service';
 import { ReviewService } from './services/review.service';
+import { UserService } from './services/user.service';
 import { PageTitleStrategy } from './services/pageTitleStrategy.service';
 
 import { AppComponent } from './app.component';
@@ -46,6 +47,7 @@ import { TokenInterceptor } from './auth/token.interceptor';
     SpinnerService,
     PopupService,
     ReviewService,
+    UserService,
     {
       provide: HTTP_INTERCEPTORS,
       useClass: TokenInterceptor,

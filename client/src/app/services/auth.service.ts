@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable, catchError, map, of } from 'rxjs';
+import { Observable, map } from 'rxjs';
 import {
   LoginCredentials,
   RegisterCredentials,
@@ -8,16 +8,10 @@ import {
 import { JwtTokens } from '../types/tokenType';
 import { environment } from '../../environments/environment';
 import { User } from '../types/userType';
-import { Router, UrlTree } from '@angular/router';
-import { TokenService } from './token.service';
 
 @Injectable()
 export class AuthService {
-  constructor(
-    private http: HttpClient,
-    private router: Router,
-    private token: TokenService
-  ) {}
+  constructor(private http: HttpClient) {}
 
   // TODO: clean input
   register(credentials: RegisterCredentials): Observable<JwtTokens> {

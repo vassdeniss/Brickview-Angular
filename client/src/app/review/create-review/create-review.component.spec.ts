@@ -11,6 +11,7 @@ import { CreateReviewComponent } from './create-review.component';
 import { PopupService } from 'src/app/services/popup.service';
 import { ReviewService } from 'src/app/services/review.service';
 import { Router } from '@angular/router';
+import { NgxEditorModule } from 'ngx-editor';
 
 describe('CreateReviewComponent', () => {
   let component: CreateReviewComponent;
@@ -25,7 +26,7 @@ describe('CreateReviewComponent', () => {
 
     TestBed.configureTestingModule({
       declarations: [CreateReviewComponent],
-      imports: [ReactiveFormsModule, RouterTestingModule],
+      imports: [ReactiveFormsModule, RouterTestingModule, NgxEditorModule],
       providers: [
         { provide: PopupService, useValue: popupSpy },
         { provide: ReviewService, useValue: reviewSpy },
@@ -61,7 +62,8 @@ describe('CreateReviewComponent', () => {
     // Arrange: create mock review, setup service
     const reviewData = {
       content:
-        'Test review content lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum',
+        '<p>Test review content lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum</p>',
+      images: '',
       setImages: [],
       _id: 'test_set_id',
     };
@@ -69,7 +71,7 @@ describe('CreateReviewComponent', () => {
     const button = {} as HTMLButtonElement;
     component.reviewForm.patchValue({
       content:
-        'Test review content lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum',
+        '<p>Test review content lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum</p>',
     });
     component.reviewForm.patchValue({ _id: 'test_set_id' });
     const navigateSpy = spyOn(router, 'navigate');
