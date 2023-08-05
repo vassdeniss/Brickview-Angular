@@ -38,7 +38,7 @@ const options = {
     },
     servers: [
       {
-        url: process.env.HOST || 'localhost:3000',
+        url: process.env.HOST || 'http://localhost:3000',
       },
     ],
   },

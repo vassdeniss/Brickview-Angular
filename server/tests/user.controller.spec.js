@@ -49,6 +49,7 @@ describe('User controller routes', function () {
         .post('/users/register')
         .send(userData);
 
+      // Assert: that correct status is returned
       expect(response.status).to.equal(200);
       expect(response.body).to.deep.equal(expectedData);
     });
@@ -78,6 +79,7 @@ describe('User controller routes', function () {
         .post('/users/register')
         .send(userData);
 
+      // Assert: that correct status is returned
       expect(response.status).to.equal(200);
       expect(response.body).to.deep.equal(expectedData);
     });
@@ -98,6 +100,7 @@ describe('User controller routes', function () {
         .post('/users/register')
         .send(userData);
 
+      // Assert: that correct status is returned
       expect(response.status).to.equal(400);
       expect(response.body).to.have.property('message');
     });
@@ -122,6 +125,7 @@ describe('User controller routes', function () {
 
       const response = await request(app).post('/users/login').send(loginData);
 
+      // Assert: that correct status is returned
       expect(response.status).to.equal(200);
       expect(response.body).to.deep.equal(expectedData);
     });
@@ -136,6 +140,7 @@ describe('User controller routes', function () {
 
       const response = await request(app).post('/users/login').send(loginData);
 
+      // Assert: that correct status is returned
       expect(response.status).to.equal(400);
       expect(response.body).to.have.property('message');
     });
@@ -150,6 +155,7 @@ describe('User controller routes', function () {
         .get('/users/logout')
         .set('X-Refresh', refreshHeader);
 
+      // Assert: that correct status is returned
       expect(response.status).to.equal(204);
       expect(logoutStub).to.have.been.calledOnceWith(refreshHeader);
     });
@@ -169,6 +175,7 @@ describe('User controller routes', function () {
         .get('/users/get-logged-user')
         .set('X-Refresh', refreshHeader);
 
+      // Assert: that correct status is returned
       expect(response.status).to.equal(200);
       expect(response.body).to.deep.equal(userData);
     });
@@ -188,6 +195,7 @@ describe('User controller routes', function () {
         .get('/users/get-logged-user')
         .set('X-Refresh', refreshHeader);
 
+      // Assert: that correct status is returned
       expect(response.status).to.equal(404);
       expect(response.body).to.have.property('message');
     });

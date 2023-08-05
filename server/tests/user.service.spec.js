@@ -85,12 +85,16 @@ describe('User service methods', function () {
   });
 
   describe('login', () => {
-    it('should login with valid credentials and return a token (with image)', async () => {
-      // Arrange: mock data, create stubs
-      const userData = {
+    let userData;
+    beforeEach(() => {
+      userData = {
         email: 'testuser@mail.com',
         password: 'testpassword',
       };
+    });
+
+    it('should login with valid credentials and return a token (with image)', async () => {
+      // Arrange: create stubs
       const findOneStub = sinon.stub(User, 'findOne').resolves(userData);
       const compareStub = sinon.stub(bcrypt, 'compare').resolves(true);
       const generateTokenStub = sinon.stub().returns({
@@ -122,11 +126,7 @@ describe('User service methods', function () {
     });
 
     it('should login with valid credentials and return a token (no image)', async () => {
-      // Arrange: mock data, create stubs
-      const userData = {
-        email: 'testuser@mail.com',
-        password: 'testpassword',
-      };
+      // Arrange: create stubs
       const findOneStub = sinon.stub(User, 'findOne').resolves(userData);
       const compareStub = sinon.stub(bcrypt, 'compare').resolves(true);
       const generateTokenStub = sinon.stub().returns({
@@ -158,12 +158,7 @@ describe('User service methods', function () {
     });
 
     it('should throw an error with non-existant email', async () => {
-      // Arrange: mock data, create stubs
-      const userData = {
-        email: 'testEmail@email.com',
-        password: 'testpassword',
-      };
-
+      // Arrange: reate stubs
       sinon.stub(User, 'findOne').resolves(null);
 
       // Act+Assert: call the method, error was thrown
@@ -176,12 +171,7 @@ describe('User service methods', function () {
     });
 
     it('should throw an error with invalid password', async () => {
-      // Arrange: mock data, create stubs
-      const userData = {
-        email: 'testEmail@email.com',
-        password: 'testpassword',
-      };
-
+      // Arrange: create stubs
       sinon.stub(User, 'findOne').resolves(userData);
       sinon.stub(bcrypt, 'compare').resolves(false);
 

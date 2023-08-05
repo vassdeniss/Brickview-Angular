@@ -5,7 +5,6 @@ import { SharedModule } from '../shared/shared.module';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ReviewRoutingModule } from './review-routing.module';
 import { DetailReviewComponent } from './detail-review/detail-review.component';
-import { CKEditorModule } from '@ckeditor/ckeditor5-angular';
 import { NgxEditorModule } from 'ngx-editor';
 
 @NgModule({
