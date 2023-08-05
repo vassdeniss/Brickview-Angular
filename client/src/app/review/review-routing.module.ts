@@ -7,13 +7,13 @@ import { detailReviewResolver } from './detail-review/detail-review.resolver';
 
 const routes: Routes = [
   {
-    path: 'reviews/:id/create',
+    path: ':id/create',
     component: CreateReviewComponent,
     canActivate: [routeGuard],
     title: 'Create Review',
   },
   {
-    path: 'reviews/:id',
+    path: ':id',
     component: DetailReviewComponent,
     title: 'Review',
     resolve: { review: detailReviewResolver },

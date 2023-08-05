@@ -8,14 +8,14 @@ import { EditInfoComponent } from './edit-info/edit-info.component';
 
 const routes: Routes = [
   {
-    path: 'users/my-profile',
+    path: 'my-profile',
     component: UserCurrentProfileComponent,
     canActivate: [routeGuard],
     resolve: { user: userCurrentProfileResolver },
     title: 'My Profile',
   },
   {
-    path: 'users/edit',
+    path: 'edit',
     component: EditInfoComponent,
     canActivate: [routeGuard],
     title: 'Edit Profile',

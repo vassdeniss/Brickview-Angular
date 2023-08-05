@@ -8,17 +8,17 @@ import { LoginComponent } from './login/login.component';
 
 const routes: Routes = [
   {
-    path: 'auth/register',
+    path: 'register',
     component: RegisterComponent,
     title: 'Register',
   },
   {
-    path: 'auth/login',
+    path: 'login',
     component: LoginComponent,
     title: 'Login',
   },
   {
-    path: 'auth/logout',
+    path: 'logout',
     component: LogoutComponent,
     canActivate: [routeGuard],
     title: 'Logout',
