@@ -287,4 +287,63 @@ describe('Set service methods', function () {
       }
     });
   });
+
+  describe('getAllWithReview', () => {
+    afterEach(() => {
+      sinon.restore();
+    });
+
+    it('should return an array of sets with review and user data', async () => {
+      // Arrange: mock data and stubs
+      const mockSet1 = {
+        _id: '123',
+        name: 'Set 1',
+        image: 'image-url-1',
+        user: { username: 'user1', email: 'user1@example.com' },
+      };
+      const mockSet2 = {
+        _id: '456',
+        name: 'Set 2',
+        image: 'image-url-2',
+        user: { username: 'user2', email: 'user2@example.com' },
+      };
+      const mockSets = [mockSet1, mockSet2];
+
+      sinon.stub(Set, 'find').returns({
+        where: sinon.stub().returns({
+          ne: sinon.stub().returns({
+            ne: sinon.stub().returns({
+              ne: sinon.stub().returns({
+                select: sinon.stub().returns({
+                  populate: sinon.stub().resolves(mockSets),
+                }),
+              }),
+            }),
+          }),
+        }),
+      });
+
+      sinon.stub(minioService, 'getUserImage').resolves('user-image-url');
+
+      // Act: call the service
+      const result = await setService.getAllWithReview();
+
+      // Assert: verify the result
+      expect(result).to.be.an('array').with.lengthOf(2);
+      expect(result[0]).to.deep.equal({
+        _id: '123',
+        name: 'Set 1',
+        image: 'image-url-1',
+        username: 'user1',
+        userImage: 'user-image-url',
+      });
+      expect(result[1]).to.deep.equal({
+        _id: '456',
+        name: 'Set 2',
+        image: 'image-url-2',
+        username: 'user2',
+        userImage: 'user-image-url',
+      });
+    });
+  });
 });
