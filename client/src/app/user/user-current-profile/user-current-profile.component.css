@@ -6,7 +6,7 @@ body {
 }
 
 .container {
-  width: 300px;
+  max-width: 400px;
   margin: 50px auto;
   background-color: green;
   padding: 20px;
@@ -45,4 +45,15 @@ body {
   border: none;
   border-radius: 3px;
   cursor: pointer;
+}
+
+@media screen and (max-device-width: 480px) and (orientation: portrait) {
+  .container {
+    max-width: 300px;
+  }
+
+  .buttons {
+    flex-direction: column;
+    gap: 10px;
+  }
 }

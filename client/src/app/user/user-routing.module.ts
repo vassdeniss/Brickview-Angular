@@ -4,6 +4,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { routeGuard } from '../auth/route.guard';
 import { UserCurrentProfileComponent } from './user-current-profile/user-current-profile.component';
 import { userCurrentProfileResolver } from './user-current-profile/user-current-profile.resolver';
+import { EditInfoComponent } from './edit-info/edit-info.component';
 
 const routes: Routes = [
   {
@@ -12,6 +13,12 @@ const routes: Routes = [
     canActivate: [routeGuard],
     resolve: { user: userCurrentProfileResolver },
     title: 'My Profile',
+  },
+  {
+    path: 'users/edit',
+    component: EditInfoComponent,
+    canActivate: [routeGuard],
+    title: 'Edit Profile',
   },
 ];
 
