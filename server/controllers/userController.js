@@ -190,7 +190,7 @@ router.post('/login', async (req, res) => {
 /**
  * @swagger
  * /users/edit:
- *   put:
+ *   patch:
  *     summary: Update user data
  *     tags:
  *       - Users
@@ -221,7 +221,7 @@ router.post('/login', async (req, res) => {
  *       401:
  *         description: Unauthorized - User not authenticated.
  */
-router.put('/edit', mustBeAuth, async (req, res) => {
+router.patch('/edit', mustBeAuth, async (req, res) => {
   try {
     await userService.editData(req.body, req.header('X-Refresh'));
     res.status(204).end();

@@ -33,6 +33,11 @@ exports.getReviewImages = (username, setId) =>
 exports.deleteReviewImages = async (username, setId) =>
   deleteImagesWithBucket(`${username}-${setId}`);
 
+exports.deleteReviewImagesWithoutBucket = async (username, setId) => {
+  const list = await listObjects(`${username}-${setId}`);
+  return minioClient.removeObjects(`${username}-${setId}`, list);
+};
+
 exports.deleteImage = async (fileName) => {
   const exists = await minioClient.bucketExists('pfp');
   if (!exists) {
