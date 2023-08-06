@@ -14,10 +14,14 @@
 </app-popup>
 <div class="user-container">
   <h2>{{ review?.setName }} Review by: {{ review?.userUsername }}</h2>
-  <div>
-    <button class="button-danger" *ngIf="token" (click)="deleteReview()">
-      Delete
+  <div class="buttons" *ngIf="isOwner">
+    <button
+      class="button-warning"
+      [routerLink]="['/reviews', review?._id, 'edit']"
+    >
+      Edit
     </button>
+    <button class="button-danger" (click)="deleteReview()">Delete</button>
   </div>
 </div>
 <div class="container">
@@ -45,7 +49,7 @@
     [disabled]="true"
   ></ngx-editor>
 </div>
-<div class="set-images">
+<div class="set-images" *ngIf="review!.setImages!.length > 0">
   <img
     (click)="enlargeImage(image)"
     [src]="image"

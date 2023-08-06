@@ -10,6 +10,7 @@ export interface Review {
   setMinifigCount?: string;
   setImages: string[];
   setMinifigures?: Minigifure[];
+  userId?: string;
   userUsername?: string;
   content?: string;
 }

@@ -93,6 +93,7 @@ exports.getLoggedInUser = async (refreshToken) => {
   );
 
   return {
+    _id: user._id,
     username: user.username,
     email: user.email,
     sets: user.sets,

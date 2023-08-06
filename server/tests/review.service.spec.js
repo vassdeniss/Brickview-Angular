@@ -96,6 +96,7 @@ describe('Review service methods', () => {
         setMinifigCount: setData.minifigCount,
         setImages: images,
         setMinifigures: [],
+        userId: setData.user._id,
         userUsername: setData.user.username,
         content: setData.review,
       });

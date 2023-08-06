@@ -101,6 +101,7 @@ describe('AuthService', () => {
   it('should get the logged-in user', () => {
     // Arrange: create mock user
     const mockUser = {
+      _id: '123',
       username: 'testuser',
       email: 'testuser@mail.com',
       sets: [],
