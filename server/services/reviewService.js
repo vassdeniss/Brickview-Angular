@@ -45,6 +45,35 @@ exports.getReview = async (setId) => {
   };
 };
 
+exports.editReview = async (data, token) => {
+  const payload = jwt.decode(token);
+  const email = payload.email.replace(/[.@]/g, '');
+  const id = payload._id;
+
+  const buffers = [];
+  for (const file of data.setImages) {
+    const base64Data = file.replace(/^data:image\/(\w+);base64,/, '');
+    const buffer = Buffer.from(base64Data, 'base64');
+    buffers.push(buffer);
+  }
+
+  const set = await Set.findById(data._id)
+    .select('review setNum')
+    .populate('user');
+  if (!set.review) {
+    throw new Error('Review not found!');
+  }
+
+  if (set.user._id.toString() !== id) {
+    throw new Error('You are not authorized to edit this review!');
+  }
+
+  await minioService.deleteReviewImagesWithoutBucket(email, set.setNum);
+  await minioService.saveReview(email, set.setNum, buffers);
+  set.review = data.content;
+  return set.save();
+};
+
 exports.deleteReview = async (setId, token) => {
   const payload = jwt.decode(token);
   const email = payload.email.replace(/[.@]/g, '');
