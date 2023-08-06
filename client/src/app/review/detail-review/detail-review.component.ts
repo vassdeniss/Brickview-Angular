@@ -34,8 +34,11 @@ export class DetailReviewComponent implements OnInit, OnDestroy {
       this.review = review;
     });
     this.editor = new Editor();
-    this.authService.getLoggedUser().subscribe((user: User) => {
-      this.isOwner = user._id === this.review?.userId;
+    this.authService.getLoggedUser().subscribe({
+      next: (user: User) => {
+        this.isOwner = user._id === this.review?.userId;
+      },
+      error: (_) => (this.isOwner = false),
     });
   }
 

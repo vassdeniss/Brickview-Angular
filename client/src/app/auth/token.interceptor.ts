@@ -56,7 +56,7 @@ export class TokenInterceptor implements HttpInterceptor {
         }
       }),
       catchError((err) => {
-        if (err.status === 401) {
+        if (err.status === 401 && !request.url.includes('get-logged-user')) {
           this.token.clearTokens();
           localStorage.removeItem('image');
           this.router.navigate(['auth/login']);
