@@ -289,6 +289,7 @@ describe('User service methods', function () {
     it('should return correct user when given refresh token', async () => {
       // Arrange: mock data, create stubs
       const user = {
+        _id: 'some-user-id',
         username: 'testuser',
         email: 'testuser@gmail.com',
         image: 'image',

@@ -40,6 +40,7 @@ exports.getReview = async (setId) => {
     setMinifigCount: set.minifigCount,
     setImages: images,
     setMinifigures: set.minifigs,
+    userId: set.user._id,
     userUsername: set.user.username,
     content: set.review,
   };
