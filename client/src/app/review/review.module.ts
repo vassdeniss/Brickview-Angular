@@ -6,9 +6,10 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ReviewRoutingModule } from './review-routing.module';
 import { DetailReviewComponent } from './detail-review/detail-review.component';
 import { NgxEditorModule } from 'ngx-editor';
+import { EditReviewComponent } from './edit-review/edit-review.component';
 
 @NgModule({
-  declarations: [CreateReviewComponent, DetailReviewComponent],
+  declarations: [CreateReviewComponent, DetailReviewComponent, EditReviewComponent],
   imports: [
     CommonModule,
     ReviewRoutingModule,

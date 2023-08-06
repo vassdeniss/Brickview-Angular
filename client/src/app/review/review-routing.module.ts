@@ -4,6 +4,8 @@ import { routeGuard } from '../auth/route.guard';
 import { CreateReviewComponent } from './create-review/create-review.component';
 import { DetailReviewComponent } from './detail-review/detail-review.component';
 import { detailReviewResolver } from './detail-review/detail-review.resolver';
+import { EditReviewComponent } from './edit-review/edit-review.component';
+import { editReviewResolver } from './edit-review/edit-review.resolver';
 
 const routes: Routes = [
   {
@@ -17,6 +19,12 @@ const routes: Routes = [
     component: DetailReviewComponent,
     title: 'Review',
     resolve: { review: detailReviewResolver },
+  },
+  {
+    path: ':id/edit',
+    component: EditReviewComponent,
+    title: 'Edit Review',
+    resolve: { review: editReviewResolver },
   },
 ];
 

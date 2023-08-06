@@ -8,6 +8,6 @@ export class UserService {
   constructor(private http: HttpClient) {}
 
   editUser(formData: any): Observable<any> {
-    return this.http.put(`${environment.apiUrl}/users/edit`, formData);
+    return this.http.patch(`${environment.apiUrl}/users/edit`, formData);
   }
 }

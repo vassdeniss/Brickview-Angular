@@ -122,6 +122,50 @@ router.post('/create', mustBeAuth, async (req, res) => {
 
 /**
  * @swagger
+ * /reviews/edit:
+ *   patch:
+ *     summary: Update review data
+ *     tags:
+ *       - Reviews
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               content:
+ *                 type: string
+ *               setImages:
+ *                 type: array
+ *                 items:
+ *                  type: string
+ *             example:
+ *               content: This is some text
+ *               setImages: ["data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA...", "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA...", "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA..."]
+ *     responses:
+ *       204:
+ *         description: Data updated successfully.
+ *       400:
+ *         description: Error updating.
+ *       401:
+ *         description: Unauthorized - User not authenticated.
+ */
+router.patch('/edit', mustBeAuth, async (req, res) => {
+  try {
+    await reviewService.editReview(req.body, req.header('X-Refresh'));
+    res.status(204).end();
+  } catch (err) {
+    res.status(400).json({
+      message: err.message,
+    });
+  }
+});
+
+/**
+ * @swagger
  * /reviews/delete/{id}:
  *   delete:
  *     summary: Delete a review by its ID

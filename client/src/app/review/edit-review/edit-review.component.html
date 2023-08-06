@@ -1,0 +1,32 @@
+<app-popup *ngIf="popup.isActive" title="Error!" (closed)="popup.hide()">
+  <p *ngFor="let error of errors">{{ error }}</p>
+</app-popup>
+<form [formGroup]="reviewForm" class="edit-form" (ngSubmit)="onSubmit(button)">
+  <h2>Write your Review</h2>
+  <ngx-editor-menu [editor]="editor" [toolbar]="toolbar"></ngx-editor-menu>
+  <ngx-editor
+    [editor]="editor"
+    [placeholder]="'Type here...'"
+    id="content"
+    name="content"
+    formControlName="content"
+  ></ngx-editor>
+  <div class="form-group">
+    <label for="images">Set Images</label>
+    <input
+      type="file"
+      id="setImages"
+      name="images"
+      multiple=""
+      accept="image/*"
+      formControlName="images"
+      (change)="onFileChange($event)"
+    />
+  </div>
+  <div class="image-wrapper" *ngFor="let url of images; let i = index">
+    <img [src]="url" />
+    <a class="delete-button" (click)="deleteImage(i)">&times;</a>
+  </div>
+  <input type="hidden" id="_id" name="_id" formControlName="_id" />
+  <button #button>Create</button>
+</form>
