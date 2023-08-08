@@ -1,0 +1,10 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.container {
+  padding: 10px;
+  flex-grow: 1;
+}
