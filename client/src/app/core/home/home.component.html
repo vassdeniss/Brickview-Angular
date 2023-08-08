@@ -1,5 +1,5 @@
 <ul>
-  <div *ngFor="let set of sets" class="card">
+  <div *ngFor="let set of sets$ | async" class="card">
     <img src="{{ set.image }}" />
     <div class="card-content">
       <div class="card-title">

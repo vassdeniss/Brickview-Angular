@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { Observable, map } from 'rxjs';
 import { User } from 'src/app/types/userType';
 
 @Component({
@@ -8,13 +9,11 @@ import { User } from 'src/app/types/userType';
   styleUrls: ['./user-current-profile.component.css'],
 })
 export class UserCurrentProfileComponent implements OnInit {
-  user: User | undefined = undefined;
+  user$!: Observable<User | undefined>;
 
   constructor(private route: ActivatedRoute) {}
 
   ngOnInit(): void {
-    this.route.data.subscribe(({ user }) => {
-      this.user = user;
-    });
+    this.user$ = this.route.data.pipe(map(({ user }) => user));
   }
 }

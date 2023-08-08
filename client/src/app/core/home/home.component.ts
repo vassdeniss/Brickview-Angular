@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { Observable, map } from 'rxjs';
 import { Set } from 'src/app/types/setType';
 
 @Component({
@@ -8,13 +9,11 @@ import { Set } from 'src/app/types/setType';
   styleUrls: ['./home.component.css'],
 })
 export class HomeComponent {
-  sets: Set[] = [];
+  sets$!: Observable<Set[]>;
 
   constructor(private route: ActivatedRoute) {}
 
   ngOnInit(): void {
-    this.route.data.subscribe(({ sets }) => {
-      this.sets = sets;
-    });
+    this.sets$ = this.route.data.pipe(map((data) => data['sets']));
   }
 }

@@ -84,6 +84,17 @@ img {
   .set-image {
     max-width: 100%;
   }
+
+  .container {
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .set-info {
+    padding: unset;
+    text-align: center;
+  }
 }
 
 .enlarged-image-container {

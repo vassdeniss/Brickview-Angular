@@ -6,6 +6,7 @@ import { PageSpinnerComponent } from './page-spinner/page-spinner.component';
 import { SharedModule } from '../shared/shared.module';
 import { HomeComponent } from './home/home.component';
 import { RouterModule } from '@angular/router';
+import { FooterComponent } from './footer/footer.component';
 
 @NgModule({
   declarations: [
@@ -13,8 +14,9 @@ import { RouterModule } from '@angular/router';
     PagenotfoundComponent,
     PageSpinnerComponent,
     HomeComponent,
+    FooterComponent,
   ],
   imports: [CommonModule, SharedModule, RouterModule],
-  exports: [NavComponent, PageSpinnerComponent],
+  exports: [NavComponent, PageSpinnerComponent, FooterComponent],
 })
 export class CoreModule {}
