@@ -155,6 +155,52 @@ router.get('/logged-user-collection', mustBeAuth, async (req, res) => {
 
 /**
  * @swagger
+ * /user-collection:
+ *   get:
+ *     summary: Get a user's set collection
+ *     tags: [Sets]
+ *     parameters:
+ *       - name: username
+ *         in: path
+ *         required: true
+ *         description: The username of the user to be searched.
+ *         schema:
+ *           type: string
+ *           example: "guest"
+ *     responses:
+ *       200:
+ *         description: Successfullly retrieved the set collection.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Set'
+ *       404:
+ *         description: User not found.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   description: Error message.
+ *                   example: "User not found!"
+ */
+router.get('/user-collection/:username', async (req, res) => {
+  try {
+    const collection = await setService.getUserCollection(req.params.username);
+    res.status(200).json(collection);
+  } catch (err) {
+    res.status(404).json({
+      message: err.message,
+    });
+  }
+});
+
+/**
+ * @swagger
  * /add-set:
  *   post:
  *     summary: Add a set to the user's collection

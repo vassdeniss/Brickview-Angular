@@ -44,6 +44,16 @@ exports.getLoggedInUserCollection = async (refreshToken) => {
   return user.sets;
 };
 
+exports.getUserCollection = async (username) => {
+  const user = await User.findOne({ username }).populate('sets').select('sets');
+
+  if (!user) {
+    throw new Error('User not found!');
+  }
+
+  return user.sets;
+};
+
 exports.addSet = async (setId, refreshToken) => {
   const foundSet = await axios.get(`${host}/api/v3/lego/sets/${setId}-1/`, {
     headers: {
