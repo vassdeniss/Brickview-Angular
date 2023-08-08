@@ -7,6 +7,26 @@ const userSchema = new mongoose.Schema({
     trim: true,
     required: [true, 'Username is required!'],
     minLength: [4, 'Username must be at least 4 characters long!'],
+    lowercase: true,
+    validate: [
+      {
+        validator: async function (username) {
+          username = username.toLowerCase();
+          const user = await this.constructor.findOne({ username });
+
+          if (!user) {
+            return true;
+          }
+
+          if (this.id === user.id) {
+            return true;
+          }
+
+          return false;
+        },
+        message: 'The username is taken!',
+      },
+    ],
   },
   email: {
     type: String,
