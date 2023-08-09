@@ -4,6 +4,8 @@ import { MySetsComponent } from './my-sets/my-sets.component';
 import { routeGuard } from '../auth/route.guard';
 import { mySetsResolver } from './my-sets/my-sets.resolver';
 import { AddSetComponent } from './add-set/add-set.component';
+import { UserSetsComponent } from './user-sets/user-sets.component';
+import { userSetsResolver } from './user-sets/user-sets.resolver';
 
 const routes: Routes = [
   {
@@ -18,6 +20,12 @@ const routes: Routes = [
     component: AddSetComponent,
     canActivate: [routeGuard],
     title: 'Add Sets',
+  },
+  {
+    path: ':username',
+    component: UserSetsComponent,
+    resolve: { data: userSetsResolver },
+    title: 'User Sets',
   },
 ];
 
