@@ -7,15 +7,11 @@ const minioService = require('../services/minioService');
 const host = 'https://rebrickable.com';
 
 exports.getAllWithReview = async () => {
-  const sets = await Set.find()
-    .where('review')
-    .ne(null)
-    .ne('')
-    .ne(undefined)
+  const sets = await Set.find({ review: { $ne: null } })
     .select('name image')
     .populate('user', 'username email');
 
-  const setsWithImages = await Promise.all(
+  return Promise.all(
     sets.map(async (set) => {
       return {
         _id: set._id,
@@ -28,18 +24,12 @@ exports.getAllWithReview = async () => {
       };
     })
   );
-
-  return setsWithImages;
 };
 
 exports.getLoggedInUserCollection = async (refreshToken) => {
   const user = await User.findOne({ refreshToken })
     .populate('sets')
     .select('sets');
-
-  if (!user) {
-    throw new Error('Invalid refresh token!');
-  }
 
   return user.sets;
 };
@@ -65,11 +55,19 @@ exports.getUserCollection = async (username) => {
 };
 
 exports.addSet = async (setId, refreshToken) => {
-  const foundSet = await axios.get(`${host}/api/v3/lego/sets/${setId}-1/`, {
-    headers: {
-      Authorization: `key ${process.env.REBRICKABLE_API_KEY}`,
-    },
-  });
+  const foundSet = await axios
+    .get(`${host}/api/v3/lego/sets/${setId}-1/`, {
+      headers: {
+        Authorization: `key ${process.env.REBRICKABLE_API_KEY}`,
+      },
+    })
+    .catch((err) => {
+      if (err.response) {
+        const error = new Error('Set not found!');
+        error.statusCode = 404;
+        throw error;
+      }
+    });
 
   const figs = await axios.get(
     `${host}/api/v3/lego/sets/${setId}-1/minifigs/`,
@@ -82,7 +80,9 @@ exports.addSet = async (setId, refreshToken) => {
 
   const user = await User.findOne({ refreshToken }).populate('sets');
   if (user.sets.find((set) => foundSet.data.set_num.includes(set.setNum))) {
-    throw new Error('Set already exists in collection!');
+    const error = new Error('Set already exists in collection!');
+    error.statusCode = 409;
+    throw error;
   }
 
   const setData = {
@@ -116,11 +116,15 @@ exports.deleteSet = async (setId, token) => {
 
   const set = await Set.findById(setId).populate('user');
   if (!set) {
-    throw new Error('Set not found!');
+    const error = new Error('Set not found!');
+    error.statusCode = 404;
+    throw error;
   }
 
   if (set.user._id.toString() !== id) {
-    throw new Error('You are not authorized to delete this set!');
+    const error = new Error('You are not authorized to delete this set!');
+    error.statusCode = 403;
+    throw error;
   }
 
   if (set.review) {
