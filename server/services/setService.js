@@ -45,13 +45,23 @@ exports.getLoggedInUserCollection = async (refreshToken) => {
 };
 
 exports.getUserCollection = async (username) => {
-  const user = await User.findOne({ username }).populate('sets').select('sets');
+  const user = await User.findOne({
+    username: {
+      $regex: new RegExp(username, 'i'),
+    },
+  }).populate('sets');
 
   if (!user) {
     throw new Error('User not found!');
   }
 
-  return user.sets;
+  return {
+    user: {
+      image: await minioService.getUserImage(user.email.replace(/[.@]/g, '')),
+      username: user.username,
+    },
+    sets: user.sets,
+  };
 };
 
 exports.addSet = async (setId, refreshToken) => {

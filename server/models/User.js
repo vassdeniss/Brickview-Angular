@@ -8,11 +8,15 @@ const userSchema = new mongoose.Schema({
     required: [true, 'Username is required!'],
     minLength: [4, 'Username must be at least 4 characters long!'],
     lowercase: true,
+    unique: true,
     validate: [
       {
         validator: async function (username) {
-          username = username.toLowerCase();
-          const user = await this.constructor.findOne({ username });
+          const user = await this.constructor.findOne({
+            username: {
+              $regex: new RegExp(username, 'i'),
+            },
+          });
 
           if (!user) {
             return true;
