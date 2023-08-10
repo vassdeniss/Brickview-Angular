@@ -83,4 +83,19 @@ describe('ReviewService', () => {
     );
     expect(req.request.method).toBe('DELETE');
   });
+
+  it('should edit a review', () => {
+    // Arrange: create mock review ID
+    const review = {} as Review;
+
+    // Act: edit a review by review ID
+    reviewService.editReview(review).subscribe((response) => {
+      expect(response).toBeTruthy();
+      expect(response.status).toEqual(204);
+    });
+
+    // Assert: check that the request was sent correctly
+    const req = httpMock.expectOne(`${environment.apiUrl}/reviews/edit`);
+    expect(req.request.method).toBe('PATCH');
+  });
 });

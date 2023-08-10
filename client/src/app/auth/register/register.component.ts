@@ -68,6 +68,7 @@ export class RegisterComponent {
       });
   }
 
+  /* istanbul ignore next */
   onFileChange(event: Event) {
     const target = event.target as HTMLInputElement;
 

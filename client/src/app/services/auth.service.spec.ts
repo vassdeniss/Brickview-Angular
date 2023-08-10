@@ -56,7 +56,7 @@ describe('AuthService', () => {
   it('should login a user', () => {
     // Arrange: create mocks
     const mockCredentials = {
-      email: 'testuser@mail.com',
+      username: 'testuserusername',
       password: 'testpass',
     };
     const mockResponse = { accessToken: 'abc', refreshToken: 'xyz' };

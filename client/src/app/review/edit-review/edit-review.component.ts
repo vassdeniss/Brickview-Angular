@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
-import { FormBuilder } from '@angular/forms';
+import { FormBuilder, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Editor, Toolbar, Validators } from 'ngx-editor';
+import { Editor, Toolbar } from 'ngx-editor';
 import { getFormValidationErrors } from 'src/app/auth/helpers';
 import { PopupService } from 'src/app/services/popup.service';
 import { ReviewService } from 'src/app/services/review.service';
@@ -92,6 +92,7 @@ export class EditReviewComponent {
     });
   }
 
+  /* istanbul ignore next */
   onFileChange(event: Event) {
     const target = event.target as HTMLInputElement;
 

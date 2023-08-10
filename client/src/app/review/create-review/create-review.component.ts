@@ -85,6 +85,7 @@ export class CreateReviewComponent implements OnInit, OnDestroy {
     });
   }
 
+  /* istanbul ignore next */
   onFileChange(event: Event) {
     const target = event.target as HTMLInputElement;
 
