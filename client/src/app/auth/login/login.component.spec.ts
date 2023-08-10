@@ -22,13 +22,13 @@ describe('LoginComponent', () => {
   let router: Router;
   let tokenService: TokenService;
 
-  beforeEach(async () => {
+  beforeEach(() => {
     const tokenServiceMock = {
       saveToken: jasmine.createSpy('saveToken'),
       saveRefreshToken: jasmine.createSpy('saveRefreshToken'),
     };
 
-    await TestBed.configureTestingModule({
+    TestBed.configureTestingModule({
       imports: [
         ReactiveFormsModule,
         RouterTestingModule,
@@ -41,7 +41,7 @@ describe('LoginComponent', () => {
         PopupService,
         { provide: TokenService, useValue: tokenServiceMock },
       ],
-    }).compileComponents();
+    });
   });
 
   beforeEach(() => {
@@ -55,16 +55,16 @@ describe('LoginComponent', () => {
   });
 
   it('should show popup and display form validation errors when form is invalid', () => {
-    // Arrange: set up an invalid email value in the login form, spy on the popup
+    // Arrange: set up an invalid username value in the login form, spy on the popup
     const button = {} as HTMLButtonElement;
-    component.loginForm.get('email')?.setValue('invalid-email');
+    component.loginForm.get('username')?.setValue('');
     spyOn(popupService, 'show');
 
     // Act: call the onSubmit method with a fake button element
     component.onSubmit(button);
 
     // Assert: check that the popup is shown and form validation errors are displayed
-    expect(component.errors).toContain('email is not valid!');
+    expect(component.errors).toContain('username is required!');
     expect(component.errors).toContain('password is required!');
     expect(popupService.show).toHaveBeenCalled();
     expect(button.disabled).toBe(false);
@@ -81,7 +81,7 @@ describe('LoginComponent', () => {
       })
     );
     const navigateSpy = spyOn(router, 'navigate');
-    component.loginForm.get('email')?.setValue('test@example.com');
+    component.loginForm.get('username')?.setValue('testusername');
     component.loginForm.get('password')?.setValue('password');
 
     // Act: call the onSubmit method with a fake button element
@@ -93,7 +93,7 @@ describe('LoginComponent', () => {
     // and that tokens are saved and navigation to home is triggered
     expect(localStorage.getItem('image')).toBe('profile.jpg');
     expect(authService.login).toHaveBeenCalledWith({
-      email: 'test@example.com',
+      username: 'testusername',
       password: 'password',
     });
     expect(tokenService.saveToken).toHaveBeenCalledWith('token');
@@ -116,7 +116,7 @@ describe('LoginComponent', () => {
       })
     );
     spyOn(popupService, 'show');
-    component.loginForm.get('email')?.setValue('test@example.com');
+    component.loginForm.get('username')?.setValue('testusername');
     component.loginForm.get('password')?.setValue('wrong-password');
 
     // Act: call the onSubmit method with a fake button element

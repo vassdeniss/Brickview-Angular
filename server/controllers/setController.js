@@ -100,15 +100,46 @@ const router = require('express').Router();
 const { mustBeAuth } = require('../middlewares/auth');
 const setService = require('../services/setService');
 
+/**
+ * @swagger
+ * /allWithReviews:
+ *   get:
+ *     summary: Get all sets with their reviews.
+ *     tags: [Sets]
+ *     responses:
+ *       200:
+ *         description: Successfullly retrieved the sets.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   _id:
+ *                     type: string
+ *                     description: The set ID.
+ *                     example: "918fh18j102"
+ *                   name:
+ *                     type: string
+ *                     description: The set name.
+ *                     example: "Kessel Run Millennium  Falcon"
+ *                   image:
+ *                     type: string
+ *                     description: The set image.
+ *                     example: "https://some-url"
+ *                   username:
+ *                     type: string
+ *                     description: The user username.
+ *                     example: "guest"
+ *                   userImage:
+ *                     type: string
+ *                     description: The user image.
+ *                     example: "some-base64-image"
+ */
 router.get('/allWithReviews', async (req, res) => {
-  try {
-    const reviews = await setService.getAllWithReview();
-    res.status(200).json(reviews);
-  } catch (err) {
-    res.status(404).json({
-      message: err.message,
-    });
-  }
+  const reviews = await setService.getAllWithReview();
+  res.status(200).json(reviews);
 });
 
 /**
@@ -128,8 +159,55 @@ router.get('/allWithReviews', async (req, res) => {
  *               type: array
  *               items:
  *                 $ref: '#/components/schemas/Set'
- *       401:
- *         description: Invalid token for user.
+ */
+router.get('/logged-user-collection', mustBeAuth, async (req, res) => {
+  const collection = await setService.getLoggedInUserCollection(
+    req.header('X-Refresh')
+  );
+  res.status(200).json(collection);
+});
+
+/**
+ * @swagger
+ * /user-collection:
+ *   get:
+ *     summary: Get a user's set collection
+ *     tags: [Sets]
+ *     parameters:
+ *       - name: username
+ *         in: path
+ *         required: true
+ *         description: The username of the user to be searched.
+ *         schema:
+ *           type: string
+ *           example: "guest"
+ *     responses:
+ *       200:
+ *         description: Successfullly retrieved the set collection.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   user:
+ *                     type: object
+ *                     properties:
+ *                       image:
+ *                         type: string
+ *                         description: The set image.
+ *                         example: "https://some-url"
+ *                       username:
+ *                         type: string
+ *                         description: The user username.
+ *                         example: "guest"
+ *                   sets:
+ *                     type: array
+ *                     items:
+ *                       $ref: '#/components/schemas/Set'
+ *       404:
+ *         description: User not found.
  *         content:
  *           application/json:
  *             schema:
@@ -138,16 +216,14 @@ router.get('/allWithReviews', async (req, res) => {
  *                 message:
  *                   type: string
  *                   description: Error message.
- *                   example: "Invalid refresh token!"
+ *                   example: "User not found!"
  */
-router.get('/logged-user-collection', mustBeAuth, async (req, res) => {
+router.get('/user-collection/:username', async (req, res) => {
   try {
-    const collection = await setService.getLoggedInUserCollection(
-      req.header('X-Refresh')
-    );
+    const collection = await setService.getUserCollection(req.params.username);
     res.status(200).json(collection);
   } catch (err) {
-    res.status(401).json({
+    res.status(404).json({
       message: err.message,
     });
   }
@@ -194,7 +270,7 @@ router.post('/add-set', mustBeAuth, async (req, res) => {
     await setService.addSet(req.body.setId, req.header('X-Refresh'));
     res.status(204).end();
   } catch (err) {
-    res.status(404).json({
+    res.status(err.statusCode).json({
       message: err.message,
     });
   }
@@ -230,8 +306,10 @@ router.post('/add-set', mustBeAuth, async (req, res) => {
  *                   type: string
  *                   description: Error message.
  *                   example: "Set not found!"
+ *       403:
+ *         description: Forbidden - User not allowed to delete.
  *       401:
- *         description: Unauthorized - User not authenticated
+ *         description: Unauthorized - User not authenticated.
  */
 router.delete('/delete/:id', mustBeAuth, async (req, res) => {
   try {

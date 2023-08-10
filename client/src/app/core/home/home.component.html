@@ -7,7 +7,12 @@
       </div>
       <div class="card-details">
         <img *ngIf="set.userImage" src="{{ set.userImage }}" />
-        <span>Review by: {{ set.username }}</span>
+        <span
+          >Review by:
+          <strong class="user-link" [routerLink]="['/sets', set.username]">{{
+            set.username
+          }}</strong></span
+        >
       </div>
       <div class="card-actions">
         <button [routerLink]="['/reviews', set._id]" class="card-button">

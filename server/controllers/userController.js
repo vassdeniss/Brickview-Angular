@@ -50,6 +50,7 @@
 
 const router = require('express').Router();
 
+const { getMongooseErrors } = require('../lib/errorExtractor');
 const { mustBeAuth } = require('../middlewares/auth');
 const userService = require('../services/userService');
 
@@ -139,6 +140,10 @@ router.post('/register', async (req, res) => {
     const result = await userService.register(req.body);
     res.status(200).json(result);
   } catch (err) {
+    if (err.name === 'ValidationError') {
+      err = getMongooseErrors(err);
+    }
+
     res.status(400).json({
       message: err.message,
     });
@@ -226,6 +231,10 @@ router.patch('/edit', mustBeAuth, async (req, res) => {
     await userService.editData(req.body, req.header('X-Refresh'));
     res.status(204).end();
   } catch (err) {
+    if (err.name === 'ValidationError') {
+      err = getMongooseErrors(err);
+    }
+
     res.status(400).json({
       message: err.message,
     });

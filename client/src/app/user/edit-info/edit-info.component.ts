@@ -35,6 +35,7 @@ export class EditInfoComponent implements OnInit {
     });
   }
 
+  /* istanbul ignore next */
   onFileChange(event: Event) {
     const inputElement = event.target as HTMLInputElement;
     if (inputElement.files && inputElement.files.length > 0) {

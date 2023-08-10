@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { SetService } from 'src/app/services/set.service';
 import { SetComponent } from './set.component';
+import { of } from 'rxjs';
 
 describe('Set Component', () => {
   let component: SetComponent;
@@ -19,7 +20,17 @@ describe('Set Component', () => {
     component = fixture.componentInstance;
   });
 
-  it('dummy', () => {
-    expect(true).toBe(true);
+  it('should emit setRemoved event when deleteSet is called', () => {
+    // Arrange: set up a mock set id and mock set service
+    const setId = '123';
+    mockSetService.deleteSet.and.returnValue(of(null));
+    spyOn(component.setRemoved, 'emit');
+
+    // Act: call the deleteSet method
+    component.deleteSet(setId);
+
+    // Assert: check that the setRemoved event was emitted
+    expect(mockSetService.deleteSet).toHaveBeenCalledWith(setId);
+    expect(component.setRemoved.emit).toHaveBeenCalledWith(setId);
   });
 });

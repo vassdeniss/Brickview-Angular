@@ -4,13 +4,12 @@
 <form [formGroup]="loginForm" class="login-form" (ngSubmit)="onSubmit(button)">
   <h2>Login</h2>
   <div class="form-group">
-    <label for="email">Email</label>
+    <label for="username">Username</label>
     <input
-      type="email"
-      id="email"
-      name="email"
-      placeholder="Enter email"
-      formControlName="email"
+      id="username"
+      name="username"
+      placeholder="Enter username"
+      formControlName="username"
     />
   </div>
   <div class="form-group">

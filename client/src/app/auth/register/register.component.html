@@ -1,5 +1,5 @@
 <app-popup *ngIf="popup.isActive" title="Error!" (closed)="popup.hide()">
-  <p *ngFor="let error of errors">{{ error }}</p>
+  <p class="multiline" *ngFor="let error of errors">{{ error }}</p>
 </app-popup>
 <form
   [formGroup]="registerForm"

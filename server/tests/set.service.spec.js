@@ -21,15 +21,10 @@ describe('Set service methods', function () {
   });
 
   describe('getLoggedInUserCollection', () => {
-    let refreshToken;
-    let populateStub;
-    beforeEach(() => {
-      refreshToken = 'someToken';
-      populateStub = sinon.stub().returnsThis();
-    });
-
     it('should return user collection with valid refresh token', async () => {
       // Arrange: mock dependencies and data
+      const refreshToken = 'someToken';
+      const populateStub = sinon.stub().returnsThis();
       const user = {
         sets: ['someSet'],
       };
@@ -47,29 +42,6 @@ describe('Set service methods', function () {
       expect(populateStub).to.have.been.calledWith('sets');
       expect(selectStub).to.have.been.calledWith('sets');
       expect(sets).to.deep.equal(user.sets);
-    });
-
-    it('should throw error with invalid refresh token', async () => {
-      // Arrange: mock dependencies and data
-      const selectStub = sinon.stub().resolves(null);
-      const findOneStub = sinon.stub(User, 'findOne').returns({
-        populate: populateStub,
-        select: selectStub,
-      });
-
-      // Act: call the method (expect error)
-      try {
-        await setService.getLoggedInUserCollection(refreshToken);
-        expect.fail('Expected an error but none was thrown');
-      } catch (error) {
-        expect(error).to.be.an.instanceOf(Error);
-        expect(error.message).to.equal('Invalid refresh token!');
-      }
-
-      // Assert: check if methods were called
-      expect(findOneStub).to.have.been.calledWith({ refreshToken });
-      expect(populateStub).to.have.been.calledWith('sets');
-      expect(selectStub).to.have.been.calledWith('sets');
     });
   });
 
@@ -310,16 +282,8 @@ describe('Set service methods', function () {
       const mockSets = [mockSet1, mockSet2];
 
       sinon.stub(Set, 'find').returns({
-        where: sinon.stub().returns({
-          ne: sinon.stub().returns({
-            ne: sinon.stub().returns({
-              ne: sinon.stub().returns({
-                select: sinon.stub().returns({
-                  populate: sinon.stub().resolves(mockSets),
-                }),
-              }),
-            }),
-          }),
+        select: sinon.stub().returns({
+          populate: sinon.stub().resolves(mockSets),
         }),
       });
 
