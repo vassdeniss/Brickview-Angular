@@ -5,6 +5,7 @@
     "server.js",
     "routes.js",
     "services/minioService.js",
-    "controllers/rootController.js"
+    "controllers/rootController.js",
+    "lib/errorExtractor.js"
   ]
 }

@@ -14,7 +14,7 @@ import { LoginCredentials } from 'src/app/types/credentialsType';
 })
 export class LoginComponent {
   loginForm = this.fb.group({
-    email: ['', [Validators.required, Validators.email]],
+    username: ['', [Validators.required]],
     password: ['', [Validators.required]],
   });
   errors: string[] = [];

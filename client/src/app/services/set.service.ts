@@ -20,6 +20,12 @@ export class SetService {
     );
   }
 
+  getUserSets(username: string): Observable<any> {
+    return this.http.get<any>(
+      `${environment.apiUrl}/sets/user-collection/${username}`
+    );
+  }
+
   addSet(setId: string): Observable<any> {
     return this.http.post(`${environment.apiUrl}/sets/add-set`, { setId });
   }

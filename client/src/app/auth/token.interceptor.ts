@@ -63,6 +63,11 @@ export class TokenInterceptor implements HttpInterceptor {
           return EMPTY;
         }
 
+        if (err.status === 404 && request.url.includes('user-collection')) {
+          this.router.navigate(['404']);
+          return EMPTY;
+        }
+
         return throwError(() => err);
       }),
       finalize(() => {

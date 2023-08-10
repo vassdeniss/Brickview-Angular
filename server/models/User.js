@@ -7,12 +7,14 @@ const userSchema = new mongoose.Schema({
     trim: true,
     required: [true, 'Username is required!'],
     minLength: [4, 'Username must be at least 4 characters long!'],
-    lowercase: true,
+    unique: true,
     validate: [
       {
         validator: async function (username) {
           username = username.toLowerCase();
-          const user = await this.constructor.findOne({ username });
+          const user = await this.constructor.findOne({
+            normalizedUsername: username,
+          });
 
           if (!user) {
             return true;
@@ -28,10 +30,15 @@ const userSchema = new mongoose.Schema({
       },
     ],
   },
+  normalizedUsername: {
+    type: String,
+    trim: true,
+    unique: true,
+  },
   email: {
     type: String,
     required: [true, 'Email is required!'],
-    unique: [true, 'Email already exists!'],
+    unique: true,
     trim: true,
     lowercase: true,
     validate: [
@@ -90,6 +97,8 @@ userSchema.post('validate', async function (doc) {
   if (doc.isNew) {
     this.password = await bcrypt.hash(this.password, 10);
   }
+
+  this.normalizedUsername = this.username.toLowerCase();
 });
 
 const User = mongoose.model('User', userSchema);

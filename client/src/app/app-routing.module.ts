@@ -21,7 +21,6 @@ const routes: Routes = [
   {
     path: 'sets',
     loadChildren: () => import('./set/set.module').then((m) => m.SetModule),
-    canMatch: [routeGuard],
   },
   {
     path: 'reviews',

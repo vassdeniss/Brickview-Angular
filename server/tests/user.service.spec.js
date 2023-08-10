@@ -88,6 +88,7 @@ describe('User service methods', function () {
     let userData;
     beforeEach(() => {
       userData = {
+        username: 'testuser',
         email: 'testuser@mail.com',
         password: 'testpassword',
       };
@@ -113,7 +114,11 @@ describe('User service methods', function () {
       const result = await service.login(userData);
 
       // Assert: check if methods were called
-      expect(findOneStub.calledOnceWith({ email: userData.email })).to.be.true;
+      expect(
+        findOneStub.calledOnceWith({
+          normalizedUsername: userData.username.toLowerCase(),
+        })
+      ).to.be.true;
       expect(compareStub.calledOnceWith(userData.password, userData.password))
         .to.be.true;
       expect(generateTokenStub.calledOnceWith(userData)).to.be.true;
@@ -145,7 +150,11 @@ describe('User service methods', function () {
       const result = await service.login(userData);
 
       // Assert: check if methods were called
-      expect(findOneStub.calledOnceWith({ email: userData.email })).to.be.true;
+      expect(
+        findOneStub.calledOnceWith({
+          normalizedUsername: userData.username.toLowerCase(),
+        })
+      ).to.be.true;
       expect(compareStub.calledOnceWith(userData.password, userData.password))
         .to.be.true;
       expect(generateTokenStub.calledOnceWith(userData)).to.be.true;
@@ -166,7 +175,7 @@ describe('User service methods', function () {
         await service.login(userData);
         expect.fail('Expected an error to be thrown');
       } catch (error) {
-        expect(error.message).to.equal('Invalid email or password!');
+        expect(error.message).to.equal('Invalid username or password!');
       }
     });
 
@@ -180,7 +189,7 @@ describe('User service methods', function () {
         await service.login(userData);
         expect.fail('Expected an error to be thrown');
       } catch (error) {
-        expect(error.message).to.equal('Invalid email or password!');
+        expect(error.message).to.equal('Invalid username or password!');
       }
     });
   });
