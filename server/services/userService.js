@@ -18,10 +18,9 @@ exports.register = async (userData) => {
 };
 
 exports.login = async ({ username, password }) => {
+  username = username.toLowerCase();
   const user = await User.findOne({
-    username: {
-      $regex: new RegExp(username, 'i'),
-    },
+    normalizedUsername: username,
   });
   if (!user) {
     throw new Error('Invalid username or password!');

@@ -35,11 +35,10 @@ exports.getLoggedInUserCollection = async (refreshToken) => {
 };
 
 exports.getUserCollection = async (username) => {
-  const user = await User.findOne({
-    username: {
-      $regex: new RegExp(username, 'i'),
-    },
-  }).populate('sets');
+  username = username.toLowerCase();
+  const user = await User.findOne({ normalizedUsername: username }).populate(
+    'sets'
+  );
 
   if (!user) {
     throw new Error('User not found!');

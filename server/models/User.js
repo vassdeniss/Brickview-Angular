@@ -11,10 +11,9 @@ const userSchema = new mongoose.Schema({
     validate: [
       {
         validator: async function (username) {
+          username = username.toLowerCase();
           const user = await this.constructor.findOne({
-            username: {
-              $regex: new RegExp(username, 'i'),
-            },
+            normalizedUsername: username,
           });
 
           if (!user) {
@@ -30,6 +29,11 @@ const userSchema = new mongoose.Schema({
         message: 'The username is taken!',
       },
     ],
+  },
+  normalizedUsername: {
+    type: String,
+    trim: true,
+    unique: true,
   },
   email: {
     type: String,
@@ -93,6 +97,8 @@ userSchema.post('validate', async function (doc) {
   if (doc.isNew) {
     this.password = await bcrypt.hash(this.password, 10);
   }
+
+  this.normalizedUsername = this.username.toLowerCase();
 });
 
 const User = mongoose.model('User', userSchema);
