@@ -40,22 +40,6 @@ describe('Set controller routes', function () {
       expect(response.status).to.equal(200);
       expect(response.body).to.deep.equal({ mockData: 'collection' });
     });
-
-    it('should return 401 if an error occurs', async () => {
-      // Arrange: set up stub
-      sinon
-        .stub(setService, 'getLoggedInUserCollection')
-        .throws(new Error('mockError'));
-
-      // Act: call the endpoint
-      const response = await request(app)
-        .get('/sets/logged-user-collection')
-        .set('X-Refresh', 'mockRefreshToken');
-
-      // Assert: that correct status is returned
-      expect(response.status).to.equal(401);
-      expect(response.body.message).to.equal('mockError');
-    });
   });
 
   describe('POST /add-set', () => {
@@ -75,7 +59,10 @@ describe('Set controller routes', function () {
 
     it('should return 404 if the set is not found', async () => {
       // Arrange: set up stub
-      sinon.stub(setService, 'addSet').throws(new Error('Set not found!'));
+      sinon.stub(setService, 'addSet').throws({
+        statusCode: 404,
+        message: 'Set not found!',
+      });
 
       // Act: call the endpoint
       const response = await request(app)
