@@ -7,7 +7,6 @@ import { TitleStrategy } from '@angular/router';
 import { AppRoutingModule } from './app-routing.module';
 
 import { SetService } from './services/set.service';
-import { AuthService } from './services/auth.service';
 import { TokenService } from './services/token.service';
 import { SpinnerService } from './services/spinner.service';
 import { PopupService } from './services/popup.service';
@@ -34,7 +33,6 @@ import { TokenInterceptor } from './auth/token.interceptor';
   ],
   providers: [
     SetService,
-    AuthService,
     TokenService,
     SpinnerService,
     PopupService,

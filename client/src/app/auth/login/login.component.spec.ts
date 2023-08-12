@@ -5,7 +5,7 @@ import {
   tick,
 } from '@angular/core/testing';
 import { LoginComponent } from './login.component';
-import { AuthService } from 'src/app/services/auth.service';
+import { UserService } from 'src/app/services/user.service';
 import { PopupService } from 'src/app/services/popup.service';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { TokenService } from 'src/app/services/token.service';
@@ -17,7 +17,7 @@ import { Router } from '@angular/router';
 describe('LoginComponent', () => {
   let component: LoginComponent;
   let fixture: ComponentFixture<LoginComponent>;
-  let authService: AuthService;
+  let userService: UserService;
   let popupService: PopupService;
   let router: Router;
   let tokenService: TokenService;
@@ -37,7 +37,7 @@ describe('LoginComponent', () => {
       declarations: [LoginComponent],
       providers: [
         FormBuilder,
-        AuthService,
+        UserService,
         PopupService,
         { provide: TokenService, useValue: tokenServiceMock },
       ],
@@ -47,7 +47,7 @@ describe('LoginComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(LoginComponent);
     component = fixture.componentInstance;
-    authService = TestBed.inject(AuthService);
+    userService = TestBed.inject(UserService);
     popupService = TestBed.inject(PopupService);
     router = TestBed.inject(Router);
     tokenService = TestBed.inject(TokenService);
@@ -73,7 +73,7 @@ describe('LoginComponent', () => {
   it('should call AuthService.login and navigate to home on successful login', fakeAsync(() => {
     // Arrange: setup login method, emails, spies
     const button = {} as HTMLButtonElement;
-    spyOn(authService, 'login').and.returnValue(
+    spyOn(userService, 'login').and.returnValue(
       of({
         image: 'profile.jpg',
         accessToken: 'token',
@@ -92,7 +92,7 @@ describe('LoginComponent', () => {
     // Assert: that AuthService.login was called with the correct credentials
     // and that tokens are saved and navigation to home is triggered
     expect(localStorage.getItem('image')).toBe('profile.jpg');
-    expect(authService.login).toHaveBeenCalledWith({
+    expect(userService.login).toHaveBeenCalledWith({
       username: 'testusername',
       password: 'password',
     });
@@ -106,7 +106,7 @@ describe('LoginComponent', () => {
     // Arrange: mock the AuthService.login method to return an error, and make spies
     const button = {} as HTMLButtonElement;
     const errorMessage = 'Invalid credentials';
-    spyOn(authService, 'login').and.returnValue(
+    spyOn(userService, 'login').and.returnValue(
       throwError(() => {
         return {
           error: {
