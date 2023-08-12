@@ -3,10 +3,10 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { PopupService } from 'src/app/services/popup.service';
 import { getFormValidationErrors } from '../helpers';
 import { Router } from '@angular/router';
-import { AuthService } from 'src/app/services/auth.service';
-import { RegisterCredentials } from 'src/app/types/credentialsType';
 import { JwtTokens } from 'src/app/types/tokenType';
 import { TokenService } from 'src/app/services/token.service';
+import { UserService } from 'src/app/services/user.service';
+import { RegisterCredentials } from 'src/app/types/credentialsType';
 
 @Component({
   selector: 'app-register',
@@ -32,7 +32,7 @@ export class RegisterComponent {
     private route: Router,
     private fb: FormBuilder,
     public popup: PopupService,
-    private user: AuthService,
+    private user: UserService,
     private token: TokenService
   ) {}
 

@@ -1,11 +1,11 @@
 import { Component } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { getFormValidationErrors } from '../helpers';
-import { AuthService } from 'src/app/services/auth.service';
 import { PopupService } from 'src/app/services/popup.service';
 import { Router } from '@angular/router';
 import { TokenService } from 'src/app/services/token.service';
 import { LoginCredentials } from 'src/app/types/credentialsType';
+import { UserService } from 'src/app/services/user.service';
 
 @Component({
   selector: 'app-login',
@@ -23,7 +23,7 @@ export class LoginComponent {
     private route: Router,
     private fb: FormBuilder,
     public popup: PopupService,
-    private user: AuthService,
+    private user: UserService,
     private token: TokenService
   ) {}
 
