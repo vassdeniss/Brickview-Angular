@@ -14,14 +14,22 @@ exports.register = async (userData) => {
     minioService.saveUserImage(user.email.replace(/[.@]/g, ''), file);
   }
 
-  return result;
+  return {
+    tokens: result,
+    user: {
+      _id: user._id,
+      username: user.username,
+      email: user.email,
+      sets: user.sets,
+    },
+  };
 };
 
 exports.login = async ({ username, password }) => {
   username = username.toLowerCase();
   const user = await User.findOne({
     normalizedUsername: username,
-  });
+  }).populate('sets');
   if (!user) {
     throw new Error('Invalid username or password!');
   }
@@ -37,7 +45,13 @@ exports.login = async ({ username, password }) => {
   );
 
   return {
-    ...result,
+    tokens: result,
+    user: {
+      _id: user._id,
+      username: user.username,
+      email: user.email,
+      sets: user.sets,
+    },
     image,
   };
 };
@@ -90,7 +104,7 @@ exports.logout = async (refreshToken) => {
 };
 
 exports.getLoggedInUser = async (refreshToken) => {
-  const user = await User.findOne({ refreshToken });
+  const user = await User.findOne({ refreshToken }).populate('sets');
   const image = await minioService.getUserImage(
     user.email.replace(/[.@]/g, '')
   );
@@ -108,16 +122,34 @@ exports.editData = async (
   { username, profilePicture, deleteProfilePicture },
   refreshToken
 ) => {
-  const user = await User.findOne({ refreshToken });
+  const user = await User.findOne({ refreshToken }).populate('sets');
+  if (!user) {
+    const error = new Error('Invalid refresh token!');
+    error.statusCode = 401;
+    throw error;
+  }
+
   user.username = username;
 
+  let image;
   if (deleteProfilePicture) {
     minioService.deleteImage(user.email.replace(/[.@]/g, ''));
+    image = undefined;
   } else {
     const base64Data = profilePicture.replace(/^data:image\/(\w+);base64,/, '');
     const file = Buffer.from(base64Data, 'base64');
     minioService.saveUserImage(user.email.replace(/[.@]/g, ''), file);
+    image = profilePicture;
   }
 
   await user.save();
+  return {
+    user: {
+      _id: user._id,
+      username: user.username,
+      email: user.email,
+      sets: user.sets,
+    },
+    image,
+  };
 };

@@ -111,8 +111,11 @@ router.get('/get/:id', async (req, res) => {
  */
 router.post('/create', mustBeAuth, async (req, res) => {
   try {
-    await reviewService.addReview(req.body, req.header('X-Refresh'));
-    res.status(204).end();
+    const user = await reviewService.addReview(
+      req.body,
+      req.header('X-Refresh')
+    );
+    res.status(200).json(user);
   } catch (err) {
     res.status(400).json({
       message: err.message,
@@ -155,8 +158,11 @@ router.post('/create', mustBeAuth, async (req, res) => {
  */
 router.patch('/edit', mustBeAuth, async (req, res) => {
   try {
-    await reviewService.editReview(req.body, req.header('X-Refresh'));
-    res.status(204).end();
+    const user = await reviewService.editReview(
+      req.body,
+      req.header('X-Refresh')
+    );
+    res.status(200).json(user);
   } catch (err) {
     res.status(400).json({
       message: err.message,
@@ -190,8 +196,11 @@ router.patch('/edit', mustBeAuth, async (req, res) => {
  */
 router.delete('/delete/:id', async (req, res) => {
   try {
-    await reviewService.deleteReview(req.params.id, req.header('X-Refresh'));
-    res.status(204).end();
+    const user = await reviewService.deleteReview(
+      req.params.id,
+      req.header('X-Refresh')
+    );
+    res.status(200).json(user);
   } catch (err) {
     res.status(404).json({
       message: err.message,

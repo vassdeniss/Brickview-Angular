@@ -160,12 +160,12 @@ router.get('/allWithReviews', async (req, res) => {
  *               items:
  *                 $ref: '#/components/schemas/Set'
  */
-router.get('/logged-user-collection', mustBeAuth, async (req, res) => {
-  const collection = await setService.getLoggedInUserCollection(
-    req.header('X-Refresh')
-  );
-  res.status(200).json(collection);
-});
+// router.get('/logged-user-collection', mustBeAuth, async (req, res) => {
+//   const collection = await setService.getLoggedInUserCollection(
+//     req.header('X-Refresh')
+//   );
+//   res.status(200).json(collection);
+// });
 
 /**
  * @swagger
@@ -267,8 +267,11 @@ router.get('/user-collection/:username', async (req, res) => {
  */
 router.post('/add-set', mustBeAuth, async (req, res) => {
   try {
-    await setService.addSet(req.body.setId, req.header('X-Refresh'));
-    res.status(204).end();
+    const updatedUser = await setService.addSet(
+      req.body.setId,
+      req.header('X-Refresh')
+    );
+    res.status(200).json(updatedUser);
   } catch (err) {
     res.status(err.statusCode).json({
       message: err.message,
@@ -313,8 +316,11 @@ router.post('/add-set', mustBeAuth, async (req, res) => {
  */
 router.delete('/delete/:id', mustBeAuth, async (req, res) => {
   try {
-    await setService.deleteSet(req.params.id, req.header('X-Refresh'));
-    res.status(204).end();
+    const updatedUser = await setService.deleteSet(
+      req.params.id,
+      req.header('X-Refresh')
+    );
+    res.status(200).json(updatedUser);
   } catch (err) {
     res.status(400).json({
       message: err.message,

@@ -228,8 +228,11 @@ router.post('/login', async (req, res) => {
  */
 router.patch('/edit', mustBeAuth, async (req, res) => {
   try {
-    await userService.editData(req.body, req.header('X-Refresh'));
-    res.status(204).end();
+    const updatedUser = await userService.editData(
+      req.body,
+      req.header('X-Refresh')
+    );
+    res.status(200).json(updatedUser);
   } catch (err) {
     if (err.name === 'ValidationError') {
       err = getMongooseErrors(err);
