@@ -60,12 +60,10 @@ exports.addSet = async (setId, refreshToken) => {
         Authorization: `key ${process.env.REBRICKABLE_API_KEY}`,
       },
     })
-    .catch((err) => {
-      if (err.response) {
-        const error = new Error('Set not found!');
-        error.statusCode = 404;
-        throw error;
-      }
+    .catch((_) => {
+      const error = new Error('Set not found!');
+      error.statusCode = 404;
+      throw error;
     });
 
   const figs = await axios.get(

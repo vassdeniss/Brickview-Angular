@@ -136,6 +136,23 @@ describe('Set service methods', function () {
       expect(userFindOneStub).to.have.been.calledOnce;
       expect(userSaveStub).to.have.been.calledOnce;
     });
+
+    it('should throw error if set not found', async () => {
+      // Arrange: mock dependencies and data
+      axiosGetStub.restore();
+      axiosGetStub = sinon.stub(axios, 'get').rejects({
+        response: {},
+      });
+
+      // Act+Assert: call the method, error was thrown
+      try {
+        await setService.addSet('12345', 'some-refresh-token');
+      } catch (error) {
+        expect(error.message).to.equal('Set not found!');
+        expect(error.statusCode).to.equal(404);
+        expect(axiosGetStub).to.have.been.calledOnce;
+      }
+    });
   });
 
   describe('deleteSet function', () => {
@@ -308,6 +325,61 @@ describe('Set service methods', function () {
         username: 'user2',
         userImage: 'user-image-url',
       });
+    });
+  });
+
+  describe('getUserCollection', () => {
+    it('should return user collection data', async () => {
+      // Arrange: mock data and stubs
+      const setsData = [
+        { _id: 'set1', name: 'Set 1' },
+        { _id: 'set2', name: 'Set 2' },
+      ];
+      const findOneStub = sinon.stub(User, 'findOne').returns({
+        populate: sinon.stub().resolves({
+          email: 'test@example.com',
+          username: 'TestUser',
+          sets: setsData,
+        }),
+      });
+      const getUserImageStub = sinon
+        .stub(minioService, 'getUserImage')
+        .resolves('user-image-data');
+
+      const username = 'testuser';
+      const normalizedUsername = username.toLowerCase();
+
+      // Act: call the service
+      const result = await setService.getUserCollection(username);
+
+      // Assert: verify the methods were called
+      expect(findOneStub).to.have.been.calledOnceWith({ normalizedUsername });
+      expect(getUserImageStub).to.have.been.calledOnceWith('testexamplecom');
+      expect(result).to.deep.equal({
+        user: {
+          image: 'user-image-data', // Replace with expected image data
+          username: 'TestUser',
+        },
+        sets: setsData,
+      });
+    });
+
+    it('should throw error if user not found', async () => {
+      // Arrange: mock data and stubs
+      const findOneStub = sinon.stub(User, 'findOne').returns({
+        populate: sinon.stub().resolves(null),
+      });
+      const username = 'nonexistentuser';
+      const normalizedUsername = username.toLowerCase();
+
+      // Act+Assert: call the service, error was thrown
+      try {
+        await setService.getUserCollection(username);
+        expect.fail('Expected an error to be thrown');
+      } catch (error) {
+        expect(error.message).to.equal('User not found!');
+        expect(findOneStub).to.have.been.calledOnceWith({ normalizedUsername });
+      }
     });
   });
 });
