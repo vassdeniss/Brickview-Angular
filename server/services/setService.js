@@ -52,7 +52,7 @@ exports.addSet = async (setId, refreshToken) => {
         Authorization: `key ${process.env.REBRICKABLE_API_KEY}`,
       },
     })
-    .catch((err) => {
+    .catch((_) => {
       const error = new Error('Set not found!');
       error.statusCode = 404;
       throw error;

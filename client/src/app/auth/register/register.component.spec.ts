@@ -5,7 +5,7 @@ import {
   tick,
 } from '@angular/core/testing';
 import { RegisterComponent } from './register.component';
-import { AuthService } from 'src/app/services/auth.service';
+import { UserService } from 'src/app/services/user.service';
 import { PopupService } from 'src/app/services/popup.service';
 import { TokenService } from 'src/app/services/token.service';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
@@ -17,18 +17,18 @@ import { Router } from '@angular/router';
 describe('RegisterComponent', () => {
   let component: RegisterComponent;
   let fixture: ComponentFixture<RegisterComponent>;
-  let authService: AuthService;
+  let userService: UserService;
   let popupService: PopupService;
   let tokenService: TokenService;
   let router: Router;
 
-  beforeEach(async () => {
+  beforeEach(() => {
     const tokenServiceMock = {
       saveToken: jasmine.createSpy('saveToken'),
       saveRefreshToken: jasmine.createSpy('saveRefreshToken'),
     };
 
-    await TestBed.configureTestingModule({
+    TestBed.configureTestingModule({
       imports: [
         ReactiveFormsModule,
         RouterTestingModule,
@@ -37,17 +37,17 @@ describe('RegisterComponent', () => {
       declarations: [RegisterComponent],
       providers: [
         FormBuilder,
-        AuthService,
+        UserService,
         PopupService,
         { provide: TokenService, useValue: tokenServiceMock },
       ],
-    }).compileComponents();
+    });
   });
 
   beforeEach(() => {
     fixture = TestBed.createComponent(RegisterComponent);
     component = fixture.componentInstance;
-    authService = TestBed.inject(AuthService);
+    userService = TestBed.inject(UserService);
     popupService = TestBed.inject(PopupService);
     tokenService = TestBed.inject(TokenService);
     router = TestBed.inject(Router);
@@ -78,7 +78,7 @@ describe('RegisterComponent', () => {
   it('should call AuthService.register and navigate to home on successful registration', fakeAsync(() => {
     // Arrange: set form values, spies
     const button = {} as HTMLButtonElement;
-    const registerSpy = spyOn(authService, 'register').and.returnValue(
+    const registerSpy = spyOn(userService, 'register').and.returnValue(
       of({ accessToken: 'token', refreshToken: 'refresh' })
     );
     const navigateSpy = spyOn(router, 'navigate');
@@ -110,7 +110,7 @@ describe('RegisterComponent', () => {
     // Arrange: set form values, spies
     const button = {} as HTMLButtonElement;
     const errorMessage = 'Registration failed';
-    spyOn(authService, 'register').and.returnValue(
+    spyOn(userService, 'register').and.returnValue(
       throwError(() => {
         return { error: { message: errorMessage } };
       })
