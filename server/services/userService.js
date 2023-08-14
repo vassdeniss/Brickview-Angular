@@ -103,21 +103,6 @@ exports.logout = async (refreshToken) => {
   return await user.save();
 };
 
-exports.getLoggedInUser = async (refreshToken) => {
-  const user = await User.findOne({ refreshToken }).populate('sets');
-  const image = await minioService.getUserImage(
-    user.email.replace(/[.@]/g, '')
-  );
-
-  return {
-    _id: user._id,
-    username: user.username,
-    email: user.email,
-    sets: user.sets,
-    image,
-  };
-};
-
 exports.editData = async (
   { username, profilePicture, deleteProfilePicture },
   refreshToken

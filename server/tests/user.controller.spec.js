@@ -160,44 +160,4 @@ describe('User controller routes', function () {
       expect(logoutStub).to.have.been.calledOnceWith(refreshHeader);
     });
   });
-
-  describe('GET /get-logged-user', () => {
-    it('should return status 200 when the user is found', async () => {
-      const userData = {
-        username: 'test',
-        email: 'test@example.com',
-      };
-      const refreshHeader = 'some-refresh-token';
-
-      sinon.stub(userService, 'getLoggedInUser').resolves(userData);
-
-      const response = await request(app)
-        .get('/users/get-logged-user')
-        .set('X-Refresh', refreshHeader);
-
-      // Assert: that correct status is returned
-      expect(response.status).to.equal(200);
-      expect(response.body).to.deep.equal(userData);
-    });
-
-    it('should return status 404 when user is not found', async () => {
-      const userData = {
-        username: 'test',
-        email: 'test@example.com',
-      };
-      const refreshHeader = 'some-refresh-token';
-
-      sinon
-        .stub(userService, 'getLoggedInUser')
-        .throws(new Error('User not found!'));
-
-      const response = await request(app)
-        .get('/users/get-logged-user')
-        .set('X-Refresh', refreshHeader);
-
-      // Assert: that correct status is returned
-      expect(response.status).to.equal(404);
-      expect(response.body).to.have.property('message');
-    });
-  });
 });
