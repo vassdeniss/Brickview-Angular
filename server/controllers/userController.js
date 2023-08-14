@@ -32,11 +32,10 @@
  *               description: The sets of the user.
  *               $ref: '#/components/schemas/Minifigure'
  *       example:
+ *         _id: 5ebd6b2bcef2b33d8c1b4f7c
  *         username: john_doe
  *         email: john_doe@example.com
- *         password: password123
- *         repeatPassword: password123
- *         image: some_base64_image
+ *         sets: []
  *     Error:
  *       type: object
  *       properties:
@@ -84,6 +83,12 @@ router.get('/logout', mustBeAuth, async (req, res) => {
  *         application/json:
  *           schema:
  *             $ref: '#/components/schemas/User'
+ *           example:
+ *             username: john_doe
+ *             email: john_doe@example.com
+ *             password: password123
+ *             repeatPassword: password123
+ *             image: some_base64_image
  *     responses:
  *       200:
  *         description: Registration successful

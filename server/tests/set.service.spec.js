@@ -13,36 +13,12 @@ chai.use(chaiAsPromised);
 
 const User = require('../models/User');
 const Set = require('../models/Set');
+const { default: mongoose } = require('mongoose');
 // const Review = require('../models/Review');
 
 describe('Set service methods', function () {
   afterEach(() => {
     sinon.restore();
-  });
-
-  describe('getLoggedInUserCollection', () => {
-    it('should return user collection with valid refresh token', async () => {
-      // Arrange: mock dependencies and data
-      const refreshToken = 'someToken';
-      const populateStub = sinon.stub().returnsThis();
-      const user = {
-        sets: ['someSet'],
-      };
-      const selectStub = sinon.stub().resolves(user);
-      const findOneStub = sinon.stub(User, 'findOne').returns({
-        populate: populateStub,
-        select: selectStub,
-      });
-
-      // Act: call the method
-      const sets = await setService.getLoggedInUserCollection(refreshToken);
-
-      // Assert: check if methods were called
-      expect(findOneStub).to.have.been.calledWith({ refreshToken });
-      expect(populateStub).to.have.been.calledWith('sets');
-      expect(selectStub).to.have.been.calledWith('sets');
-      expect(sets).to.deep.equal(user.sets);
-    });
   });
 
   describe('addSet', () => {
@@ -106,7 +82,7 @@ describe('Set service methods', function () {
     it('should add set to users sets array', async () => {
       // Arrange: mock dependencies and data
       const setCreateStub = sinon.stub(Set, 'create').resolves({
-        _id: 'some_fake_id',
+        _id: new mongoose.Types.ObjectId(),
         setNum: '12345',
         name: 'Test Set',
         year: 2023,
@@ -136,16 +112,40 @@ describe('Set service methods', function () {
       expect(userFindOneStub).to.have.been.calledOnce;
       expect(userSaveStub).to.have.been.calledOnce;
     });
+
+    it('should throw error if set not found', async () => {
+      // Arrange: mock dependencies and data
+      axiosGetStub.restore();
+      axiosGetStub = sinon.stub(axios, 'get').rejects({
+        response: {},
+      });
+
+      // Act+Assert: call the method, error was thrown
+      try {
+        await setService.addSet('12345', 'some-refresh-token');
+      } catch (error) {
+        expect(error.message).to.equal('Set not found!');
+        expect(error.statusCode).to.equal(404);
+        expect(axiosGetStub).to.have.been.calledOnce;
+      }
+    });
   });
 
   describe('deleteSet function', () => {
+    let setId;
+    let userId;
+    let email;
+    let token;
+
+    beforeEach(() => {
+      setId = 'set123';
+      userId = 'user123';
+      email = 'testemail@gmail.com';
+      token = 'your_test_token';
+    });
+
     it('should delete a set and its associated review if authorized', async () => {
       // Arrange: mock the necessary data
-      const setId = 'set123';
-      const userId = 'user123';
-      const email = 'testemail@gmail.com';
-      const token = 'your_test_token';
-
       const decodedToken = { _id: userId, email };
       const jwtStub = { decode: sinon.stub().returns(decodedToken) };
       setService.__set__('jwt', jwtStub);
@@ -153,7 +153,12 @@ describe('Set service methods', function () {
       const setData = {
         _id: setId,
         setNum: '12345',
-        user: { _id: userId, sets: [setId], save: sinon.stub().resolves() },
+        user: {
+          _id: userId,
+          sets: [setId],
+          save: sinon.stub().resolves(),
+          populate: sinon.stub().resolves(),
+        },
         review: 'a',
         deleteOne: sinon.stub(),
       };
@@ -181,18 +186,18 @@ describe('Set service methods', function () {
 
     it('should delete a set without a review if authorized', async () => {
       // Arrange: mock the necessary data
-      const setId = 'set123';
-      const userId = 'user123';
-      const email = 'testemail';
-      const token = 'your_test_token';
-
       const decodedToken = { _id: userId, email };
       const jwtStub = { decode: sinon.stub().returns(decodedToken) };
       setService.__set__('jwt', jwtStub);
 
       const set = {
         _id: setId,
-        user: { _id: userId, sets: [setId], save: sinon.stub().resolves() },
+        user: {
+          _id: userId,
+          sets: [setId],
+          save: sinon.stub().resolves(),
+          populate: sinon.stub().resolves(),
+        },
         deleteOne: sinon.stub(),
       };
       const findByIdStub = sinon.stub(Set, 'findById').returns({
@@ -216,8 +221,7 @@ describe('Set service methods', function () {
 
     it('should throw an error if the set is not found', async () => {
       // Arrange: mock data, create stubs
-      const setId = 'nonexistent_set';
-      const token = 'your_test_token';
+      setId = 'nonexistent_set';
       sinon.stub(Set, 'findById').returns({
         populate: sinon.stub().resolves(null),
       });
@@ -233,10 +237,6 @@ describe('Set service methods', function () {
 
     it('should throw an error if the user is not authorized to delete the set', async () => {
       // Arrange: mock data, create stubs
-      const setId = 'set123';
-      const userId = 'user123';
-      const token = 'your_test_token';
-
       const jwtStub = {
         decode: sinon
           .stub()
@@ -308,6 +308,63 @@ describe('Set service methods', function () {
         username: 'user2',
         userImage: 'user-image-url',
       });
+    });
+  });
+
+  describe('getUserCollection', () => {
+    it('should return user collection data', async () => {
+      // Arrange: mock data and stubs
+      const setsData = [
+        { _id: 'set1', name: 'Set 1' },
+        { _id: 'set2', name: 'Set 2' },
+      ];
+      const findOneStub = sinon.stub(User, 'findOne').returns({
+        populate: sinon.stub().resolves({
+          email: 'test@example.com',
+          username: 'TestUser',
+          sets: setsData,
+        }),
+      });
+      const getUserImageStub = sinon
+        .stub(minioService, 'getUserImage')
+        .resolves('user-image-data');
+
+      const username = 'testuser';
+      const normalizedUsername = username.toLowerCase();
+
+      // Act: call the service
+      const result = await setService.getUserCollection(username);
+
+      // Assert: verify the methods were called
+      expect(findOneStub).to.have.been.calledOnceWith({ normalizedUsername });
+      expect(getUserImageStub).to.have.been.calledOnceWith('testexamplecom');
+      expect(result).to.deep.equal({
+        user: {
+          image: 'user-image-data', // Replace with expected image data
+          username: 'TestUser',
+        },
+        sets: setsData,
+      });
+    });
+
+    it('should throw error if user not found', async () => {
+      // Arrange: mock data and stubs
+      const findOneStub = sinon.stub(User, 'findOne').returns({
+        populate: sinon.stub().resolves(null),
+      });
+      const username = 'nonexistentuser';
+      const normalizedUsername = username.toLowerCase();
+
+      // Act+Assert: call the service, error was thrown
+      try {
+        await setService.getUserCollection(username);
+        expect.fail('Expected an error to be thrown');
+      } catch (error) {
+        expect(error.message).to.equal('User not found!');
+        expect(findOneStub).to.have.been.calledOnceWith({
+          normalizedUsername,
+        });
+      }
     });
   });
 });

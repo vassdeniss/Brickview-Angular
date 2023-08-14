@@ -323,4 +323,54 @@ describe('User service methods', function () {
       }
     });
   });
+
+  describe('editData', () => {
+    let findOneStub;
+    let deleteImageStub;
+    let saveUserImageStub;
+    let refreshToken;
+    let profileData;
+
+    beforeEach(() => {
+      findOneStub = sinon.stub(User, 'findOne').returns({
+        populate: sinon.stub().resolves({
+          email: 'test@example.com',
+          save: sinon.stub().resolves(),
+        }),
+      });
+      deleteImageStub = sinon.stub(minioService, 'deleteImage');
+      saveUserImageStub = sinon.stub(minioService, 'saveUserImage');
+      refreshToken = 'refreshToken';
+      profileData = {
+        username: 'newUsername',
+        profilePicture: 'data:image/jpeg;base64,base64data',
+        deleteProfilePicture: false,
+      };
+    });
+
+    it('should edit user data and save', async () => {
+      // Arrange:
+
+      // Act: call the method
+      await service.editData(profileData, refreshToken);
+
+      // Assert: check if methods were called
+      expect(findOneStub).to.have.been.calledOnceWith({ refreshToken });
+      expect(deleteImageStub).to.have.not.been.called;
+      expect(saveUserImageStub).to.have.been.calledOnceWith('testexamplecom');
+    });
+
+    it('should delete profile picture', async () => {
+      // Arrange: change delete profile pic to true
+      profileData.deleteProfilePicture = true;
+
+      // Act: call the method
+      await service.editData(profileData, refreshToken);
+
+      // Assert: check if methods were called
+      expect(findOneStub).to.have.been.calledOnceWith({ refreshToken });
+      expect(saveUserImageStub).to.have.not.been.called;
+      expect(deleteImageStub).to.have.been.calledOnceWith('testexamplecom');
+    });
+  });
 });

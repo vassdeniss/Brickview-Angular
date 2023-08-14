@@ -144,31 +144,6 @@ router.get('/allWithReviews', async (req, res) => {
 
 /**
  * @swagger
- * /logged-user-collection:
- *   get:
- *     summary: Get logged-in user's set collection
- *     tags: [Sets]
- *     security:
- *       - BearerAuth: []
- *     responses:
- *       200:
- *         description: Successfullly retrieved the set collection.
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/Set'
- */
-// router.get('/logged-user-collection', mustBeAuth, async (req, res) => {
-//   const collection = await setService.getLoggedInUserCollection(
-//     req.header('X-Refresh')
-//   );
-//   res.status(200).json(collection);
-// });
-
-/**
- * @swagger
  * /user-collection:
  *   get:
  *     summary: Get a user's set collection
@@ -249,10 +224,25 @@ router.get('/user-collection/:username', async (req, res) => {
  *                 description: The set ID to add to the collection.
  *                 example: "8091"
  *     responses:
- *       204:
+ *       200:
  *         description: Successfullly added the set to the collection.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/User'
  *       404:
- *         description: Set not found or could not be added.
+ *         description: Set not found.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   description: Error message.
+ *                   example: "Set not found!"
+ *       409:
+ *         description: Set already exists in collection.
  *         content:
  *           application/json:
  *             schema:
@@ -296,10 +286,14 @@ router.post('/add-set', mustBeAuth, async (req, res) => {
  *           type: string
  *           example: "8091"
  *     responses:
- *       204:
+ *       200:
  *         description: Successfully deleted the set from the collection.
- *       400:
- *         description: Bad request or set not found in the collection.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/User'
+ *       404:
+ *         description: Set not found in the collection.
  *         content:
  *           application/json:
  *             schema:
@@ -311,6 +305,15 @@ router.post('/add-set', mustBeAuth, async (req, res) => {
  *                   example: "Set not found!"
  *       403:
  *         description: Forbidden - User not allowed to delete.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   description: Error message.
+ *                   example: "You are not authorized to delete this set!"
  *       401:
  *         description: Unauthorized - User not authenticated.
  */
@@ -322,7 +325,7 @@ router.delete('/delete/:id', mustBeAuth, async (req, res) => {
     );
     res.status(200).json(updatedUser);
   } catch (err) {
-    res.status(400).json({
+    res.status(err.statusCode).json({
       message: err.message,
     });
   }

@@ -26,14 +26,6 @@ exports.getAllWithReview = async () => {
   );
 };
 
-// exports.getLoggedInUserCollection = async (refreshToken) => {
-//   const user = await User.findOne({ refreshToken })
-//     .populate('sets')
-//     .select('sets');
-
-//   return user.sets;
-// };
-
 exports.getUserCollection = async (username) => {
   username = username.toLowerCase();
   const user = await User.findOne({ normalizedUsername: username }).populate(
@@ -61,11 +53,9 @@ exports.addSet = async (setId, refreshToken) => {
       },
     })
     .catch((err) => {
-      if (err.response) {
-        const error = new Error('Set not found!');
-        error.statusCode = 404;
-        throw error;
-      }
+      const error = new Error('Set not found!');
+      error.statusCode = 404;
+      throw error;
     });
 
   const figs = await axios.get(
