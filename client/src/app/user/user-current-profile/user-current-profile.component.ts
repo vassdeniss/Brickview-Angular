@@ -9,11 +9,14 @@ import { User } from 'src/app/types/userType';
   styleUrls: ['./user-current-profile.component.css'],
 })
 export class UserCurrentProfileComponent implements OnInit {
-  user$!: Observable<User | undefined>;
+  //user$!: Observable<User | undefined>;
+  user: User | undefined;
+  image: string | null = localStorage.getItem('image');
 
   constructor(private route: ActivatedRoute) {}
 
   ngOnInit(): void {
-    this.user$ = this.route.data.pipe(map(({ user }) => user));
+    this.route.data.subscribe(({ user }) => (this.user = user));
+    // this.user = this.route.data.pipe(map(({ user }) => user));
   }
 }

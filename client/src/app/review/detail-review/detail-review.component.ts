@@ -1,12 +1,10 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Editor } from 'ngx-editor';
-import { AuthService } from 'src/app/services/auth.service';
+import { UserService } from 'src/app/services/user.service';
 import { PopupService } from 'src/app/services/popup.service';
 import { ReviewService } from 'src/app/services/review.service';
-import { TokenService } from 'src/app/services/token.service';
 import { Review } from 'src/app/types/reviewType';
-import { User } from 'src/app/types/userType';
 
 @Component({
   selector: 'app-detail-review',
@@ -26,7 +24,7 @@ export class DetailReviewComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private routeNavigate: Router,
     public popup: PopupService,
-    private authService: AuthService
+    private userService: UserService
   ) {}
 
   ngOnInit(): void {
@@ -34,12 +32,7 @@ export class DetailReviewComponent implements OnInit, OnDestroy {
       this.review = review;
     });
     this.editor = new Editor();
-    this.authService.getLoggedUser().subscribe({
-      next: (user: User) => {
-        this.isOwner = user._id === this.review?.userId;
-      },
-      error: (_) => (this.isOwner = false),
-    });
+    this.isOwner = this.userService.user?._id === this.review?.userId;
   }
 
   ngOnDestroy(): void {

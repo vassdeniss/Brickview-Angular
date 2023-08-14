@@ -14,11 +14,11 @@ export class SetService {
     return this.http.get<Set[]>(`${environment.apiUrl}/sets/allWithReviews`);
   }
 
-  getCurrentUserSets(): Observable<Set[]> {
-    return this.http.get<Set[]>(
-      `${environment.apiUrl}/sets/logged-user-collection`
-    );
-  }
+  // getCurrentUserSets(): Observable<Set[]> {
+  //   return this.http.get<Set[]>(
+  //     `${environment.apiUrl}/sets/logged-user-collection`
+  //   );
+  // }
 
   getUserSets(username: string): Observable<any> {
     return this.http.get<any>(

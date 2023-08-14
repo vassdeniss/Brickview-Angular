@@ -2,7 +2,7 @@
   <p *ngFor="let error of errors">{{ error }}</p>
 </app-popup>
 <form [formGroup]="reviewForm" class="edit-form" (ngSubmit)="onSubmit(button)">
-  <h2>Write your Review</h2>
+  <h2>Edit your Review</h2>
   <ngx-editor-menu [editor]="editor" [toolbar]="toolbar"></ngx-editor-menu>
   <ngx-editor
     [editor]="editor"
@@ -28,5 +28,5 @@
     <a class="delete-button" (click)="deleteImage(i)">&times;</a>
   </div>
   <input type="hidden" id="_id" name="_id" formControlName="_id" />
-  <button #button>Create</button>
+  <button #button>Edit</button>
 </form>

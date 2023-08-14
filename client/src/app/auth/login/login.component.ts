@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { getFormValidationErrors } from '../helpers';
-import { AuthService } from 'src/app/services/auth.service';
+import { UserService } from 'src/app/services/user.service';
 import { PopupService } from 'src/app/services/popup.service';
 import { Router } from '@angular/router';
 import { TokenService } from 'src/app/services/token.service';
@@ -23,7 +23,7 @@ export class LoginComponent {
     private route: Router,
     private fb: FormBuilder,
     public popup: PopupService,
-    private user: AuthService,
+    private user: UserService,
     private token: TokenService
   ) {}
 
@@ -42,9 +42,9 @@ export class LoginComponent {
 
     this.user.login(this.loginForm.value as LoginCredentials).subscribe({
       next: (data) => {
-        localStorage.setItem('image', data.image);
-        this.token.saveToken(data.accessToken);
-        this.token.saveRefreshToken(data.refreshToken);
+        localStorage.setItem('image', data.image!);
+        this.token.saveToken(data.tokens.accessToken);
+        this.token.saveRefreshToken(data.tokens.refreshToken);
         button.disabled = false;
         this.route.navigate(['']);
       },

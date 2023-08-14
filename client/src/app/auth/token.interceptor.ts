@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import {
   HttpRequest,
   HttpHandler,
@@ -12,13 +12,15 @@ import { TokenService } from '../services/token.service';
 import { SpinnerService } from '../services/spinner.service';
 import { environment } from 'src/environments/environment';
 import { Router } from '@angular/router';
+import { UserService } from '../services/user.service';
 
 @Injectable()
 export class TokenInterceptor implements HttpInterceptor {
   constructor(
     private token: TokenService,
     private spinner: SpinnerService,
-    private router: Router
+    private router: Router,
+    private user: UserService
   ) {}
 
   intercept(
@@ -53,12 +55,18 @@ export class TokenInterceptor implements HttpInterceptor {
           if (newRefreshToken) {
             this.token.saveRefreshToken(newRefreshToken);
           }
+
+          const body = event.body;
+          if (body && body.user && body.user.email) {
+            this.user.updateUser(body.user);
+          }
         }
       }),
       catchError((err) => {
-        if (err.status === 401 && !request.url.includes('get-logged-user')) {
+        if (err.status === 401) {
           this.token.clearTokens();
           localStorage.removeItem('image');
+          localStorage.removeItem('user');
           this.router.navigate(['auth/login']);
           return EMPTY;
         }
