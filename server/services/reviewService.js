@@ -73,11 +73,15 @@ exports.editReview = async (data, token) => {
     .select('review setNum')
     .populate('user');
   if (!set.review) {
-    throw new Error('Review not found!');
+    const error = new Error('Review not found!');
+    error.statusCode = 404;
+    throw error;
   }
 
   if (set.user._id.toString() !== id) {
-    throw new Error('You are not authorized to edit this review!');
+    const error = new Error('You are not authorized to edit this review!');
+    error.statusCode = 403;
+    throw error;
   }
 
   await minioService.deleteReviewImagesWithoutBucket(email, set.setNum);
@@ -103,11 +107,15 @@ exports.deleteReview = async (setId, token) => {
 
   const set = await Set.findById(setId).populate('user');
   if (!set.review) {
-    throw new Error('Review not found!');
+    const error = new Error('Review not found!');
+    error.statusCode = 404;
+    throw error;
   }
 
   if (set.user._id.toString() !== id) {
-    throw new Error('You are not authorized to delete this review!');
+    const error = new Error('You are not authorized to delete this review!');
+    error.statusCode = 403;
+    throw error;
   }
 
   await minioService.deleteReviewImages(email, set.setNum);

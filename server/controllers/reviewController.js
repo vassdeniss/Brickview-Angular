@@ -25,7 +25,7 @@ const reviewService = require('../services/reviewService');
  *           type: string
  *     responses:
  *       200:
- *         description: Returns the review object
+ *         description: Returns the review object.
  *         content:
  *           application/json:
  *             schema:
@@ -60,7 +60,7 @@ const reviewService = require('../services/reviewService');
  *                 content:
  *                   type: string
  *       404:
- *         description: Review not found
+ *         description: Review not found.
  */
 router.get('/get/:id', async (req, res) => {
   try {
@@ -102,12 +102,16 @@ router.get('/get/:id', async (req, res) => {
  *               - setImages
  *               - content
  *     responses:
- *       204:
- *         description: Review created successfully
+ *       200:
+ *         description: Review created successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/User'
  *       400:
- *         description: Bad request - Check the request payload
+ *         description: Bad request - Check the request payload.
  *       401:
- *         description: Unauthorized - User not authenticated
+ *         description: Unauthorized - User not authenticated.
  */
 router.post('/create', mustBeAuth, async (req, res) => {
   try {
@@ -127,7 +131,7 @@ router.post('/create', mustBeAuth, async (req, res) => {
  * @swagger
  * /reviews/edit:
  *   patch:
- *     summary: Update review data
+ *     summary: Update review data.
  *     tags:
  *       - Reviews
  *     security:
@@ -149,12 +153,20 @@ router.post('/create', mustBeAuth, async (req, res) => {
  *               content: This is some text
  *               setImages: ["data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA...", "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA...", "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA..."]
  *     responses:
- *       204:
- *         description: Data updated successfully.
+ *       200:
+ *         description: Review updated successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/User'
  *       400:
  *         description: Error updating.
  *       401:
  *         description: Unauthorized - User not authenticated.
+ *       403:
+ *         description: Forbidden - User not authorized to edit the review.
+ *       404:
+ *         description: Review not found.
  */
 router.patch('/edit', mustBeAuth, async (req, res) => {
   try {
@@ -164,7 +176,7 @@ router.patch('/edit', mustBeAuth, async (req, res) => {
     );
     res.status(200).json(user);
   } catch (err) {
-    res.status(400).json({
+    res.status(err.statusCode).json({
       message: err.message,
     });
   }
@@ -187,14 +199,20 @@ router.patch('/edit', mustBeAuth, async (req, res) => {
  *         schema:
  *           type: string
  *     responses:
- *       204:
- *         description: Review deleted successfully
+ *       200:
+ *         description: Review deleted successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/User'
  *       401:
- *         description: Unauthorized - User not authenticated or not authorized to delete the review
+ *         description: Unauthorized - User not authenticated or not authorized to delete the review.
+ *       403:
+ *         description: Forbidden - User not authorized to delete the review.
  *       404:
- *         description: Review not found
+ *         description: Review not found.
  */
-router.delete('/delete/:id', async (req, res) => {
+router.delete('/delete/:id', mustBeAuth, async (req, res) => {
   try {
     const user = await reviewService.deleteReview(
       req.params.id,
@@ -202,7 +220,7 @@ router.delete('/delete/:id', async (req, res) => {
     );
     res.status(200).json(user);
   } catch (err) {
-    res.status(404).json({
+    res.status(err.statusCode).json({
       message: err.message,
     });
   }
