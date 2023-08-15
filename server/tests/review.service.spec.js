@@ -132,6 +132,9 @@ describe('Review service methods', () => {
   describe('editReview', () => {
     let jwtStub;
     let data;
+    let set;
+    let id;
+    let findByIdStub;
     beforeEach(() => {
       jwtStub = {
         decode: sinon
@@ -139,12 +142,23 @@ describe('Review service methods', () => {
           .returns({ email: 'test@example.com', _id: 'user_id' }),
       };
       reviewService.__set__('jwt', jwtStub);
-
       data = {
         _id: 'set_id',
         setImages: [],
         content: 'New review content',
       };
+      id = 'user_id';
+      set = {
+        review: 'Old review content',
+        setNum: '12345',
+        user: { _id: id },
+        save: sinon.stub().resolves(),
+      };
+      findByIdStub = sinon.stub(Set, 'findById').returns({
+        select: sinon.stub().returns({
+          populate: sinon.stub().resolves(set),
+        }),
+      });
     });
 
     it('should edit review and save', async () => {
@@ -156,22 +170,13 @@ describe('Review service methods', () => {
       const saveReviewStub = sinon.stub(minioService, 'saveReview');
 
       const email = 'testexamplecom';
-      const id = 'user_id';
       data.setImages = [
         'data:image/jpeg;base64,base64data1',
         'data:image/jpeg;base64,base64data2',
       ];
-      const set = {
-        review: 'Old review content',
-        setNum: '12345',
-        user: { _id: id },
-        save: sinon.stub().resolves(),
-      };
 
-      const findByIdStub = sinon.stub(Set, 'findById').returns({
-        select: sinon.stub().returns({
-          populate: sinon.stub().resolves(set),
-        }),
+      const findOneStub = sinon.stub(User, 'findOne').returns({
+        populate: sinon.stub().resolves({ user: {} }),
       });
 
       // Act: call the method
@@ -194,21 +199,14 @@ describe('Review service methods', () => {
       );
       expect(set.review).to.equal(data.content);
       expect(set.save).to.have.been.calledOnce;
+      expect(findOneStub).to.have.been.calledOnceWith({
+        refreshToken: 'token',
+      });
     });
 
     it('should throw error if review not found', async () => {
-      // Arrange: test data, stubs
-      const set = {
-        review: null,
-        setNum: '12345',
-        user: { _id: 'user_id' },
-      };
-
-      sinon.stub(Set, 'findById').returns({
-        select: sinon.stub().returns({
-          populate: sinon.stub().resolves(set),
-        }),
-      });
+      // Arrange: clear set review
+      set.review = null;
 
       // Act+Assert: call the method, error was thrown
       try {
@@ -220,18 +218,8 @@ describe('Review service methods', () => {
     });
 
     it('should throw error if unauthorized to edit review', async () => {
-      // Arrange: test data, stubs
-      const set = {
-        review: 'Old review content',
-        setNum: '12345',
-        user: { _id: 'different_user_id' }, // Different user ID
-      };
-
-      sinon.stub(Set, 'findById').returns({
-        select: sinon.stub().returns({
-          populate: sinon.stub().resolves(set),
-        }),
-      });
+      // Arrange: change set user id
+      set.user._id = 'different_user_id';
 
       // Act+Assert: call the method, error was thrown
       try {
