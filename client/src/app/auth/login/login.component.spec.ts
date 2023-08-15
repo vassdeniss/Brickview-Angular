@@ -13,6 +13,8 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { of, throwError } from 'rxjs';
 import { Router } from '@angular/router';
+import { JwtTokens } from 'src/app/types/tokenType';
+import { User } from 'src/app/types/userType';
 
 describe('LoginComponent', () => {
   let component: LoginComponent;
@@ -75,9 +77,12 @@ describe('LoginComponent', () => {
     const button = {} as HTMLButtonElement;
     spyOn(userService, 'login').and.returnValue(
       of({
+        tokens: {
+          accessToken: 'token',
+          refreshToken: 'refresh',
+        } as JwtTokens,
+        user: {} as User,
         image: 'profile.jpg',
-        accessToken: 'token',
-        refreshToken: 'refresh',
       })
     );
     const navigateSpy = spyOn(router, 'navigate');

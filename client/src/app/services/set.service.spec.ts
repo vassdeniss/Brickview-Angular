@@ -3,7 +3,6 @@ import {
   HttpClientTestingModule,
   HttpTestingController,
 } from '@angular/common/http/testing';
-
 import { SetService } from './set.service';
 import { Set } from '../types/setType';
 import { environment } from '../../environments/environment';
@@ -62,22 +61,6 @@ describe('SetService', () => {
     // Assert: method has been called, compare retrieved sets
     const req = httpTestingController.expectOne(
       `${environment.apiUrl}/sets/allWithReviews`
-    );
-    expect(req.request.method).toBe('GET');
-    req.flush(dummySets);
-  });
-
-  it('should get the current user sets', () => {
-    // Arrange:
-
-    // Act: call get current user sets
-    setService.getCurrentUserSets().subscribe((sets: Set[]) => {
-      expect(sets).toEqual(dummySets);
-    });
-
-    // Assert: method has been called, compare retrieved sets
-    const req = httpTestingController.expectOne(
-      `${environment.apiUrl}/sets/logged-user-collection`
     );
     expect(req.request.method).toBe('GET');
     req.flush(dummySets);

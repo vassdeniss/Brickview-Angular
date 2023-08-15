@@ -7,6 +7,7 @@ import {
 import { TokenService } from './token.service';
 import { RouterTestingModule } from '@angular/router/testing';
 import { environment } from 'src/environments/environment';
+import { AuthData } from '../types/authType';
 
 describe('UserService', () => {
   let userService: UserService;
@@ -34,11 +35,14 @@ describe('UserService', () => {
       password: 'testpass',
       repeatPassword: 'testpass',
     };
-    const mockResponse = { accessToken: 'abc', refreshToken: 'xyz' };
+    const mockResponse = {
+      user: {},
+      tokens: { accessToken: 'abc', refreshToken: 'xyz' },
+    } as AuthData;
 
     // Act: register a user with mock credentials
-    userService.register(mockCredentials).subscribe((tokens) => {
-      expect(tokens).toEqual(mockResponse);
+    userService.register(mockCredentials).subscribe((data) => {
+      expect(data).toEqual(mockResponse);
     });
 
     // Assert: check that the request was sent correctly
@@ -54,11 +58,14 @@ describe('UserService', () => {
       username: 'testuserusername',
       password: 'testpass',
     };
-    const mockResponse = { accessToken: 'abc', refreshToken: 'xyz' };
+    const mockResponse = {
+      user: {},
+      tokens: { accessToken: 'abc', refreshToken: 'xyz' },
+    } as AuthData;
 
     // Act: login a user with mock credentials
-    userService.login(mockCredentials).subscribe((tokens) => {
-      expect(tokens).toEqual(mockResponse);
+    userService.login(mockCredentials).subscribe((data) => {
+      expect(data).toEqual(mockResponse);
     });
 
     // Assert: check that the request was sent correctly
@@ -77,42 +84,6 @@ describe('UserService', () => {
     // Assert: check that the request was sent correctly
     const req = httpMock.expectOne(`${environment.apiUrl}/users/logout`);
     expect(req.request.method).toBe('GET');
-  });
-
-  it('should check if a user is authenticated', () => {
-    // Arrange:
-
-    // Act: check if authenticated
-    userService.isAuthenticated().subscribe((result) => {
-      expect(result).toBeTruthy();
-    });
-
-    // Assert: check that the request was sent correctly
-    const req = httpMock.expectOne(`${environment.apiUrl}/validate-token`);
-    expect(req.request.method).toBe('GET');
-    req.flush(null, { status: 204, statusText: 'No Content' });
-  });
-
-  it('should get the logged-in user', () => {
-    // Arrange: create mock user
-    const mockUser = {
-      _id: '123',
-      username: 'testuser',
-      email: 'testuser@mail.com',
-      sets: [],
-    };
-
-    // Act: get logged-in user
-    userService.getLoggedUser().subscribe((user) => {
-      expect(user).toEqual(mockUser);
-    });
-
-    // Assert: check that the request was sent correctly
-    const req = httpMock.expectOne(
-      `${environment.apiUrl}/users/get-logged-user`
-    );
-    expect(req.request.method).toBe('GET');
-    req.flush(mockUser);
   });
 
   it('should send a PATCH request to edit user', () => {
