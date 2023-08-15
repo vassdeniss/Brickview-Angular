@@ -26,14 +26,6 @@ exports.getAllWithReview = async () => {
   );
 };
 
-exports.getLoggedInUserCollection = async (refreshToken) => {
-  const user = await User.findOne({ refreshToken })
-    .populate('sets')
-    .select('sets');
-
-  return user.sets;
-};
-
 exports.getUserCollection = async (username) => {
   username = username.toLowerCase();
   const user = await User.findOne({ normalizedUsername: username }).populate(
@@ -104,6 +96,27 @@ exports.addSet = async (setId, refreshToken) => {
   const set = await Set.create(setData);
   user.sets.push(set._id);
   await user.save();
+
+  let sets = [...user.sets];
+  const userSetsIndex = sets.findIndex((userSet) =>
+    userSet._id.equals(set._id)
+  );
+
+  if (userSetsIndex !== -1) {
+    sets[userSetsIndex] = {
+      _id: sets[userSetsIndex]._id,
+      ...setData,
+    };
+  }
+
+  return {
+    user: {
+      _id: user._id,
+      username: user.username,
+      email: user.email,
+      sets,
+    },
+  };
 };
 
 exports.deleteSet = async (setId, token) => {
@@ -130,6 +143,16 @@ exports.deleteSet = async (setId, token) => {
 
   set.user.sets.splice(set.user.sets.indexOf(set._id), 1);
   await set.user.save();
+  set.user.populate('sets');
 
-  return set.deleteOne();
+  const updatedUser = {
+    user: {
+      _id: set.user._id,
+      username: set.user.username,
+      email: set.user.email,
+      sets: set.user.sets,
+    },
+  };
+  await set.deleteOne();
+  return updatedUser;
 };

@@ -13,6 +13,7 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { of, throwError } from 'rxjs';
 import { Router } from '@angular/router';
+import { AuthData } from 'src/app/types/authType';
 
 describe('RegisterComponent', () => {
   let component: RegisterComponent;
@@ -79,7 +80,10 @@ describe('RegisterComponent', () => {
     // Arrange: set form values, spies
     const button = {} as HTMLButtonElement;
     const registerSpy = spyOn(userService, 'register').and.returnValue(
-      of({ accessToken: 'token', refreshToken: 'refresh' })
+      of({
+        user: {},
+        tokens: { accessToken: 'token', refreshToken: 'refresh' },
+      } as AuthData)
     );
     const navigateSpy = spyOn(router, 'navigate');
     component.registerForm.get('username')?.setValue('testuser');

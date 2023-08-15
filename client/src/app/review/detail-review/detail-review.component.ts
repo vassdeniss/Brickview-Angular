@@ -5,7 +5,6 @@ import { PopupService } from 'src/app/services/popup.service';
 import { ReviewService } from 'src/app/services/review.service';
 import { UserService } from 'src/app/services/user.service';
 import { Review } from 'src/app/types/reviewType';
-import { User } from 'src/app/types/userType';
 
 @Component({
   selector: 'app-detail-review',
@@ -33,12 +32,7 @@ export class DetailReviewComponent implements OnInit, OnDestroy {
       this.review = review;
     });
     this.editor = new Editor();
-    this.userService.getLoggedUser().subscribe({
-      next: (user: User) => {
-        this.isOwner = user._id === this.review?.userId;
-      },
-      error: (_) => (this.isOwner = false),
-    });
+    this.isOwner = this.userService.user?._id === this.review?.userId;
   }
 
   ngOnDestroy(): void {

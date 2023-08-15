@@ -17,7 +17,6 @@ export class LogoutComponent {
   ngOnInit(): void {
     this.user.logout().subscribe(() => {
       this.token.clearTokens();
-      localStorage.clear();
       this.router.navigate(['']);
     });
   }

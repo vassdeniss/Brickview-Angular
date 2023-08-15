@@ -12,32 +12,30 @@
  *     User:
  *       type: object
  *       properties:
- *         username:
- *           type: string
- *           description: The username of the user
- *           example: john_doe
- *         email:
- *           type: string
- *           description: The email of the user.
- *           example: john_doe@example.com
- *         password:
- *           type: string
- *           description: The password of the user.
- *           example: password123
- *         repeatPassword:
- *           type: string
- *           description: The repeated password.
- *           example: password123
- *         image:
- *           type: string
- *           description: The base64 encoded image.
- *           example: some_base64_image
+ *         user:
+ *           type: object
+ *           properties:
+ *             _id:
+ *               type: string
+ *               description: The auto-generated id of the user.
+ *               example: 5ebd6b2bcef2b33d8c1b4f7c
+ *             username:
+ *               type: string
+ *               description: The username of the user
+ *               example: john_doe
+ *             email:
+ *               type: string
+ *               description: The email of the user.
+ *               example: john_doe@example.com
+ *             sets:
+ *               type: array
+ *               description: The sets of the user.
+ *               $ref: '#/components/schemas/Minifigure'
  *       example:
+ *         _id: 5ebd6b2bcef2b33d8c1b4f7c
  *         username: john_doe
  *         email: john_doe@example.com
- *         password: password123
- *         repeatPassword: password123
- *         image: some_base64_image
+ *         sets: []
  *     Error:
  *       type: object
  *       properties:
@@ -53,41 +51,6 @@ const router = require('express').Router();
 const { getMongooseErrors } = require('../lib/errorExtractor');
 const { mustBeAuth } = require('../middlewares/auth');
 const userService = require('../services/userService');
-
-/**
- * @swagger
- * /users/get-logged-user:
- *   get:
- *     summary: Get current looged in user
- *     tags: [Users]
- *     security:
- *       - bearerAuth: []
- *     responses:
- *        200:
- *         description: The user was found
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/User'
- *        404:
- *         description: The user was not found
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Error'
- *        401:
- *          description: Unauthorized - User not authenticated
- */
-router.get('/get-logged-user', mustBeAuth, async (req, res) => {
-  try {
-    const user = await userService.getLoggedInUser(req.header('X-Refresh'));
-    res.status(200).json(user);
-  } catch (err) {
-    res.status(404).json({
-      message: err.message,
-    });
-  }
-});
 
 /**
  * @swagger
@@ -120,14 +83,26 @@ router.get('/logout', mustBeAuth, async (req, res) => {
  *         application/json:
  *           schema:
  *             $ref: '#/components/schemas/User'
+ *           example:
+ *             username: john_doe
+ *             email: john_doe@example.com
+ *             password: password123
+ *             repeatPassword: password123
+ *             image: some_base64_image
  *     responses:
  *       200:
  *         description: Registration successful
  *         content:
  *           application/json:
  *             example:
- *               accessToken: some_jwt_token
- *               refreshToken: some_jwt_token
+ *               tokens:
+ *                 accessToken: some_jwt_token
+ *                 refreshToken: some_jwt_token
+ *               user:
+ *                 _id: 5ebd6b2bcef2b33d8c1b4f7c
+ *                 username: john_doe
+ *                 email: john_doe@example.com
+ *                 sets: []
  *       400:
  *         description: Registration failed
  *         content:
@@ -171,8 +146,14 @@ router.post('/register', async (req, res) => {
  *         content:
  *           application/json:
  *             example:
- *               accessToken: some_jwt_token
- *               refreshToken: some_jwt_token
+ *               tokens:
+ *                 accessToken: some_jwt_token
+ *                 refreshToken: some_jwt_token
+ *               user:
+ *                 _id: 5ebd6b2bcef2b33d8c1b4f7c
+ *                 username: john_doe
+ *                 email: john_doe@example.com
+ *                 sets: []
  *               image: some_base64_image
  *       400:
  *         description: Login failed
@@ -219,8 +200,17 @@ router.post('/login', async (req, res) => {
  *               profilePicture: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA..."
  *               deleteProfilePicture: false
  *     responses:
- *       204:
+ *       200:
  *         description: Data updated successfully.
+ *         content:
+ *           application/json:
+ *             example:
+ *               user:
+ *                 _id: 5ebd6b2bcef2b33d8c1b4f7c
+ *                 username: john_doe
+ *                 email: john_doe@example.com
+ *                 sets: []
+ *               image: some_base64_image
  *       400:
  *         description: Error updating.
  *       401:
@@ -228,8 +218,11 @@ router.post('/login', async (req, res) => {
  */
 router.patch('/edit', mustBeAuth, async (req, res) => {
   try {
-    await userService.editData(req.body, req.header('X-Refresh'));
-    res.status(204).end();
+    const updatedUser = await userService.editData(
+      req.body,
+      req.header('X-Refresh')
+    );
+    res.status(200).json(updatedUser);
   } catch (err) {
     if (err.name === 'ValidationError') {
       err = getMongooseErrors(err);

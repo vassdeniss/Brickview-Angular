@@ -5,4 +5,4 @@ import { UserService } from 'src/app/services/user.service';
 import { User } from 'src/app/types/userType';
 
 export const userCurrentProfileResolver: ResolveFn<User> = (_) =>
-  inject(UserService).getLoggedUser();
+  inject(UserService).user!;

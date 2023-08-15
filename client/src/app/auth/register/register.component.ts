@@ -3,10 +3,9 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { PopupService } from 'src/app/services/popup.service';
 import { getFormValidationErrors } from '../helpers';
 import { Router } from '@angular/router';
-import { JwtTokens } from 'src/app/types/tokenType';
-import { TokenService } from 'src/app/services/token.service';
 import { UserService } from 'src/app/services/user.service';
 import { RegisterCredentials } from 'src/app/types/credentialsType';
+import { TokenService } from 'src/app/services/token.service';
 
 @Component({
   selector: 'app-register',
@@ -52,10 +51,10 @@ export class RegisterComponent {
     this.user
       .register(this.registerForm.value as RegisterCredentials)
       .subscribe({
-        next: (tokens: JwtTokens) => {
+        next: (data) => {
           localStorage.setItem('image', this.registerForm.value.image);
-          this.token.saveToken(tokens.accessToken);
-          this.token.saveRefreshToken(tokens.refreshToken);
+          this.token.saveToken(data.tokens.accessToken);
+          this.token.saveRefreshToken(data.tokens.refreshToken);
           button.disabled = false;
           this.route.navigate(['']);
         },

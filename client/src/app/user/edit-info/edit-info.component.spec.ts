@@ -4,15 +4,15 @@ import {
   fakeAsync,
   tick,
 } from '@angular/core/testing';
-
 import { EditInfoComponent } from './edit-info.component';
 import { PopupService } from 'src/app/services/popup.service';
-import { ActivatedRoute, Router } from '@angular/router';
-import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
+import { ReactiveFormsModule } from '@angular/forms';
 import { RouterTestingModule } from '@angular/router/testing';
 import { UserService } from 'src/app/services/user.service';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { of, throwError } from 'rxjs';
+import { User } from 'src/app/types/userType';
 
 describe('EditInfo Component', () => {
   let component: EditInfoComponent;
@@ -21,8 +21,6 @@ describe('EditInfo Component', () => {
   let mockUserService: jasmine.SpyObj<UserService>;
   let router: Router;
   let mockLocalStorage: any;
-
-  let localStore: any;
 
   beforeEach(() => {
     const popupSpy = jasmine.createSpyObj('PopupService', ['show']);
@@ -79,7 +77,7 @@ describe('EditInfo Component', () => {
       profilePicture: 'profile.jpg',
       deleteProfilePicture: true,
     };
-    mockUserService.editUser.and.returnValue(of(null));
+    mockUserService.editUser.and.returnValue(of({} as User));
     const button = {} as HTMLButtonElement;
     component.editForm.patchValue({
       username: userData.username,
@@ -113,7 +111,7 @@ describe('EditInfo Component', () => {
       profilePicture: 'profile.jpg',
       deleteProfilePicture: false,
     };
-    mockUserService.editUser.and.returnValue(of(null));
+    mockUserService.editUser.and.returnValue(of({} as User));
     const button = {} as HTMLButtonElement;
     component.editForm.patchValue({
       username: userData.username,

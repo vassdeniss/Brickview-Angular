@@ -1,11 +1,11 @@
 import { Component } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { getFormValidationErrors } from '../helpers';
+import { UserService } from 'src/app/services/user.service';
 import { PopupService } from 'src/app/services/popup.service';
 import { Router } from '@angular/router';
 import { TokenService } from 'src/app/services/token.service';
 import { LoginCredentials } from 'src/app/types/credentialsType';
-import { UserService } from 'src/app/services/user.service';
 
 @Component({
   selector: 'app-login',
@@ -42,9 +42,9 @@ export class LoginComponent {
 
     this.user.login(this.loginForm.value as LoginCredentials).subscribe({
       next: (data) => {
-        localStorage.setItem('image', data.image);
-        this.token.saveToken(data.accessToken);
-        this.token.saveRefreshToken(data.refreshToken);
+        localStorage.setItem('image', data.image!);
+        this.token.saveToken(data.tokens.accessToken);
+        this.token.saveRefreshToken(data.tokens.refreshToken);
         button.disabled = false;
         this.route.navigate(['']);
       },
