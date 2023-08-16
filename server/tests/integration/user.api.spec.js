@@ -167,18 +167,50 @@ describe('User API', function () {
     });
   });
 
-  // describe('GET /logout', () => {
-  //   it('should return a 204 status when logout succeeds', async () => {
-  //     const logoutStub = sinon.stub(userService, 'logout');
-  //     const refreshHeader = 'some-refresh-token';
+  describe('GET /logout', () => {
+    let guest;
+    let accessToken;
+    let refreshToken;
 
-  //     const response = await request(app)
-  //       .get('/users/logout')
-  //       .set('X-Refresh', refreshHeader);
+    beforeEach(async () => {
+      guest = {
+        username: 'guest',
+        email: 'guest@mail.com',
+        password: '123456789',
+        repeatPassword: '123456789',
+      };
 
-  //     // Assert: that correct status is returned
-  //     expect(response.status).to.equal(204);
-  //     expect(logoutStub).to.have.been.calledOnceWith(refreshHeader);
-  //   });
-  // });
+      const response = await request(app).post('/users/register').send(guest);
+      accessToken = response.body.tokens.accessToken;
+      refreshToken = response.body.tokens.refreshToken;
+    });
+
+    it('should return a 204 status when logout succeeds', async () => {
+      // Arrange:
+
+      // Act: call endpoint
+      const response = await request(app)
+        .get('/users/logout')
+        .set('X-Authorization', accessToken)
+        .set('X-Refresh', refreshToken);
+
+      // Assert: that correct status is returned
+      expect(response.status).to.equal(204);
+    });
+
+    it('should return a 401 status when not authorized', async () => {
+      // Arrange: delete access token
+      accessToken = '';
+
+      // Act: call endpoint
+      const response = await request(app)
+        .get('/users/logout')
+        .set('X-Authorization', accessToken);
+
+      // Assert: that correct status is returned
+      expect(response.status).to.equal(401);
+      expect(response.body).to.have.property('message');
+      expect(response.body.message).to.equal('You are not authorized!');
+    });
+  });
 });
