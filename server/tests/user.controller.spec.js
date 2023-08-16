@@ -27,6 +27,7 @@ describe('User controller routes', function () {
 
   describe('POST /register', () => {
     it('should return status 200 when the user has been registered', async () => {
+      // Arrange: create user data
       const userData = {
         username: 'test',
         email: 'test@example.com',
@@ -45,6 +46,7 @@ describe('User controller routes', function () {
 
       sinon.stub(userService, 'register').resolves(expectedData);
 
+      // Act: make request
       const response = await request(app)
         .post('/users/register')
         .send(userData);
@@ -55,6 +57,7 @@ describe('User controller routes', function () {
     });
 
     it('should save image when image is provided', async () => {
+      // Arrange: create user data
       const userData = {
         username: 'test',
         email: 'test@example.com',
@@ -75,6 +78,7 @@ describe('User controller routes', function () {
 
       sinon.stub(userService, 'register').resolves(expectedData);
 
+      // Act: make request
       const response = await request(app)
         .post('/users/register')
         .send(userData);
@@ -85,6 +89,7 @@ describe('User controller routes', function () {
     });
 
     it('should return status 400 when registration fails', async () => {
+      // Arrange: create user data
       const userData = {
         username: 'test',
         email: 'test@example.com',
@@ -96,6 +101,7 @@ describe('User controller routes', function () {
         .stub(userService, 'register')
         .throws(new Error('Registration failed!'));
 
+      // Act: make request
       const response = await request(app)
         .post('/users/register')
         .send(userData);
@@ -108,6 +114,7 @@ describe('User controller routes', function () {
 
   describe('POST /login', () => {
     it('should return status 200 when the user has logged in', async () => {
+      // Arrange: create login data
       const loginData = {
         email: 'test@example.com',
         password: 'testtesttest',
@@ -123,6 +130,7 @@ describe('User controller routes', function () {
 
       sinon.stub(userService, 'login').returns(expectedData);
 
+      // Act: make request
       const response = await request(app).post('/users/login').send(loginData);
 
       // Assert: that correct status is returned
@@ -131,6 +139,7 @@ describe('User controller routes', function () {
     });
 
     it('should return status 400 when login fails', async () => {
+      // Arrange: create login data
       const loginData = {
         email: 'test@example.com',
         password: 'testtesttest',
@@ -138,6 +147,7 @@ describe('User controller routes', function () {
 
       sinon.stub(userService, 'login').throws(new Error('Login failed!'));
 
+      // Act: make request
       const response = await request(app).post('/users/login').send(loginData);
 
       // Assert: that correct status is returned
@@ -148,9 +158,11 @@ describe('User controller routes', function () {
 
   describe('GET /logout', () => {
     it('should return a 204 status when logout succeeds', async () => {
+      // Arrange: create stubs
       const logoutStub = sinon.stub(userService, 'logout');
       const refreshHeader = 'some-refresh-token';
 
+      // Act: make request
       const response = await request(app)
         .get('/users/logout')
         .set('X-Refresh', refreshHeader);
