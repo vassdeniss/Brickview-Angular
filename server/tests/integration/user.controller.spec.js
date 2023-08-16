@@ -107,45 +107,65 @@ describe('User API', function () {
     });
   });
 
-  // describe('POST /login', () => {
-  //   it('should return status 200 when the user has logged in', async () => {
-  //     const loginData = {
-  //       email: 'test@example.com',
-  //       password: 'testtesttest',
-  //     };
+  describe('POST /login', () => {
+    let guest;
+    let loginData;
 
-  //     const expectedData = {
-  //       _id: 'someId',
-  //       email: 'test@example.com',
-  //       username: 'someUsername',
-  //       accessToken: 'aToken',
-  //       refreshToken: 'rToken',
-  //     };
+    beforeEach(async () => {
+      guest = {
+        username: 'guest',
+        email: 'guest@mail.com',
+        password: '123456789',
+        repeatPassword: '123456789',
+      };
+      loginData = {
+        username: guest.username,
+        password: guest.password,
+      };
 
-  //     sinon.stub(userService, 'login').returns(expectedData);
+      await request(app).post('/users/register').send(guest);
+    });
 
-  //     const response = await request(app).post('/users/login').send(loginData);
+    it('should return status 200 when the user has logged in', async () => {
+      // Arrange: create minio stub
+      const getUserImageStub = sinon
+        .stub(minioService, 'getUserImage')
+        .resolves({
+          image: 'image',
+        });
 
-  //     // Assert: that correct status is returned
-  //     expect(response.status).to.equal(200);
-  //     expect(response.body).to.deep.equal(expectedData);
-  //   });
+      // Act: call endpoint
+      const response = await request(app).post('/users/login').send(loginData);
 
-  //   it('should return status 400 when login fails', async () => {
-  //     const loginData = {
-  //       email: 'test@example.com',
-  //       password: 'testtesttest',
-  //     };
+      // Assert: that correct status is returned
+      expect(getUserImageStub).to.have.been.calledOnceWith(
+        guest.email.replace(/[.@]/g, '')
+      );
+      expect(response.status).to.equal(200);
+      expect(response.body).to.have.property('tokens');
+      expect(response.body.tokens).to.have.property('accessToken');
+      expect(response.body.tokens).to.have.property('refreshToken');
+      expect(response.body).to.have.property('user');
+      expect(response.body.user).to.have.property('_id');
+      expect(response.body.user).to.have.property('username');
+      expect(response.body.user).to.have.property('email');
+      expect(response.body.user).to.have.property('sets');
+      expect(response.body).to.have.property('image');
+    });
 
-  //     sinon.stub(userService, 'login').throws(new Error('Login failed!'));
+    it('should return status 400 when login fails', async () => {
+      // Arrange: create invalid login
+      loginData.password = 'wrongpassword';
 
-  //     const response = await request(app).post('/users/login').send(loginData);
+      // Act: call endpoint
+      const response = await request(app).post('/users/login').send(loginData);
 
-  //     // Assert: that correct status is returned
-  //     expect(response.status).to.equal(400);
-  //     expect(response.body).to.have.property('message');
-  //   });
-  // });
+      // Assert: that correct status is returned
+      expect(response.status).to.equal(400);
+      expect(response.body).to.have.property('message');
+      expect(response.body.message).to.equal('Invalid username or password!');
+    });
+  });
 
   // describe('GET /logout', () => {
   //   it('should return a 204 status when logout succeeds', async () => {
