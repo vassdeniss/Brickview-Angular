@@ -179,7 +179,7 @@ describe('User model validations', function () {
     expect(user.password).to.equal(hashedPassword);
   });
 
-  it('should craete normalized username before saving', async () => {
+  it('should create normalized username before saving', async () => {
     // Arrange: set up user, stubs
     sinon.stub(bcrypt, 'hash').resolves();
 
@@ -197,6 +197,32 @@ describe('User model validations', function () {
 
     // Assert: that correct error is thrown
     expect(user.normalizedUsername).to.equal('testuser');
+  });
+
+  it('should throw error on password mismatch', async () => {
+    // Arrange: set up user
+    const user = new User({
+      username: 'TESTUSER',
+      email: 'validEmail@mail.com',
+      password: 'testpassword',
+      repeatPassword: 'reversetestpassword',
+    });
+
+    sinon.stub(User, 'findOne').resolves(user);
+
+    // Act: validate the user
+    let error = null;
+    try {
+      await user.validate();
+    } catch (err) {
+      error = err;
+    }
+
+    // Assert: that correct error is thrown
+    expect(error).to.exist;
+    expect(error.errors['repeatPassword'].message).to.equal(
+      'Password mismatch!'
+    );
   });
 
   it('should not throw any error when data is correct', async () => {

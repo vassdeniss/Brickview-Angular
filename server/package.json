@@ -7,6 +7,8 @@
     "server": "nodemon --exec \"node -r dotenv/config\" server.js",
     "server-debug": "nodemon --exec \"node --inspect -r dotenv/config\" server.js",
     "test": "mocha ./tests/*.spec.js --exit",
+    "test:integration": "mocha ./tests/integration/*.spec.js --exit",
+    "test:backend": "npm run test & npm run test:integration",
     "coverage": "nyc --reporter=text npm test"
   },
   "repository": {
@@ -28,6 +30,7 @@
     "express": "^4.18.2",
     "jsonwebtoken": "^9.0.0",
     "minio": "^7.1.1",
+    "mongodb-memory-server": "^8.15.0",
     "mongoose": "^7.3.1",
     "nodemon": "^2.0.22",
     "sinon-chai": "^3.7.0",
