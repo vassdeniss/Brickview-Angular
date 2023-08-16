@@ -5,7 +5,7 @@ on:
     branches:
       - main
 jobs:
-  server-test:
+  unit-server-test:
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -21,6 +21,27 @@ jobs:
         run: npm install
       - name: Run tests
         run: npm test
+  integration-server-test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./server
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: 18
+      - name: Install dependencies
+        run: npm install
+      - name: Create .env and run tests
+        run: |
+          touch .env
+          echo JWT_SECRET=$ENV_VAR_1 >> .env
+          npm run test:integration
+        env:
+          ENV_VAR_1: ${{ secrets.JWT_SECRET }}
   client-test:
     runs-on: ubuntu-latest
     defaults:
