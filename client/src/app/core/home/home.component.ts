@@ -28,6 +28,8 @@ export class HomeComponent {
         queryParams: { setNumber },
       });
       this.sets$ = this.setService.getAll(setNumber);
+    } else {
+      this.sets$ = this.setService.getAll();
     }
   }
 }

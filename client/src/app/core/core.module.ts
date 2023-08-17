@@ -7,6 +7,7 @@ import { SharedModule } from '../shared/shared.module';
 import { HomeComponent } from './home/home.component';
 import { RouterModule } from '@angular/router';
 import { FooterComponent } from './footer/footer.component';
+import { SearchComponent } from './search/search.component';
 
 @NgModule({
   declarations: [
@@ -15,8 +16,14 @@ import { FooterComponent } from './footer/footer.component';
     PageSpinnerComponent,
     HomeComponent,
     FooterComponent,
+    SearchComponent,
   ],
   imports: [CommonModule, SharedModule, RouterModule],
-  exports: [NavComponent, PageSpinnerComponent, FooterComponent],
+  exports: [
+    NavComponent,
+    PageSpinnerComponent,
+    FooterComponent,
+    SearchComponent,
+  ],
 })
 export class CoreModule {}
