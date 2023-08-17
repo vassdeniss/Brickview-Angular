@@ -6,24 +6,44 @@ const minioService = require('../services/minioService');
 
 const host = 'https://rebrickable.com';
 
-exports.getAllWithReview = async () => {
-  const sets = await Set.find({ review: { $ne: null } })
+exports.getAllWithReview = async (setNumber) => {
+  let filteredSets;
+  if (setNumber) {
+    filteredSets = Set.find({
+      review: { $ne: null },
+      setNum: { $regex: setNumber },
+    });
+  } else {
+    filteredSets = Set.find({
+      review: { $ne: null },
+    });
+  }
+
+  const sets = await filteredSets
     .select('name image')
     .populate('user', 'username email');
 
-  return Promise.all(
-    sets.map(async (set) => {
-      return {
-        _id: set._id,
-        name: set.name,
-        image: set.image,
-        username: set.user.username,
-        userImage: await minioService.getUserImage(
-          set.user.email.replace(/[.@]/g, '')
-        ),
-      };
-    })
-  );
+  const foundPictures = {};
+  const result = [];
+  for (const set of sets) {
+    const cutMail = set.user.email.replace(/[.@]/g, '');
+
+    let userImage = foundPictures[cutMail];
+    if (!userImage) {
+      userImage = await minioService.getUserImage(cutMail);
+      foundPictures[cutMail] = userImage;
+    }
+
+    result.push({
+      _id: set._id,
+      name: set.name,
+      image: set.image,
+      username: set.user.username,
+      userImage,
+    });
+  }
+
+  return result;
 };
 
 exports.getUserCollection = async (username) => {
