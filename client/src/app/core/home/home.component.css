@@ -120,3 +120,15 @@ ul {
     height: auto;
   }
 }
+
+.search-form {
+  display: flex;
+  flex-direction: column;
+  align-items: end;
+}
+
+.search-form input {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}

@@ -138,7 +138,7 @@ const setService = require('../services/setService');
  *                     example: "some-base64-image"
  */
 router.get('/allWithReviews', async (req, res) => {
-  const reviews = await setService.getAllWithReview();
+  const reviews = await setService.getAllWithReview(req.query.setNumber);
   res.status(200).json(reviews);
 });
 

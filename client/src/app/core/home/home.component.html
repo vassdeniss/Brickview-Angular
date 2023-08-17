@@ -1,3 +1,9 @@
+<div class="search-form">
+  <input type="text" placeholder="Search by set number" #search />
+  <button class="card-button" type="button" (click)="searchSets(search.value)">
+    Search
+  </button>
+</div>
 <ul>
   <div *ngFor="let set of sets$ | async" class="card">
     <img src="{{ set.image }}" />

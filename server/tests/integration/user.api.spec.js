@@ -4,22 +4,16 @@ const request = require('supertest');
 const sinon = require('sinon');
 const sinonChai = require('sinon-chai');
 const dbHandler = require('./db-handler');
-require('dotenv').config();
-
-chai.use(sinonChai);
-
-//const User = require('../models/User');
 const minioService = require('../../services/minioService');
-//const authMiddleware = require('../middlewares/auth');
+
+require('dotenv').config();
+chai.use(sinonChai);
 
 let app;
 
 describe('User API', function () {
   before(async () => {
     await dbHandler.connect();
-    // sinon.stub(authMiddleware, 'mustBeAuth').callsFake((req, res, next) => {
-    //   next();
-    // });
     app = require('../../server');
   });
 
