@@ -1,5 +1,5 @@
 import { inject } from '@angular/core';
-import { ActivatedRoute, ResolveFn } from '@angular/router';
+import { ResolveFn } from '@angular/router';
 import { SetService } from 'src/app/services/set.service';
 import { Set } from 'src/app/types/setType';
 
