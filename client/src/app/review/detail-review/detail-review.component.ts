@@ -45,6 +45,14 @@ export class DetailReviewComponent implements OnInit, OnDestroy {
   }
 
   deleteReview(): void {
+    if (
+      !confirm(
+        'Are you sure you want to delete this review? This action cannot be undone.'
+      )
+    ) {
+      return;
+    }
+
     this.reviewService.deleteReview(this.review?._id as string).subscribe({
       next: () => {
         this.routeNavigate.navigate(['sets/my-sets']);
