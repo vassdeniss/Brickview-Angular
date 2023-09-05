@@ -108,12 +108,6 @@ exports.editData = async (
   refreshToken
 ) => {
   const user = await User.findOne({ refreshToken }).populate('sets');
-  if (!user) {
-    const error = new Error('Invalid refresh token!');
-    error.statusCode = 401;
-    throw error;
-  }
-
   user.username = username;
 
   let image;

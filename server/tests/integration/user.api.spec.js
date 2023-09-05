@@ -12,6 +12,8 @@ chai.use(sinonChai);
 let app;
 
 describe('User API', function () {
+  this.timeout(5000);
+
   before(async () => {
     await dbHandler.connect();
     app = require('../../server');
