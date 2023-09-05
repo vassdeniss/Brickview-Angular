@@ -1,6 +1,7 @@
 <nav class="navbar">
   <div routerLink="" class="navbar-title">LegoView</div>
   <div *ngIf="!isLogged" class="navbar-buttons">
+    <button routerLink="/reviews/" class="navbar-button">Reviews</button>
     <button routerLink="/auth/login" class="navbar-button">Login</button>
     <button routerLink="/auth/register" class="navbar-button">Register</button>
   </div>
@@ -9,6 +10,7 @@
     <button *ngIf="!image" routerLink="/users/my-profile" class="navbar-button">
       Profile
     </button>
+    <button routerLink="/reviews/" class="navbar-button">Reviews</button>
     <button routerLink="/auth/logout" class="navbar-button">Logout</button>
   </div>
 </nav>
