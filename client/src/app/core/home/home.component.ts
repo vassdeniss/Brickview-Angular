@@ -1,7 +1,7 @@
-import { Component } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import { Editor } from 'ngx-editor';
 import { Observable, map } from 'rxjs';
-import { SetService } from 'src/app/services/set.service';
 import { Set } from 'src/app/types/setType';
 
 @Component({
@@ -9,27 +9,19 @@ import { Set } from 'src/app/types/setType';
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css'],
 })
-export class HomeComponent {
+export class HomeComponent implements OnInit, OnDestroy {
+  editor!: Editor;
+  content: string = 'mow';
   sets$!: Observable<Set[]>;
 
-  constructor(
-    private activatedRoute: ActivatedRoute,
-    private setService: SetService,
-    private router: Router
-  ) {}
+  constructor(private activatedRoute: ActivatedRoute) {}
 
   ngOnInit(): void {
+    this.editor = new Editor();
     this.sets$ = this.activatedRoute.data.pipe(map((data) => data['sets']));
   }
 
-  searchSets(setNumber?: string) {
-    if (setNumber) {
-      this.router.navigate([''], {
-        queryParams: { setNumber },
-      });
-      this.sets$ = this.setService.getAll(setNumber);
-    } else {
-      this.sets$ = this.setService.getAll();
-    }
+  ngOnDestroy(): void {
+    this.editor.destroy();
   }
 }
