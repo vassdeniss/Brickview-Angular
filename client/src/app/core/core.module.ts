@@ -8,6 +8,8 @@ import { HomeComponent } from './home/home.component';
 import { RouterModule } from '@angular/router';
 import { FooterComponent } from './footer/footer.component';
 import { SearchComponent } from './search/search.component';
+import { NgxEditorModule } from 'ngx-editor';
+import { FormsModule } from '@angular/forms';
 
 @NgModule({
   declarations: [
@@ -18,7 +20,13 @@ import { SearchComponent } from './search/search.component';
     FooterComponent,
     SearchComponent,
   ],
-  imports: [CommonModule, SharedModule, RouterModule],
+  imports: [
+    CommonModule,
+    SharedModule,
+    RouterModule,
+    NgxEditorModule,
+    FormsModule,
+  ],
   exports: [
     NavComponent,
     PageSpinnerComponent,

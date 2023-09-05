@@ -7,9 +7,16 @@ import { ReviewRoutingModule } from './review-routing.module';
 import { DetailReviewComponent } from './detail-review/detail-review.component';
 import { NgxEditorModule } from 'ngx-editor';
 import { EditReviewComponent } from './edit-review/edit-review.component';
+import { AllReviewsComponent } from './all-reviews/all-reviews.component';
+import { CoreModule } from '../core/core.module';
 
 @NgModule({
-  declarations: [CreateReviewComponent, DetailReviewComponent, EditReviewComponent],
+  declarations: [
+    CreateReviewComponent,
+    DetailReviewComponent,
+    EditReviewComponent,
+    AllReviewsComponent,
+  ],
   imports: [
     CommonModule,
     ReviewRoutingModule,
@@ -17,6 +24,7 @@ import { EditReviewComponent } from './edit-review/edit-review.component';
     ReactiveFormsModule,
     NgxEditorModule,
     FormsModule,
+    CoreModule,
   ],
 })
 export class ReviewModule {}

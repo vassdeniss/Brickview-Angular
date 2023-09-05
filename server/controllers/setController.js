@@ -37,13 +37,17 @@
  *           type: integer
  *           description: The total count of minifigures.
  *           example: 4
- *         isReviewed:
- *           type: boolean
- *           description: Whether the set is reviewed or not.
- *           example: false
  *         minifigs:
  *           type: array
  *           $ref: '#/components/schemas/Minifigure'
+ *         content:
+ *           type: string
+ *           description: The review itself.
+ *           example: Some very long review text.
+ *         reviewDate:
+ *           type: string
+ *           description: The date the review was created.
+ *           example: January 1, 2021
  *         user:
  *           $ref: '#/components/schemas/User'
  *       example:
@@ -53,7 +57,8 @@
  *         parts: 176
  *         image: "https://cdn.rebrickable.com/media/sets/8091-1/3953.jpg"
  *         minifigCount: 4
- *         isReviewed: false
+ *         content: Some very long review text.
+ *         reviewDate: January 1, 2021
  *         minifigs:
  *           - name: "Barriss Offee, Black Hood and Cape"
  *             quantity: 1
@@ -102,7 +107,7 @@ const setService = require('../services/setService');
 
 /**
  * @swagger
- * /allWithReviews:
+ * /sets/allWithReviews:
  *   get:
  *     summary: Get all sets with their reviews.
  *     tags: [Sets]
@@ -136,6 +141,11 @@ const setService = require('../services/setService');
  *                     type: string
  *                     description: The user image.
  *                     example: "some-base64-image"
+ *                   reviewDate:
+ *                     type: string
+ *                     description: The date the review was created.
+ *                     example: January 1, 2021
+ *
  */
 router.get('/allWithReviews', async (req, res) => {
   const reviews = await setService.getAllWithReview(req.query.setNumber);
@@ -144,7 +154,53 @@ router.get('/allWithReviews', async (req, res) => {
 
 /**
  * @swagger
- * /user-collection:
+ * /sets/latestThreeWithReviews:
+ *   get:
+ *     summary: Get latest 3 sets with their reviews.
+ *     tags: [Sets]
+ *     responses:
+ *       200:
+ *         description: Successfullly retrieved the sets.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   _id:
+ *                     type: string
+ *                     description: The set ID.
+ *                     example: "918fh18j102"
+ *                   name:
+ *                     type: string
+ *                     description: The set name.
+ *                     example: "Kessel Run Millennium  Falcon"
+ *                   image:
+ *                     type: string
+ *                     description: The set image.
+ *                     example: "https://some-url"
+ *                   username:
+ *                     type: string
+ *                     description: The user username.
+ *                     example: "guest"
+ *                   userImage:
+ *                     type: string
+ *                     description: The user image.
+ *                     example: "some-base64-image"
+ *                   reviewDate:
+ *                     type: string
+ *                     description: The date the review was created.
+ *                     example: January 1, 2021
+ */
+router.get('/latestThreeWithReviews', async (req, res) => {
+  const reviews = await setService.getLatestThreeWithReviews();
+  res.status(200).json(reviews);
+});
+
+/**
+ * @swagger
+ * /sets/user-collection:
  *   get:
  *     summary: Get a user's set collection
  *     tags: [Sets]
@@ -206,7 +262,7 @@ router.get('/user-collection/:username', async (req, res) => {
 
 /**
  * @swagger
- * /add-set:
+ * /sets/add-set:
  *   post:
  *     summary: Add a set to the user's collection
  *     tags: [Sets]
@@ -253,7 +309,7 @@ router.get('/user-collection/:username', async (req, res) => {
  *                   description: Error message.
  *                   example: "Set already exists in collection!"
  *       401:
- *         description: Unauthorized - User not authenticated
+ *         description: User not authenticated
  */
 router.post('/add-set', mustBeAuth, async (req, res) => {
   try {
@@ -271,7 +327,7 @@ router.post('/add-set', mustBeAuth, async (req, res) => {
 
 /**
  * @swagger
- * /delete/{id}:
+ * /sets/delete/{id}:
  *   delete:
  *     summary: Delete a set from the user's collection
  *     tags: [Sets]
@@ -304,7 +360,7 @@ router.post('/add-set', mustBeAuth, async (req, res) => {
  *                   description: Error message.
  *                   example: "Set not found!"
  *       403:
- *         description: Forbidden - User not allowed to delete.
+ *         description: User not allowed to delete.
  *         content:
  *           application/json:
  *             schema:
@@ -315,7 +371,7 @@ router.post('/add-set', mustBeAuth, async (req, res) => {
  *                   description: Error message.
  *                   example: "You are not authorized to delete this set!"
  *       401:
- *         description: Unauthorized - User not authenticated.
+ *         description: User not authenticated.
  */
 router.delete('/delete/:id', mustBeAuth, async (req, res) => {
   try {

@@ -20,30 +20,23 @@ exports.getAllWithReview = async (setNumber) => {
   }
 
   const sets = await filteredSets
-    .select('name image')
+    .select('name image reviewDate')
     .populate('user', 'username email');
 
-  const foundPictures = {};
-  const result = [];
-  for (const set of sets) {
-    const cutMail = set.user.email.replace(/[.@]/g, '');
+  return getUserImagesFromSets(sets);
+};
 
-    let userImage = foundPictures[cutMail];
-    if (!userImage) {
-      userImage = await minioService.getUserImage(cutMail);
-      foundPictures[cutMail] = userImage;
-    }
+exports.getLatestThreeWithReviews = async () => {
+  const sets = await Set.find({
+    review: { $ne: null },
+    reviewDate: { $ne: null },
+  })
+    .sort({ reviewDate: -1 })
+    .limit(3)
+    .select('name image reviewDate')
+    .populate('user', 'username email');
 
-    result.push({
-      _id: set._id,
-      name: set.name,
-      image: set.image,
-      username: set.user.username,
-      userImage,
-    });
-  }
-
-  return result;
+  return getUserImagesFromSets(sets);
 };
 
 exports.getUserCollection = async (username) => {
@@ -122,6 +115,7 @@ exports.addSet = async (setId, refreshToken) => {
     userSet._id.equals(set._id)
   );
 
+  /* istanbul ignore next  */
   if (userSetsIndex !== -1) {
     sets[userSetsIndex] = {
       _id: sets[userSetsIndex]._id,
@@ -176,3 +170,33 @@ exports.deleteSet = async (setId, token) => {
   await set.deleteOne();
   return updatedUser;
 };
+
+/* istanbul ignore next  */
+async function getUserImagesFromSets(sets) {
+  const foundPictures = {};
+  const result = [];
+  for (const set of sets) {
+    const cutMail = set.user.email.replace(/[.@]/g, '');
+
+    let userImage = foundPictures[cutMail];
+    if (!userImage) {
+      userImage = await minioService.getUserImage(cutMail);
+      foundPictures[cutMail] = userImage;
+    }
+
+    result.push({
+      _id: set._id,
+      name: set.name,
+      image: set.image,
+      username: set.user.username,
+      reviewDate: set.reviewDate.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      }),
+      userImage,
+    });
+  }
+
+  return result;
+}

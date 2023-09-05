@@ -12,4 +12,5 @@ export type Set = {
   userImage?: string;
   username?: string;
   review?: string;
+  reviewDate?: string;
 };

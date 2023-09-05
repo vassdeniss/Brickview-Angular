@@ -17,6 +17,7 @@ exports.addReview = async (data, token) => {
   const set = await Set.findById(data._id).select('setNum');
   await minioService.saveReview(email, set.setNum, buffers);
   set.review = data.content;
+  set.reviewDate = Date.now();
   await set.save();
 
   const user = await User.findOne({ refreshToken: token }).populate('sets');
@@ -120,6 +121,7 @@ exports.deleteReview = async (setId, token) => {
 
   await minioService.deleteReviewImages(email, set.setNum);
   set.review = null;
+  set.reviewDate = null;
   await set.save();
 
   const user = await User.findOne({ refreshToken: token }).populate('sets');

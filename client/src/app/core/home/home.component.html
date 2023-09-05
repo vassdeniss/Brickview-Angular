@@ -1,25 +1,50 @@
-<app-search (searchEvent)="searchSets($event)" />
-<ul>
-  <div *ngFor="let set of sets$ | async" class="card">
-    <img src="{{ set.image }}" />
-    <div class="card-content">
-      <div class="card-title">
-        {{ set.name }}
-      </div>
-      <div class="card-details">
-        <img *ngIf="set.userImage" src="{{ set.userImage }}" />
-        <span
-          >Review by:
-          <strong class="user-link" [routerLink]="['/sets', set.username]">{{
-            set.username
-          }}</strong></span
-        >
-      </div>
-      <div class="card-actions">
-        <button [routerLink]="['/reviews', set._id]" class="card-button">
-          View Review
-        </button>
+<div class="flex-wrapper">
+  <div class="wrapper">
+    <h1>Welcome to LegoView!</h1>
+    <p>
+      This is the site where you are the creator, the writer, the reviewer, the
+      reader, the producer... and most important of all - the Lego fan!
+    </p>
+    <p>
+      Here you can take a step back, relax and enjoy sharing your love for Lego
+      with others.
+    </p>
+    <p>
+      Enjoy the reviews of fans or share your own unabridged thoughts for others
+      to read.
+    </p>
+    <p>
+      Find all the wonders that Lego bricks can create. And don't forget to
+      share with friends! We, the team behind LegoView, would love to meet you!
+    </p>
+  </div>
+  <ul>
+    <div *ngFor="let set of sets$ | async" class="card">
+      <img src="{{ set.image }}" />
+      <div class="card-content">
+        <div class="card-title">
+          {{ set.name }}
+        </div>
+        <div class="card-details">
+          <img *ngIf="set.userImage" src="{{ set.userImage }}" />
+          <div class="card-details__info">
+            <span
+              >Review by:
+              <strong
+                class="user-link"
+                [routerLink]="['/sets', set.username]"
+                >{{ set.username }}</strong
+              ></span
+            >
+            <span>{{ set.reviewDate }}</span>
+          </div>
+        </div>
+        <div class="card-actions">
+          <button [routerLink]="['/reviews', set._id]" class="card-button">
+            View Review
+          </button>
+        </div>
       </div>
     </div>
-  </div>
-</ul>
+  </ul>
+</div>
