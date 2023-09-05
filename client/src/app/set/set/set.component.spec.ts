@@ -26,6 +26,8 @@ describe('Set Component', () => {
     mockSetService.deleteSet.and.returnValue(of(null));
     spyOn(component.setRemoved, 'emit');
 
+    spyOn(window, 'confirm').and.returnValue(true);
+
     // Act: call the deleteSet method
     component.deleteSet(setId);
 

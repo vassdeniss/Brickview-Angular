@@ -349,11 +349,7 @@ describe('Set service methods', function () {
     });
   });
 
-  describe('getLatestThreeWithReview', () => {
-    afterEach(() => {
-      sinon.restore();
-    });
-
+  describe('getLatestThreeWithReviews', () => {
     it('should return an array of sets with review and user data', async () => {
       // Arrange: mock data and stubs
       const mockSet1 = {
@@ -385,7 +381,7 @@ describe('Set service methods', function () {
       sinon.stub(minioService, 'getUserImage').resolves('user-image-url');
 
       // Act: call the service
-      const result = await setService.getLatestThreeWithReview();
+      const result = await setService.getLatestThreeWithReviews();
 
       // Assert: verify the result
       expect(result).to.be.an('array').with.lengthOf(2);
@@ -405,39 +401,9 @@ describe('Set service methods', function () {
         userImage: 'user-image-url',
         reviewDate: 'January 2, 2021',
       });
+
+      sinon.restore();
     });
-
-    // it('should return an array of one set with review and user data when given number', async () => {
-    //   // Arrange: mock data and stubs
-    //   const mockSet1 = {
-    //     _id: '123',
-    //     name: 'Set 1',
-    //     image: 'image-url-1',
-    //     user: { username: 'user1', email: 'user1@example.com' },
-    //   };
-    //   const mockSets = [mockSet1];
-
-    //   sinon.stub(Set, 'find').returns({
-    //     select: sinon.stub().returns({
-    //       populate: sinon.stub().resolves(mockSets),
-    //     }),
-    //   });
-
-    //   sinon.stub(minioService, 'getUserImage').resolves('user-image-url');
-
-    //   // Act: call the service
-    //   const result = await setService.getAllWithReview(mockSet1._id);
-
-    //   // Assert: verify the result
-    //   expect(result).to.be.an('array').with.lengthOf(1);
-    //   expect(result[0]).to.deep.equal({
-    //     _id: '123',
-    //     name: 'Set 1',
-    //     image: 'image-url-1',
-    //     username: 'user1',
-    //     userImage: 'user-image-url',
-    //   });
-    // });
   });
 
   describe('getUserCollection', () => {
