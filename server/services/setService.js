@@ -26,7 +26,7 @@ exports.getAllWithReview = async (setNumber) => {
   return getUserImagesFromSets(sets);
 };
 
-exports.getLatestThreeWithReview = async () => {
+exports.getLatestThreeWithReviews = async () => {
   const sets = await Set.find({
     review: { $ne: null },
     reviewDate: { $ne: null },

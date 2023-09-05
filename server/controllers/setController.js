@@ -194,7 +194,7 @@ router.get('/allWithReviews', async (req, res) => {
  *                     example: January 1, 2021
  */
 router.get('/latestThreeWithReviews', async (req, res) => {
-  const reviews = await setService.getLatestThreeWithReview();
+  const reviews = await setService.getLatestThreeWithReviews();
   res.status(200).json(reviews);
 });
 
