@@ -17,6 +17,12 @@ export class SetService {
     );
   }
 
+  getLatest(): Observable<Set[]> {
+    return this.http.get<Set[]>(
+      `${environment.apiUrl}/sets/latestThreeWithReviews`
+    );
+  }
+
   getUserSets(username: string): Observable<any> {
     return this.http.get<any>(
       `${environment.apiUrl}/sets/user-collection/${username}`
