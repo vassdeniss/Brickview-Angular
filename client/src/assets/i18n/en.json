@@ -10,5 +10,8 @@
 	"core.nav.logout": "Logout",
 	"core.nav.profile": "Profile",
 	"core.nav.register": "Register",
-	"core.nav.reviews": "Reviews"
+	"core.nav.reviews": "Reviews",
+	"core.pagenotfound.message": "Oops! Page not found!",
+	"core.search.button": "Search",
+	"core.search.placeholder": "Search by set number"
 }

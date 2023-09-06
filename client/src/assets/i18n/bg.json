@@ -10,5 +10,8 @@
 	"core.nav.logout": "Излез от профила си",
 	"core.nav.profile": "Профил",
 	"core.nav.register": "Регистрация",
-	"core.nav.reviews": "Всички ревюта"
+	"core.nav.reviews": "Всички ревюта",
+	"core.pagenotfound.message": "Опа! Страницата не е намерена!",
+	"core.search.button": "Търсене",
+	"core.search.placeholder": "Търсене по номер на сет"
 }
