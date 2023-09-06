@@ -43,7 +43,12 @@
 	"set.set.alert2": "Сигурни ли сте, че искате да изтриете този сет? Това действие не може да бъде върнато назад.",
 	"set.set.button-add": "Напиши Мнение",
 	"set.set.button-delete": "Премахни",
-	"set.set.button-view": "Отвори",
 	"set.user-sets.sets": "сетове",
-	"set.user-sets.title": "Потребителят има"
+	"set.user-sets.title": "Потребителят има",
+	"user.edit-info.delete": "Изтриване на снимка?",
+	"user.edit-info.header": "Редактирайте вашата информация",
+	"user.edit-info.image": "Снимка",
+	"user.edit-info.save": "Запазите Промените",
+	"user.edit-info.username": "Потребителско име",
+	"user.edit-info.username-placeholder": "Въведете ново потребителско име"
 }

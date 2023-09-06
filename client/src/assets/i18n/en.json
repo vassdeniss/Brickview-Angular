@@ -43,7 +43,12 @@
 	"set.set.alert2": "Are you sure you want to delete this set? This action cannot be undone.",
 	"set.set.button-add": "Add Review",
 	"set.set.button-delete": "Remove Set",
-	"set.set.button-view": "View Review",
 	"set.user-sets.sets": "sets",
-	"set.user-sets.title": "User has"
+	"set.user-sets.title": "User has",
+	"user.edit-info.delete": "Delete Picture?",
+	"user.edit-info.header": "Edit your Information",
+	"user.edit-info.image": "Profile Image",
+	"user.edit-info.save": "Save Changes",
+	"user.edit-info.username": "Username",
+	"user.edit-info.username-placeholder": "Enter new username"
 }
