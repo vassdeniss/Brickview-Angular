@@ -50,5 +50,10 @@
 	"user.edit-info.image": "Profile Image",
 	"user.edit-info.save": "Save Changes",
 	"user.edit-info.username": "Username",
-	"user.edit-info.username-placeholder": "Enter new username"
+	"user.edit-info.username-placeholder": "Enter new username",
+	"user.user-current-profile.collection": "My Collection",
+	"user.user-current-profile.edit": "Edit Profile",
+	"user.user-current-profile.header1": "You have",
+	"user.user-current-profile.header2": "sets",
+	"user.user-current-profile.new": "Add a New Set"
 }

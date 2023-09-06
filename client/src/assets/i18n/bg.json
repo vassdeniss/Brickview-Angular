@@ -50,5 +50,10 @@
 	"user.edit-info.image": "Снимка",
 	"user.edit-info.save": "Запазите Промените",
 	"user.edit-info.username": "Потребителско име",
-	"user.edit-info.username-placeholder": "Въведете ново потребителско име"
+	"user.edit-info.username-placeholder": "Въведете ново потребителско име",
+	"user.user-current-profile.collection": "Колекцията ми",
+	"user.user-current-profile.edit": "Настройки",
+	"user.user-current-profile.header1": "Вие имате",
+	"user.user-current-profile.header2": "сета",
+	"user.user-current-profile.new": "Добавяне на сет"
 }
