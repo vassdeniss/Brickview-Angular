@@ -34,5 +34,7 @@
 	"set.add-set.button": "Add Set",
 	"set.add-set.header": "Add Set to Collection",
 	"set.add-set.number": "Set Number",
-	"set.add-set.placeholder": "Enter set number"
+	"set.add-set.placeholder": "Enter set number",
+	"set.my-sets.paragraph": "You have no sets in your collection!",
+	"set.my-sets.title": "Nothing found here!"
 }

@@ -34,5 +34,7 @@
 	"set.add-set.button": "Добавяне на Сет",
 	"set.add-set.header": "Добавете към Колекцията",
 	"set.add-set.number": "Номер",
-	"set.add-set.placeholder": "Въведете номер на сет"
+	"set.add-set.placeholder": "Въведете номер на сет",
+	"set.my-sets.paragraph": "Колекцията е празна!",
+	"set.my-sets.title": "Тук е празно!"
 }
