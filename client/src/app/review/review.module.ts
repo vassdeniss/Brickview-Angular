@@ -9,6 +9,7 @@ import { NgxEditorModule } from 'ngx-editor';
 import { EditReviewComponent } from './edit-review/edit-review.component';
 import { AllReviewsComponent } from './all-reviews/all-reviews.component';
 import { CoreModule } from '../core/core.module';
+import { TranslateModule } from '@ngx-translate/core';
 
 @NgModule({
   declarations: [
@@ -25,6 +26,8 @@ import { CoreModule } from '../core/core.module';
     NgxEditorModule,
     FormsModule,
     CoreModule,
+    TranslateModule,
   ],
+  exports: [TranslateModule],
 })
 export class ReviewModule {}

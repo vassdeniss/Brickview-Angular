@@ -1,11 +1,9 @@
 {
-	"core.home.author": "Review by",
 	"core.home.desc1": "This is the site where you are the creator, the writer, the reviewer, the reader, the producer... and most important of all - the Lego fan!",
 	"core.home.desc2": "Here you can take a step back, relax and enjoy sharing your love for Lego with others.",
 	"core.home.desc3": "Enjoy the reviews of fans or share your own unabridged thoughts for others to read.",
 	"core.home.desc4": "Find all the wonders that Lego bricks can create. And don't forget to share with friends! We, the team behind LegoView, would love to meet you!",
 	"core.home.header": "Welcome to LegoView!",
-	"core.home.view": "View Review",
 	"core.nav.login": "Login",
 	"core.nav.logout": "Logout",
 	"core.nav.profile": "Profile",
@@ -13,5 +11,8 @@
 	"core.nav.reviews": "Reviews",
 	"core.pagenotfound.message": "Oops! Page not found!",
 	"core.search.button": "Search",
-	"core.search.placeholder": "Search by set number"
+	"core.search.placeholder": "Search by set number",
+	"general.error": "Error!",
+	"general.review.author": "Review by",
+	"general.review.view": "View Review"
 }

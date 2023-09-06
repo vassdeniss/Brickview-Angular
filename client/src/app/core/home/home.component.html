@@ -25,7 +25,7 @@
           <img *ngIf="set.userImage" src="{{ set.userImage }}" />
           <div class="card-details__info">
             <span
-              >{{ "core.home.author" | translate }}
+              >{{ "general.review.author" | translate }}
               <strong
                 class="user-link"
                 [routerLink]="['/sets', set.username]"
@@ -37,7 +37,7 @@
         </div>
         <div class="card-actions">
           <button [routerLink]="['/reviews', set._id]" class="card-button">
-            {{ "core.home.view" | translate }}
+            {{ "general.review.view" | translate }}
           </button>
         </div>
       </div>
