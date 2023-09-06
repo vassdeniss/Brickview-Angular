@@ -5,8 +5,10 @@
       {{ legoSet?.name }}
     </div>
     <div class="card-details">
-      <span>Year: {{ legoSet?.year }}</span>
-      <span>Parts: {{ legoSet?.parts }}</span>
+      <span>{{ "general.review.year" | translate }}: {{ legoSet?.year }}</span>
+      <span
+        >{{ "general.review.parts" | translate }}: {{ legoSet?.parts }}</span
+      >
     </div>
     <div class="card-actions">
       <button
@@ -14,17 +16,17 @@
         [routerLink]="['/reviews', legoSet?._id, 'create']"
         class="card-button"
       >
-        Add Review
+        {{ "set.set.button-add" | translate }}
       </button>
       <button
         *ngIf="legoSet?.review"
         [routerLink]="['/reviews', legoSet?._id]"
         class="card-button"
       >
-        View Review
+        {{ "general.review.view" | translate }}
       </button>
       <button class="card-button-danger" (click)="deleteSet(legoSet!._id)">
-        Remove Set
+        {{ "set.set.button-delete" | translate }}
       </button>
     </div>
   </div>

@@ -1,4 +1,10 @@
 <div class="search-form">
-  <input type="text" placeholder="Search by set number" #searchField />
-  <button type="button" (click)="search(searchField.value)">Search</button>
+  <input
+    type="text"
+    placeholder="{{ 'core.search.placeholder' | translate }}"
+    #searchField
+  />
+  <button type="button" (click)="search(searchField.value)">
+    {{ "core.search.button" | translate }}
+  </button>
 </div>

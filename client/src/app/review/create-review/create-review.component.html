@@ -1,4 +1,8 @@
-<app-popup *ngIf="popup.isActive" title="Error!" (closed)="popup.hide()">
+<app-popup
+  *ngIf="popup.isActive"
+  title="{{ 'general.error' | translate }}"
+  (closed)="popup.hide()"
+>
   <p *ngFor="let error of errors">{{ error }}</p>
 </app-popup>
 <form
@@ -6,17 +10,17 @@
   class="review-form"
   (ngSubmit)="onSubmit(button)"
 >
-  <h2>Write your Review</h2>
+  <h2>{{ "review.create-review.header" | translate }}</h2>
   <ngx-editor-menu [editor]="editor" [toolbar]="toolbar"></ngx-editor-menu>
   <ngx-editor
     [editor]="editor"
-    [placeholder]="'Type here...'"
+    placeholder="{{ 'review.create-review.editor-placeholder' | translate }}"
     id="content"
     name="content"
     formControlName="content"
   ></ngx-editor>
   <div class="form-group">
-    <label for="images">Set Images</label>
+    <label for="images">{{ "review.create-review.images" | translate }}</label>
     <input
       type="file"
       id="setImages"
@@ -32,5 +36,5 @@
     <a class="delete-button" (click)="deleteImage(i)">&times;</a>
   </div>
   <input type="hidden" id="_id" name="_id" formControlName="_id" />
-  <button #button>Create</button>
+  <button #button>{{ "review.create-review.button" | translate }}</button>
 </form>

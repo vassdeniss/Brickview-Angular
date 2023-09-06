@@ -10,6 +10,7 @@ import { FooterComponent } from './footer/footer.component';
 import { SearchComponent } from './search/search.component';
 import { NgxEditorModule } from 'ngx-editor';
 import { FormsModule } from '@angular/forms';
+import { TranslateModule } from '@ngx-translate/core';
 
 @NgModule({
   declarations: [
@@ -26,12 +27,14 @@ import { FormsModule } from '@angular/forms';
     RouterModule,
     NgxEditorModule,
     FormsModule,
+    TranslateModule,
   ],
   exports: [
     NavComponent,
     PageSpinnerComponent,
     FooterComponent,
     SearchComponent,
+    TranslateModule,
   ],
 })
 export class CoreModule {}

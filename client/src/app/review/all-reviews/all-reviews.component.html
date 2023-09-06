@@ -10,7 +10,7 @@
         <img *ngIf="set.userImage" src="{{ set.userImage }}" />
         <div class="card-details__info">
           <span
-            >Review by:
+            >{{ "general.review.author" | translate }}:
             <strong class="user-link" [routerLink]="['/sets', set.username]">{{
               set.username
             }}</strong></span
@@ -20,7 +20,7 @@
       </div>
       <div class="card-actions">
         <button [routerLink]="['/reviews', set._id]" class="card-button">
-          View Review
+          {{ "general.review.view" | translate }}
         </button>
       </div>
     </div>

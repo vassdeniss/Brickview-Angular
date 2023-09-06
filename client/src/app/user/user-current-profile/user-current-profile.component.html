@@ -1,20 +1,26 @@
 <div class="container">
-  <!-- <ng-container *ngIf="user$ | async as user"> -->
   <div class="profile">
     <img *ngIf="image" [src]="image" alt="Profile Picture" />
     <h2>{{ user?.username }}</h2>
   </div>
-  <h3>You have: {{ user?.sets?.length }} sets</h3>
+  <h3>
+    {{ "user.user-current-profile.header1" | translate }}:
+    {{ user?.sets?.length }}
+    {{ "user.user-current-profile.header2" | translate }}
+  </h3>
   <div class="buttons">
-    <button routerLink="/sets/my-sets" class="button">My Collection</button>
-    <button routerLink="/sets/add-set" class="button">Add a New Set</button>
+    <button routerLink="/sets/my-sets" class="button">
+      {{ "user.user-current-profile.collection" | translate }}
+    </button>
+    <button routerLink="/sets/add-set" class="button">
+      {{ "user.user-current-profile.new" | translate }}
+    </button>
     <button
       [routerLink]="['/users', 'edit']"
       [queryParams]="{ username: user?.username }"
       class="button"
     >
-      Edit Profile
+      {{ "user.user-current-profile.edit" | translate }}
     </button>
   </div>
-  <!-- </ng-container> -->
 </div>

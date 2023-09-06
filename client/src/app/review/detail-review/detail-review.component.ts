@@ -1,5 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { TranslateService } from '@ngx-translate/core';
 import { Editor } from 'ngx-editor';
 import { PopupService } from 'src/app/services/popup.service';
 import { ReviewService } from 'src/app/services/review.service';
@@ -24,7 +25,8 @@ export class DetailReviewComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private routeNavigate: Router,
     public popup: PopupService,
-    private userService: UserService
+    private userService: UserService,
+    private translate: TranslateService
   ) {}
 
   ngOnInit(): void {
@@ -45,11 +47,12 @@ export class DetailReviewComponent implements OnInit, OnDestroy {
   }
 
   deleteReview(): void {
-    if (
-      !confirm(
-        'Are you sure you want to delete this review? This action cannot be undone.'
-      )
-    ) {
+    let message;
+    this.translate
+      .get('review.detail-review.alert')
+      .subscribe((res) => (message = res));
+
+    if (!confirm(message)) {
       return;
     }
 

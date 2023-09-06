@@ -7,9 +7,22 @@ import { SetRoutingModule } from './set-routing.module';
 import { AddSetComponent } from './add-set/add-set.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { UserSetsComponent } from './user-sets/user-sets.component';
+import { TranslateModule } from '@ngx-translate/core';
 
 @NgModule({
-  declarations: [MySetsComponent, SetComponent, AddSetComponent, UserSetsComponent],
-  imports: [CommonModule, SetRoutingModule, SharedModule, ReactiveFormsModule],
+  declarations: [
+    MySetsComponent,
+    SetComponent,
+    AddSetComponent,
+    UserSetsComponent,
+  ],
+  imports: [
+    CommonModule,
+    SetRoutingModule,
+    SharedModule,
+    ReactiveFormsModule,
+    TranslateModule,
+  ],
+  exports: [TranslateModule],
 })
 export class SetModule {}

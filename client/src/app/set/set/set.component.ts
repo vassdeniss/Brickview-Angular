@@ -1,4 +1,5 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
 import { SetService } from 'src/app/services/set.service';
 import { Set } from 'src/app/types/setType';
 
@@ -11,12 +12,19 @@ export class SetComponent {
   @Input() legoSet: Set | undefined = undefined;
   @Output() setRemoved = new EventEmitter<string>();
 
-  constructor(private setService: SetService) {}
+  constructor(
+    private setService: SetService,
+    private translate: TranslateService
+  ) {}
 
   deleteSet(setId: string) {
-    const message = this.legoSet?.review
-      ? 'Are you sure you want to delete this set? This action cannot be undone and will delete the associated review.'
-      : 'Are you sure you want to delete this set? This action cannot be undone.';
+    const neededMessage = this.legoSet?.review ? '1' : '2';
+
+    let message;
+    this.translate
+      .get(`set.set.alert${neededMessage}`)
+      .subscribe((res) => (message = res));
+
     if (!confirm(message)) {
       return;
     }

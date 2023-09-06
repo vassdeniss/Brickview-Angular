@@ -1,18 +1,14 @@
-<app-popup
-  *ngIf="popup.isActive"
-  title="Nothing found here!"
-  (closed)="popup.hide()"
->
-  <p>This user has no sets in his collection!</p>
-</app-popup>
 <div class="container">
   <div class="profile">
     <img *ngIf="user?.image" [src]="user?.image" alt="Profile Picture" />
     <h2>{{ user?.username }}</h2>
   </div>
-  <h3>User has: {{ sets.length }} sets</h3>
+  <h3>
+    {{ "set.user-sets.title" | translate }}: {{ sets.length }}
+    {{ "set.user-sets.sets" | translate }}
+  </h3>
 </div>
-<ul *ngIf="!popup.isActive">
+<ul>
   <div class="card" *ngFor="let set of sets">
     <img src="{{ set.image }}" alt="set {{ set.setNum }}" />
     <div class="card-content">
@@ -20,15 +16,15 @@
         {{ set.name }}
       </div>
       <div class="card-details">
-        <span>Year: {{ set.year }}</span>
-        <span>Parts: {{ set.parts }}</span>
+        <span>{{ "general.review.year" | translate }}: {{ set.year }}</span>
+        <span>{{ "general.review.parts" | translate }}: {{ set.parts }}</span>
       </div>
       <button
         *ngIf="set.review"
         [routerLink]="['/reviews', set._id]"
         class="card-button"
       >
-        View Review
+        {{ "general.review.view" | translate }}
       </button>
     </div>
   </div>

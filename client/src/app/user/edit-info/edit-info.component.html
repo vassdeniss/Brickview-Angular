@@ -1,20 +1,24 @@
-<app-popup *ngIf="popup.isActive" title="Error!" (closed)="popup.hide()">
+<app-popup
+  *ngIf="popup.isActive"
+  title="{{ 'general.error' | translate }}"
+  (closed)="popup.hide()"
+>
   <p *ngFor="let error of errors">{{ error }}</p>
 </app-popup>
 <form [formGroup]="editForm" class="edit-form" (ngSubmit)="onSubmit(button)">
-  <h2>Edit your Information</h2>
+  <h2>{{ "user.edit-info.header" | translate }}</h2>
   <div class="form-group">
-    <label for="username">Username</label>
+    <label for="username">{{ "user.edit-info.username" | translate }}</label>
     <input
       type="text"
       id="username"
       name="username"
-      placeholder="Enter new username"
+      placeholder="{{ 'user.edit-info.username-placeholder' | translate }}"
       formControlName="username"
     />
   </div>
   <div class="form-group">
-    <label for="image">Profile Image</label>
+    <label for="image">{{ "user.edit-info.image" | translate }}</label>
     <input
       type="file"
       id="image"
@@ -29,12 +33,14 @@
     *ngIf="currentProfilePicture"
   />
   <div *ngIf="currentProfilePicture" class="form-group-side">
-    <label for="deleteProfilePicture">Delete Picture?:</label>
+    <label for="deleteProfilePicture"
+      >{{ "user.edit-info.delete" | translate }}:</label
+    >
     <input
       type="checkbox"
       id="deleteProfilePicture"
       formControlName="deleteProfilePicture"
     />
   </div>
-  <button #button>Save Changes</button>
+  <button #button>{{ "user.edit-info.save" | translate }}</button>
 </form>

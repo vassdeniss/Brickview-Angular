@@ -56,6 +56,18 @@ img {
   cursor: pointer;
 }
 
+.flags {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-right: 10px;
+}
+
+.flag {
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
 @media (max-width: 768px) {
   .navbar {
     flex-direction: column;

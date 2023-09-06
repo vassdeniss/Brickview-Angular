@@ -1,9 +1,9 @@
 <app-popup
   *ngIf="popup.isActive"
-  title="Nothing found here!"
+  title="{{ 'set.my-sets.title' | translate }}"
   (closed)="popup.hide()"
 >
-  <p>You have no sets in your collection!</p>
+  <p>{{ "set.my-sets.paragraph" | translate }}</p>
 </app-popup>
 
 <ul *ngIf="!popup.isActive">
