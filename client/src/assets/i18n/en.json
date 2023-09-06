@@ -14,7 +14,10 @@
 	"core.search.placeholder": "Search by set number",
 	"general.error": "Error!",
 	"general.review.author": "Review by",
+	"general.review.parts": "Parts",
+	"general.review.review": "Review",
 	"general.review.view": "View Review",
+	"general.review.year": "Year",
 	"review.create-review.button": "Create",
 	"review.create-review.editor-placeholder": "Type here...",
 	"review.create-review.header": "Write your Review",
@@ -25,10 +28,8 @@
 	"review.detail-review.from": "Review by",
 	"review.detail-review.minifigures": "Minifigures",
 	"review.detail-review.number": "Set Number",
-	"review.detail-review.parts": "Parts",
 	"review.detail-review.qty": "Qty",
 	"review.detail-review.review": "Review",
-	"review.detail-review.year": "Year",
 	"review.edit-review.edit": "Edit",
 	"review.edit-review.header": "Edit your Review",
 	"review.edit-review.images": "Set Images",
@@ -43,6 +44,6 @@
 	"set.set.button-add": "Add Review",
 	"set.set.button-delete": "Remove Set",
 	"set.set.button-view": "View Review",
-	"set.set.parts": "Parts",
-	"set.set.year": "Year"
+	"set.user-sets.sets": "sets",
+	"set.user-sets.title": "User has"
 }

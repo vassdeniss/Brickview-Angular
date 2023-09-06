@@ -14,7 +14,10 @@
 	"core.search.placeholder": "Търсене по номер на сет",
 	"general.error": "Грешка!",
 	"general.review.author": "Автор",
+	"general.review.parts": "Части",
+	"general.review.review": "Ревю",
 	"general.review.view": "Отвори",
+	"general.review.year": "Година",
 	"review.create-review.button": "Създай",
 	"review.create-review.editor-placeholder": "Пиши тук...",
 	"review.create-review.header": "Напишете Вашето Мнение",
@@ -25,10 +28,8 @@
 	"review.detail-review.from": "Ревю от",
 	"review.detail-review.minifigures": "Минифигурки",
 	"review.detail-review.number": "Номер",
-	"review.detail-review.parts": "Части",
 	"review.detail-review.qty": "Бройка",
 	"review.detail-review.review": "Ревю",
-	"review.detail-review.year": "Година",
 	"review.edit-review.edit": "Редактиране",
 	"review.edit-review.header": "Редактирайте Вашето Мнение",
 	"review.edit-review.images": "Задаване на изображения",
@@ -43,6 +44,6 @@
 	"set.set.button-add": "Напиши Мнение",
 	"set.set.button-delete": "Премахни",
 	"set.set.button-view": "Отвори",
-	"set.set.parts": "Части",
-	"set.set.year": "Година"
+	"set.user-sets.sets": "сетове",
+	"set.user-sets.title": "Потребителят има"
 }

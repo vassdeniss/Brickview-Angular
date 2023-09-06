@@ -5,8 +5,10 @@
       {{ legoSet?.name }}
     </div>
     <div class="card-details">
-      <span>{{ "set.set.year" | translate }}: {{ legoSet?.year }}</span>
-      <span>{{ "set.set.parts" | translate }}: {{ legoSet?.parts }}</span>
+      <span>{{ "general.review.year" | translate }}: {{ legoSet?.year }}</span>
+      <span
+        >{{ "general.review.parts" | translate }}: {{ legoSet?.parts }}</span
+      >
     </div>
     <div class="card-actions">
       <button
@@ -21,7 +23,7 @@
         [routerLink]="['/reviews', legoSet?._id]"
         class="card-button"
       >
-        {{ "set.set.button-view" | translate }}
+        {{ "general.review.view" | translate }}
       </button>
       <button class="card-button-danger" (click)="deleteSet(legoSet!._id)">
         {{ "set.set.button-delete" | translate }}
