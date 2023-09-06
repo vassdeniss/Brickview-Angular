@@ -1,6 +1,10 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
+import {
+  HttpClientModule,
+  HTTP_INTERCEPTORS,
+  HttpClient,
+} from '@angular/common/http';
 import { ReactiveFormsModule } from '@angular/forms';
 import { TitleStrategy } from '@angular/router';
 
@@ -18,6 +22,8 @@ import { AppComponent } from './app.component';
 
 import { CoreModule } from './core/core.module';
 import { SharedModule } from './shared/shared.module';
+import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
+import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 
 import { TokenInterceptor } from './auth/token.interceptor';
 
@@ -30,6 +36,13 @@ import { TokenInterceptor } from './auth/token.interceptor';
     SharedModule,
     AppRoutingModule,
     ReactiveFormsModule,
+    TranslateModule.forRoot({
+      loader: {
+        provide: TranslateLoader,
+        useFactory: HttpLoaderFactory,
+        deps: [HttpClient],
+      },
+    }),
   ],
   providers: [
     SetService,
@@ -51,3 +64,7 @@ import { TokenInterceptor } from './auth/token.interceptor';
   bootstrap: [AppComponent],
 })
 export class AppModule {}
+
+export function HttpLoaderFactory(http: HttpClient): TranslateHttpLoader {
+  return new TranslateHttpLoader(http);
+}
