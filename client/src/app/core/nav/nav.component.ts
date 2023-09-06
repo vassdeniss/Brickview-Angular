@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
+import { TranslateService } from '@ngx-translate/core';
 import { TokenService } from 'src/app/services/token.service';
 import { UserService } from 'src/app/services/user.service';
 
@@ -15,7 +16,8 @@ export class NavComponent implements OnInit {
   constructor(
     public user: UserService,
     private router: Router,
-    private token: TokenService
+    private token: TokenService,
+    private translate: TranslateService
   ) {}
 
   ngOnInit(): void {
@@ -25,5 +27,12 @@ export class NavComponent implements OnInit {
         this.image = localStorage.getItem('image') || '';
       }
     });
+
+    this.translate.setDefaultLang('bg');
+    this.translate.use('bg');
+  }
+
+  changeLanguage(langauge: string) {
+    this.translate.use(langauge);
   }
 }

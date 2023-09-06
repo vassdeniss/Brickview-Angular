@@ -1,6 +1,10 @@
 <nav class="navbar">
   <div routerLink="/" class="navbar-title">LegoView</div>
   <div *ngIf="!isLogged" class="navbar-buttons">
+    <div class="flags">
+      <a (click)="changeLanguage('en')" class="fib fi-us flag"></a>
+      <a (click)="changeLanguage('bg')" class="fib fi-bg flag"></a>
+    </div>
     <button routerLink="/reviews/" class="navbar-button">
       {{ "core.nav.reviews" | translate }}
     </button>
@@ -12,6 +16,10 @@
     </button>
   </div>
   <div *ngIf="isLogged" class="navbar-buttons">
+    <div class="flags">
+      <a (click)="changeLanguage('en')" class="fib fi-us flag"></a>
+      <a (click)="changeLanguage('bg')" class="fib fi-bg flag"></a>
+    </div>
     <img *ngIf="image" [src]="image" routerLink="/users/my-profile" />
     <button *ngIf="!image" routerLink="/users/my-profile" class="navbar-button">
       {{ "core.nav.profile" | translate }}
