@@ -14,5 +14,9 @@
 	"core.search.placeholder": "Search by set number",
 	"general.error": "Error!",
 	"general.review.author": "Review by",
-	"general.review.view": "View Review"
+	"general.review.view": "View Review",
+	"review.create-review.button": "Create",
+	"review.create-review.editor-placeholder": "Type here...",
+	"review.create-review.header": "Write your Review",
+	"review.create-review.images": "Set Images"
 }

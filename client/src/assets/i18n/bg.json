@@ -14,5 +14,9 @@
 	"core.search.placeholder": "Търсене по номер на сет",
 	"general.error": "Грешка!",
 	"general.review.author": "Автор",
-	"general.review.view": "Отвори"
+	"general.review.view": "Отвори",
+	"review.create-review.button": "Създай",
+	"review.create-review.editor-placeholder": "Пиши тук...",
+	"review.create-review.header": "Напишете Вашето Мнение",
+	"review.create-review.images": "Задаване на изображения"
 }
