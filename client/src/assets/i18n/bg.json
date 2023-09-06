@@ -27,5 +27,8 @@
 	"review.detail-review.parts": "Части",
 	"review.detail-review.qty": "Бройка",
 	"review.detail-review.review": "Ревю",
-	"review.detail-review.year": "Година"
+	"review.detail-review.year": "Година",
+	"review.edit-review.edit": "Редактиране",
+	"review.edit-review.header": "Редактирайте Вашето Мнение",
+	"review.edit-review.images": "Задаване на изображения"
 }
