@@ -13,15 +13,20 @@
   />
 </app-popup>
 <div class="user-container">
-  <h2>{{ review?.setName }} Review by: {{ review?.userUsername }}</h2>
+  <h2>
+    {{ review?.setName }} {{ "review.detail-review.from" | translate }}:
+    {{ review?.userUsername }}
+  </h2>
   <div class="buttons" *ngIf="isOwner">
     <button
       class="button-warning"
       [routerLink]="['/reviews', review?._id, 'edit']"
     >
-      Edit
+      {{ "review.detail-review.edit" | translate }}
     </button>
-    <button class="button-danger" (click)="deleteReview()">Delete</button>
+    <button class="button-danger" (click)="deleteReview()">
+      {{ "review.detail-review.delete" | translate }}
+    </button>
   </div>
 </div>
 <div class="container">
@@ -29,20 +34,32 @@
     <img
       (click)="enlargeImage(review?.setImage)"
       [src]="review?.setImage"
-      alt="set?.name"
+      [alt]="review?.setName"
       width="100%"
     />
   </div>
   <div class="set-info">
     <h1>{{ review?.setName }}</h1>
-    <p><strong>Set Number:</strong> {{ review?.setNumber }}</p>
-    <p><strong>Parts:</strong> {{ review?.setParts }}</p>
-    <p><strong>Year:</strong> {{ review?.setYear }}</p>
-    <p><strong>Minifigures:</strong> {{ review?.setMinifigCount }}</p>
+    <p>
+      <strong>{{ "review.detail-review.number" | translate }}:</strong>
+      {{ review?.setNumber }}
+    </p>
+    <p>
+      <strong>{{ "review.detail-review.parts" | translate }}:</strong>
+      {{ review?.setParts }}
+    </p>
+    <p>
+      <strong>{{ "review.detail-review.year" | translate }}:</strong>
+      {{ review?.setYear }}
+    </p>
+    <p>
+      <strong>{{ "review.detail-review.minifigures" | translate }}:</strong>
+      {{ review?.setMinifigCount }}
+    </p>
   </div>
 </div>
 <div class="review-section">
-  <h2>Review</h2>
+  <h2>{{ "review.detail-review.review" | translate }}</h2>
   <ngx-editor
     [editor]="editor"
     [(ngModel)]="review!.content"
@@ -57,12 +74,12 @@
   />
 </div>
 <div *ngIf="review!.setMinifigures!.length > 0" class="minifigures">
-  <h2>Minifigures</h2>
+  <h2>{{ "review.detail-review.minifigures" | translate }}</h2>
   <div class="minifigure-container">
     <div class="minifigure" *ngFor="let fig of review?.setMinifigures">
       <img [src]="fig.image" (click)="enlargeImage(fig.image)" alt="fig.name" />
       <h4>{{ fig.name }}</h4>
-      <p>Qty: {{ fig.quantity }}</p>
+      <p>{{ "review.detail-review.qty" | translate }}: {{ fig.quantity }}</p>
     </div>
   </div>
 </div>

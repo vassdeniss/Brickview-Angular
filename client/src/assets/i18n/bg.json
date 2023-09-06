@@ -18,5 +18,14 @@
 	"review.create-review.button": "Създай",
 	"review.create-review.editor-placeholder": "Пиши тук...",
 	"review.create-review.header": "Напишете Вашето Мнение",
-	"review.create-review.images": "Задаване на изображения"
+	"review.create-review.images": "Задаване на изображения",
+	"review.detail-review.delete": "Изтриване",
+	"review.detail-review.edit": "Редактиране",
+	"review.detail-review.from": "Ревю от",
+	"review.detail-review.minifigures": "Минифигурки",
+	"review.detail-review.number": "Номер",
+	"review.detail-review.parts": "Части",
+	"review.detail-review.qty": "Бройка",
+	"review.detail-review.review": "Ревю",
+	"review.detail-review.year": "Година"
 }
