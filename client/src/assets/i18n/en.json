@@ -36,5 +36,10 @@
 	"set.add-set.number": "Set Number",
 	"set.add-set.placeholder": "Enter set number",
 	"set.my-sets.paragraph": "You have no sets in your collection!",
-	"set.my-sets.title": "Nothing found here!"
+	"set.my-sets.title": "Nothing found here!",
+	"set.set.button-add": "Add Review",
+	"set.set.button-delete": "Remove Set",
+	"set.set.button-view": "View Review",
+	"set.set.parts": "Parts",
+	"set.set.year": "Year"
 }

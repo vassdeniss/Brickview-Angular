@@ -36,5 +36,10 @@
 	"set.add-set.number": "Номер",
 	"set.add-set.placeholder": "Въведете номер на сет",
 	"set.my-sets.paragraph": "Колекцията е празна!",
-	"set.my-sets.title": "Тук е празно!"
+	"set.my-sets.title": "Тук е празно!",
+	"set.set.button-add": "Напиши Мнение",
+	"set.set.button-delete": "Премахни",
+	"set.set.button-view": "Отвори",
+	"set.set.parts": "Части",
+	"set.set.year": "Година"
 }
