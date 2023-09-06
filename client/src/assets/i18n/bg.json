@@ -30,5 +30,9 @@
 	"review.detail-review.year": "Година",
 	"review.edit-review.edit": "Редактиране",
 	"review.edit-review.header": "Редактирайте Вашето Мнение",
-	"review.edit-review.images": "Задаване на изображения"
+	"review.edit-review.images": "Задаване на изображения",
+	"set.add-set.button": "Добавяне на Сет",
+	"set.add-set.header": "Добавете към Колекцията",
+	"set.add-set.number": "Номер",
+	"set.add-set.placeholder": "Въведете номер на сет"
 }

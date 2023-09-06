@@ -1,17 +1,21 @@
-<app-popup *ngIf="popup.isActive" title="Error!" (closed)="popup.hide()">
+<app-popup
+  *ngIf="popup.isActive"
+  title="{{ 'general.error' | translate }}"
+  (closed)="popup.hide()"
+>
   <p *ngFor="let error of errors">{{ error }}</p>
 </app-popup>
 <form [formGroup]="setForm" class="set-form" (ngSubmit)="onSubmit(button)">
-  <h2>Add Set to Collection</h2>
+  <h2>{{ "set.add-set.header" | translate }}</h2>
   <div class="form-group">
-    <label for="setId">Set Number</label>
+    <label for="setId">{{ "set.add-set.number" | translate }}</label>
     <input
       type="setId"
       id="setId"
       name="setId"
-      placeholder="Enter set number"
+      placeholder="{{ 'set.add-set.placeholder' | translate }}"
       formControlName="setId"
     />
   </div>
-  <button #button>Add Set</button>
+  <button #button>{{ "set.add-set.button" | translate }}</button>
 </form>
