@@ -17,7 +17,7 @@ jobs:
         run: sleep 60s
       - name: Check server health
         run: |
-          curl -sSf https://legoview-api.onrender.com/health || exit 1
+          curl -sSf https://brickview-api.onrender.com/health || exit 1
   pages-client-deploy:
     runs-on: ubuntu-latest
     defaults:
@@ -38,7 +38,7 @@ jobs:
         run: |
           cd dist/client
           cp index.html 404.html
-          echo "legoview.vasspass.net" > CNAME
+          echo "brickview.vasspass.net" > CNAME
       - name: Deploy client
         uses: peaceiris/actions-gh-pages@v3
         with:

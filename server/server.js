@@ -22,10 +22,10 @@ const options = {
   definition: {
     openapi: '3.1.0',
     info: {
-      title: 'Legoview Express API',
+      title: 'Brickview Express API',
       version: '1.0.0',
       description:
-        'The express API behind the Legoview angular app documented with Swagger',
+        'The express API behind the Brickview angular app documented with Swagger',
       license: {
         name: 'MIT',
         url: 'https://spdx.org/licenses/MIT.html',

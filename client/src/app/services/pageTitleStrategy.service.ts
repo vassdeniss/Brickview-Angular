@@ -11,7 +11,7 @@ export class PageTitleStrategy extends TitleStrategy {
   override updateTitle(snapshot: RouterStateSnapshot): void {
     const title = this.buildTitle(snapshot);
     if (title !== undefined) {
-      this.title.setTitle(`LegoView | ${title}`);
+      this.title.setTitle(`BrickView | ${title}`);
     }
   }
 }
