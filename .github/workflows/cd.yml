@@ -17,7 +17,7 @@ jobs:
         run: sleep 60s
       - name: Check server health
         run: |
-          curl -sSf https://brickview-api.onrender.com/health || exit 1
+          curl -sSf https://brickview.api.vasspass.net/health || exit 1
   pages-client-deploy:
     runs-on: ubuntu-latest
     defaults:
