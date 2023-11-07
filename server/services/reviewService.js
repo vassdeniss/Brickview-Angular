@@ -18,6 +18,7 @@ exports.addReview = async (data, token) => {
   await minioService.saveReview(email, set.setNum, buffers);
   set.review = data.content;
   set.reviewDate = Date.now();
+  set.videoIds = getVideoIds(data.videoUrls);
   await set.save();
 
   const user = await User.findOne({ refreshToken: token }).populate('sets');
@@ -51,6 +52,7 @@ exports.getReview = async (setId) => {
     setYear: set.year,
     setMinifigCount: set.minifigCount,
     setImages: images,
+    setVideos: set.videoIds,
     setMinifigures: set.minifigs,
     userId: set.user._id,
     userUsername: set.user.username,
@@ -84,6 +86,8 @@ exports.editReview = async (data, token) => {
     error.statusCode = 403;
     throw error;
   }
+
+  set.videoIds = getVideoIds(data.videoUrls);
 
   await minioService.deleteReviewImagesWithoutBucket(email, set.setNum);
   await minioService.saveReview(email, set.setNum, buffers);
@@ -122,6 +126,7 @@ exports.deleteReview = async (setId, token) => {
   await minioService.deleteReviewImages(email, set.setNum);
   set.review = null;
   set.reviewDate = null;
+  set.videoIds = [];
   await set.save();
 
   const user = await User.findOne({ refreshToken: token }).populate('sets');
@@ -134,3 +139,13 @@ exports.deleteReview = async (setId, token) => {
     },
   };
 };
+
+function getVideoIds(videoLinks) {
+  return videoLinks.reduce((acc, curr) => {
+    const pattern =
+      /^((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube(-nocookie)?\.com|youtu.be))(\/(?:[\w\-]+\?v=|embed\/|live\/|v\/)?)([\w\-]+)(\S+)?$/gm;
+    const regex = new RegExp(pattern);
+    acc.push(regex.exec(curr)[6]);
+    return acc;
+  }, []);
+}
