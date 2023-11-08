@@ -18,6 +18,7 @@ exports.addReview = async (data, token) => {
   await minioService.saveReview(email, set.setNum, buffers);
   set.review = data.content;
   set.reviewDate = Date.now();
+  set.videoIds = getVideoIds(data.setVideoIds);
   await set.save();
 
   const user = await User.findOne({ refreshToken: token }).populate('sets');
@@ -51,6 +52,7 @@ exports.getReview = async (setId) => {
     setYear: set.year,
     setMinifigCount: set.minifigCount,
     setImages: images,
+    setVideoIds: set.videoIds,
     setMinifigures: set.minifigs,
     userId: set.user._id,
     userUsername: set.user.username,
@@ -71,7 +73,7 @@ exports.editReview = async (data, token) => {
   }
 
   const set = await Set.findById(data._id)
-    .select('review setNum')
+    .select('review setNum videoIds')
     .populate('user');
   if (!set.review) {
     const error = new Error('Review not found!');
@@ -84,6 +86,8 @@ exports.editReview = async (data, token) => {
     error.statusCode = 403;
     throw error;
   }
+
+  set.videoIds = getVideoIds(data.setVideoIds);
 
   await minioService.deleteReviewImagesWithoutBucket(email, set.setNum);
   await minioService.saveReview(email, set.setNum, buffers);
@@ -122,6 +126,7 @@ exports.deleteReview = async (setId, token) => {
   await minioService.deleteReviewImages(email, set.setNum);
   set.review = null;
   set.reviewDate = null;
+  set.videoIds = [];
   await set.save();
 
   const user = await User.findOne({ refreshToken: token }).populate('sets');
@@ -134,3 +139,20 @@ exports.deleteReview = async (setId, token) => {
     },
   };
 };
+
+function getVideoIds(videoLinks) {
+  if (videoLinks === '') {
+    return [];
+  }
+
+  return videoLinks
+    .split(',')
+    .map((link) => link.trim())
+    .reduce((acc, curr) => {
+      const pattern =
+        /^((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube(-nocookie)?\.com|youtu.be))(\/(?:[\w\-]+\?v=|embed\/|live\/|v\/)?)([\w\-]+)(\S+)?$/gm;
+      const regex = new RegExp(pattern);
+      acc.push(regex.exec(curr)[6]);
+      return acc;
+    }, []);
+}

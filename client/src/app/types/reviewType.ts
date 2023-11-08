@@ -9,6 +9,7 @@ export interface Review {
   setYear?: string;
   setMinifigCount?: string;
   setImages: string[];
+  setVideoIds?: string[];
   setMinifigures?: Minigifure[];
   userId?: string;
   userUsername?: string;

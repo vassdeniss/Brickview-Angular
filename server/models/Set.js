@@ -24,6 +24,9 @@ const setSchema = new mongoose.Schema({
     maxLength: [5000, 'Review cannot exceed 5000 characters!'],
   },
   reviewDate: Date,
+  videoIds: {
+    type: [String],
+  },
 });
 
 const Set = mongoose.model('Set', setSchema);

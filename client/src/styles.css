@@ -8,8 +8,9 @@ body {
   margin: 0;
   padding: 0;
   background-image: linear-gradient(
-      rgba(32, 32, 32, 0.7),
-      rgba(32, 32, 32, 0.7)
+      rgba(32, 32, 32, 0.6),
+      rgba(32, 32, 32, 0.6)
     ),
-    url(./assets/images/bgn.jpg);
+    url(./assets/images/bgn.png);
+  background-size: cover;
 }
