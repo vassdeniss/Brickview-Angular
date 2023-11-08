@@ -60,6 +60,9 @@ export class EditReviewComponent {
         content: review.content,
       });
       this.reviewForm.patchValue({
+        setImages: review.setImages,
+      });
+      this.reviewForm.patchValue({
         setVideoIds: review.setVideoIds
           .map((id: string) => `https://www.youtube.com/watch?v=${id}`)
           .join(', '),

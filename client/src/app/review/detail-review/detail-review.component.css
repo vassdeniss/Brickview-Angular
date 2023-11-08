@@ -121,7 +121,7 @@ img {
   background-color: rgb(201, 131, 2);
 }
 
-li.playlist-item {
+.playlist-item {
   padding: 10px;
   list-style: none;
   background: #e6e6e6;
