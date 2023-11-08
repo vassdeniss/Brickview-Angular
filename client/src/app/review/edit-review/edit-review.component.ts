@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { FormBuilder, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Editor, Toolbar } from 'ngx-editor';
 import { getFormValidationErrors } from 'src/app/auth/helpers';
@@ -15,19 +15,25 @@ import { Review } from 'src/app/types/reviewType';
 export class EditReviewComponent {
   errors: string[] = [];
   images: string[] = [];
-  reviewForm = this.fb.group({
-    content: [
-      '',
-      [
-        Validators.required,
-        Validators.minLength(50),
-        Validators.maxLength(5000),
+  reviewForm = this.fb.group(
+    {
+      content: [
+        '',
+        [
+          Validators.required,
+          Validators.minLength(50),
+          Validators.maxLength(5000),
+        ],
       ],
-    ],
-    images: [''],
-    setImages: [this.images],
-    _id: [''],
-  });
+      images: [''],
+      setImages: [this.images],
+      setVideoIds: [''],
+      _id: [''],
+    },
+    {
+      validator: this.linkValidator('setVideoIds'),
+    }
+  );
 
   editor!: Editor;
   toolbar: Toolbar = [
@@ -52,6 +58,11 @@ export class EditReviewComponent {
       this.images = review.setImages;
       this.reviewForm.patchValue({
         content: review.content,
+      });
+      this.reviewForm.patchValue({
+        setVideoIds: review.setVideoIds
+          .map((id: string) => `https://www.youtube.com/watch?v=${id}`)
+          .join(', '),
       });
     });
 
@@ -118,5 +129,35 @@ export class EditReviewComponent {
     this.reviewForm.patchValue({
       setImages: this.images,
     });
+  }
+
+  linkValidator(controlName: string) {
+    return (formGroup: FormGroup) => {
+      const control = formGroup.controls[controlName];
+
+      if (control.value === '') {
+        return;
+      }
+
+      if (control.errors && !control.errors['invalidLinks']) {
+        return;
+      }
+
+      const links = control.value.split(',').map((link: string) => link.trim());
+      const isValid = links.every((link: string) => this.isValidUrl(link));
+
+      isValid
+        ? control.setErrors(null)
+        : control.setErrors({ invalidLinks: true });
+
+      return isValid ? null : { invalidLinks: true };
+    };
+  }
+
+  isValidUrl(url: string) {
+    const pattern =
+      /^((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube(-nocookie)?\.com|youtu.be))(\/(?:[\w\-]+\?v=|embed\/|live\/|v\/)?)([\w\-]+)(\S+)?$/gm;
+
+    return pattern.test(url);
   }
 }

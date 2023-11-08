@@ -27,6 +27,18 @@
       (change)="onFileChange($event)"
     />
   </div>
+  <div class="form-group">
+    <label for="setVideoIds">{{
+      "review.edit-review.videos" | translate
+    }}</label>
+    <input
+      type="text"
+      id="setVideoIds"
+      name="setVideoIds"
+      placeholder="Enter youtube URLs..."
+      formControlName="setVideoIds"
+    />
+  </div>
   <div class="image-wrapper" *ngFor="let url of images; let i = index">
     <img [src]="url" />
     <a class="delete-button" (click)="deleteImage(i)">&times;</a>
