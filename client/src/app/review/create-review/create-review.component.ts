@@ -1,5 +1,10 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { FormBuilder, Validators } from '@angular/forms';
+import {
+  AbstractControl,
+  FormBuilder,
+  FormGroup,
+  Validators,
+} from '@angular/forms';
 import { PopupService } from 'src/app/services/popup.service';
 import { getFormValidationErrors } from '../../auth/helpers';
 import { ReviewService } from 'src/app/services/review.service';
@@ -15,19 +20,25 @@ import { Editor, Toolbar } from 'ngx-editor';
 export class CreateReviewComponent implements OnInit, OnDestroy {
   errors: string[] = [];
   images: string[] = [];
-  reviewForm = this.fb.group({
-    content: [
-      '',
-      [
-        Validators.required,
-        Validators.minLength(50),
-        Validators.maxLength(5000),
+  reviewForm = this.fb.group(
+    {
+      content: [
+        '',
+        [
+          Validators.required,
+          Validators.minLength(50),
+          Validators.maxLength(5000),
+        ],
       ],
-    ],
-    images: [''],
-    setImages: [this.images],
-    _id: [''],
-  });
+      images: [''],
+      setImages: [this.images],
+      setVideoIds: [''],
+      _id: [''],
+    },
+    {
+      validator: this.linkValidator('setVideoIds'),
+    }
+  );
 
   editor!: Editor;
   toolbar: Toolbar = [
@@ -111,5 +122,37 @@ export class CreateReviewComponent implements OnInit, OnDestroy {
     this.reviewForm.patchValue({
       setImages: this.images,
     });
+  }
+
+  linkValidator(controlName: string) {
+    return (formGroup: FormGroup) => {
+      const control = formGroup.controls[controlName];
+
+      if (control.value === '') {
+        return;
+      }
+
+      if (control.errors && !control.errors['invalidLinks']) {
+        return;
+      }
+
+      const links = control.value.split(',').map((link: string) => link.trim());
+      const isValid = links.every((link: string) => this.isValidUrl(link));
+
+      console.log(links);
+
+      isValid
+        ? control.setErrors(null)
+        : control.setErrors({ invalidLinks: true });
+
+      return isValid ? null : { invalidLinks: true };
+    };
+  }
+
+  isValidUrl(url: string) {
+    const pattern =
+      /^((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube(-nocookie)?\.com|youtu.be))(\/(?:[\w\-]+\?v=|embed\/|live\/|v\/)?)([\w\-]+)(\S+)?$/gm;
+
+    return pattern.test(url);
   }
 }

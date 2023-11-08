@@ -11,6 +11,8 @@ import { SearchComponent } from './search/search.component';
 import { NgxEditorModule } from 'ngx-editor';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
+import { PlayerComponent } from './player/player.component';
+import { YouTubePlayerModule } from '@angular/youtube-player';
 
 @NgModule({
   declarations: [
@@ -20,6 +22,7 @@ import { TranslateModule } from '@ngx-translate/core';
     HomeComponent,
     FooterComponent,
     SearchComponent,
+    PlayerComponent,
   ],
   imports: [
     CommonModule,
@@ -28,6 +31,7 @@ import { TranslateModule } from '@ngx-translate/core';
     NgxEditorModule,
     FormsModule,
     TranslateModule,
+    YouTubePlayerModule,
   ],
   exports: [
     NavComponent,
@@ -35,6 +39,7 @@ import { TranslateModule } from '@ngx-translate/core';
     FooterComponent,
     SearchComponent,
     TranslateModule,
+    PlayerComponent,
   ],
 })
 export class CoreModule {}

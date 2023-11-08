@@ -17,6 +17,8 @@ export function getFormValidationErrors(form: FormGroup) {
           message = 'is not valid!';
         } else if (keyError === 'notSame') {
           message = 'must match repeat password!';
+        } else if (keyError === 'invalidLinks') {
+          message = ' : Not all links are valid, or are not comma seperated!';
         }
 
         result.push({
