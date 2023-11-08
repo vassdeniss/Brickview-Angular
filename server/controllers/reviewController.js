@@ -37,6 +37,10 @@ const reviewService = require('../services/reviewService');
  *                   type: string
  *                 setImage:
  *                   type: string
+ *                 setVideoIds:
+ *                   type: array
+ *                   items:
+ *                     type: string
  *                 setNumber:
  *                   type: string
  *                 setParts:
@@ -95,6 +99,8 @@ router.get('/get/:id', async (req, res) => {
  *                 type: array
  *                 items:
  *                   type: string
+ *               setVideoIds:
+ *                 type: string
  *               content:
  *                 type: string
  *             required:
@@ -149,9 +155,12 @@ router.post('/create', mustBeAuth, async (req, res) => {
  *                 type: array
  *                 items:
  *                  type: string
+ *               setVideoIds:
+ *                 type: string
  *             example:
  *               content: This is some text
  *               setImages: ["data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA...", "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA...", "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA..."]
+ *               setVideosId: "https://www.youtube.com/watch?v=someId"
  *     responses:
  *       200:
  *         description: Review updated successfully.

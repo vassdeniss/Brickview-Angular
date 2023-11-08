@@ -48,6 +48,11 @@
  *           type: string
  *           description: The date the review was created.
  *           example: January 1, 2021
+ *         videoIds:
+ *           type: array
+ *           items:
+ *             type: string
+ *           example: [195fa1, vj1oa9]
  *         user:
  *           $ref: '#/components/schemas/User'
  *       example:
@@ -72,6 +77,9 @@
  *           - name: "Super Battle Droid, Pearl Dark Gray"
  *             quantity: 1
  *             image: "https://cdn.rebrickable.com/media/sets/fig-003668/102998.jpg"
+ *         videoIds:
+ *           - 195fa1
+ *           - vj1oa9
  *         user:
  *           username: john_doe
  *           email: john_doe@example.com
