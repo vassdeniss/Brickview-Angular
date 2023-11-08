@@ -73,6 +73,13 @@
     *ngFor="let image of review?.setImages"
   />
 </div>
+<div class="set-videos" *ngIf="playlist.length > 0">
+  <app-player [videoId]="activeVideo" />
+  <ul>
+    <li class="playlist-item" (click)="previousVideo()">Previous</li>
+    <li class="playlist-item" (click)="nextVideo()">Next</li>
+  </ul>
+</div>
 <div *ngIf="review!.setMinifigures!.length > 0" class="minifigures">
   <h2>{{ "review.detail-review.minifigures" | translate }}</h2>
   <div class="minifigure-container">
