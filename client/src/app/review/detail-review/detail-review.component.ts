@@ -37,7 +37,7 @@ export class DetailReviewComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     if (!apiLoaded) {
       const tag = document.createElement('script');
-      tag.src = `http://www.youtube.com/iframe_api`;
+      tag.src = `https://www.youtube.com/iframe_api`;
       document.body.appendChild(tag);
       apiLoaded = true;
     }
