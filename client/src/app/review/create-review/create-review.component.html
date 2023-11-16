@@ -20,14 +20,17 @@
     formControlName="content"
   ></ngx-editor>
   <div class="form-group">
-    <label for="images">{{ "review.create-review.images" | translate }}</label>
+    <label for="setImages">{{
+      "review.create-review.images" | translate
+    }}</label>
     <input
+      #imageInput
       type="file"
       id="setImages"
-      name="images"
+      name="setImages"
       multiple=""
       accept="image/*"
-      formControlName="images"
+      formControlName="setImages"
       (change)="onFileChange($event)"
     />
   </div>

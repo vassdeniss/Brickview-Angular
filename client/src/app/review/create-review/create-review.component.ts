@@ -1,15 +1,16 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
 import {
-  AbstractControl,
-  FormBuilder,
-  FormGroup,
-  Validators,
-} from '@angular/forms';
+  Component,
+  ElementRef,
+  OnDestroy,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { PopupService } from 'src/app/services/popup.service';
 import { getFormValidationErrors } from '../../auth/helpers';
 import { ReviewService } from 'src/app/services/review.service';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Review } from 'src/app/types/reviewType';
+import { ReviewCreateForm } from 'src/app/types/reviewType';
 import { Editor, Toolbar } from 'ngx-editor';
 
 @Component({
@@ -18,6 +19,8 @@ import { Editor, Toolbar } from 'ngx-editor';
   styleUrls: ['./create-review.component.css'],
 })
 export class CreateReviewComponent implements OnInit, OnDestroy {
+  @ViewChild('imageInput') imageInput!: ElementRef<HTMLInputElement>;
+
   errors: string[] = [];
   images: string[] = [];
   reviewForm = this.fb.group(
@@ -30,8 +33,7 @@ export class CreateReviewComponent implements OnInit, OnDestroy {
           Validators.maxLength(5000),
         ],
       ],
-      images: [''],
-      setImages: [this.images],
+      setImages: [''],
       setVideoIds: [''],
       _id: [''],
     },
@@ -82,7 +84,14 @@ export class CreateReviewComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.review.createReview(this.reviewForm.value as Review).subscribe({
+    const form: ReviewCreateForm = {
+      _id: this.reviewForm.value._id,
+      content: this.reviewForm.value.content,
+      setVideoIds: this.reviewForm.value.setVideoIds,
+      setImages: this.images,
+    };
+
+    this.review.createReview(form).subscribe({
       next: () => {
         button.disabled = false;
         this.route.navigate(['sets/my-sets']);
@@ -110,18 +119,22 @@ export class CreateReviewComponent implements OnInit, OnDestroy {
       reader.readAsDataURL(target.files[i]);
       reader.onload = () => {
         this.images.push(reader.result as string);
-        this.reviewForm.patchValue({
-          setImages: this.images,
-        });
       };
     }
   }
 
   deleteImage(index: number) {
     this.images.splice(index, 1);
-    this.reviewForm.patchValue({
-      setImages: this.images,
-    });
+
+    const files = this.imageInput.nativeElement.files!;
+    const updatedFiles = new DataTransfer();
+    for (let i = 0; i < files.length; i++) {
+      if (i !== index) {
+        updatedFiles.items.add(files[i]);
+      }
+    }
+
+    this.imageInput.nativeElement.files = updatedFiles.files;
   }
 
   linkValidator(controlName: string) {
@@ -138,8 +151,6 @@ export class CreateReviewComponent implements OnInit, OnDestroy {
 
       const links = control.value.split(',').map((link: string) => link.trim());
       const isValid = links.every((link: string) => this.isValidUrl(link));
-
-      console.log(links);
 
       isValid
         ? control.setErrors(null)
