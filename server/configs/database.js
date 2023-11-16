@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const uri = `mongodb+srv://vassdeniss:${process.env.MONGO_PASSWORD}@maincluster.zmsuenl.mongodb.net/brickview`;
+const uri = process.env.MONGO_DB_PRODUCTION_URI;
 
 async function connectDb() {
   mongoose.connect(uri);
