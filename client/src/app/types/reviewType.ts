@@ -1,6 +1,6 @@
 import { Minigifure } from './minifigureType';
 
-export interface ReviewCreateForm {
+export interface ReviewForm {
   _id: string;
   content: string;
   setVideoIds: string;

@@ -5,20 +5,13 @@ import {
   OnInit,
   ViewChild,
 } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { PopupService } from 'src/app/services/popup.service';
 import { getFormValidationErrors } from '../../auth/helpers';
 import { ReviewService } from 'src/app/services/review.service';
-import { ActivatedRoute, Router } from '@angular/router';
-import { ReviewCreateForm } from 'src/app/types/reviewType';
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { AbstractControl, FormBuilder, Validators } from '@angular/forms';
+import { ReviewForm } from 'src/app/types/reviewType';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Editor, Toolbar } from 'ngx-editor';
-import { getFormValidationErrors } from 'src/app/auth/helpers';
-import { PopupService } from 'src/app/services/popup.service';
-import { ReviewService } from 'src/app/services/review.service';
-import { Review } from 'src/app/types/reviewType';
+import { AbstractControl, FormBuilder, Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-create-edit-review',
@@ -40,8 +33,6 @@ export class CreateEditReviewComponent implements OnInit, OnDestroy {
         Validators.maxLength(5000),
       ],
     ],
-    setImages: [''],
-    setVideoIds: [''],
     setImages: [''],
     setVideoIds: ['', [this.linkValidator]],
     _id: [''],
@@ -107,10 +98,10 @@ export class CreateEditReviewComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const form: ReviewCreateForm = {
-      _id: this.reviewForm.value._id,
-      content: this.reviewForm.value.content,
-      setVideoIds: this.reviewForm.value.setVideoIds,
+    const form: ReviewForm = {
+      _id: this.reviewForm.value._id as string,
+      content: this.reviewForm.value.content as unknown as string,
+      setVideoIds: this.reviewForm.value.setVideoIds as string,
       setImages: this.images,
     };
 

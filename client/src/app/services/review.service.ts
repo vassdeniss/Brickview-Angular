@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Review, ReviewCreateForm } from '../types/reviewType';
+import { Review, ReviewForm } from '../types/reviewType';
 import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
 
@@ -8,7 +8,7 @@ import { environment } from 'src/environments/environment';
 export class ReviewService {
   constructor(private http: HttpClient) {}
 
-  createReview(review: ReviewCreateForm): Observable<any> {
+  createReview(review: ReviewForm): Observable<any> {
     return this.http.post(`${environment.apiUrl}/reviews/create`, review);
   }
 
@@ -20,7 +20,7 @@ export class ReviewService {
     return this.http.delete(`${environment.apiUrl}/reviews/delete/${reviewId}`);
   }
 
-  editReview(review: Review): Observable<any> {
+  editReview(review: ReviewForm): Observable<any> {
     return this.http.patch(`${environment.apiUrl}/reviews/edit`, review);
   }
 }
