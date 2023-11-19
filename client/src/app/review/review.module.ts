@@ -8,11 +8,13 @@ import { NgxEditorModule } from 'ngx-editor';
 import { AllReviewsComponent } from './all-reviews/all-reviews.component';
 import { CoreModule } from '../core/core.module';
 import { TranslateModule } from '@ngx-translate/core';
+import { CreateEditReviewComponent } from './create-edit-review/create-edit-review.component';
 
 @NgModule({
   declarations: [
     DetailReviewComponent,
     AllReviewsComponent,
+    CreateEditReviewComponent,
   ],
   imports: [
     CommonModule,
