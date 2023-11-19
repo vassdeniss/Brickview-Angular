@@ -327,7 +327,6 @@ router.post('/add-set', mustBeAuth, async (req, res) => {
     );
     res.status(200).json(updatedUser);
   } catch (err) {
-    console.log(err);
     res.status(err.statusCode).json({
       message: err.message,
     });

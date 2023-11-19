@@ -157,8 +157,6 @@ export class CreateEditReviewComponent implements OnInit, OnDestroy {
   }
 
   linkValidator(control: AbstractControl) {
-    console.log(control);
-
     if (control.value === '') {
       return null;
     }
