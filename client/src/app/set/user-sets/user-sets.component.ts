@@ -16,7 +16,13 @@ export class UserSetsComponent {
 
   ngOnInit(): void {
     this.route.data.subscribe(({ data }) => {
-      this.sets = data.sets;
+      this.sets = data.sets.sort((a: Set, b: Set) => {
+        if (a.year - b.year !== 0) {
+          return a.year - b.year;
+        }
+
+        return Number(a.setNum) - Number(b.setNum);
+      });
       this.user = data.user;
     });
   }

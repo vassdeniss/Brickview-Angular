@@ -15,8 +15,13 @@ export class MySetsComponent {
 
   ngOnInit(): void {
     this.route.data.subscribe(({ sets }) => {
-      this.sets = sets;
-      console.log(this.sets);
+      this.sets = sets.sort((a: Set, b: Set) => {
+        if (a.year - b.year !== 0) {
+          return a.year - b.year;
+        }
+
+        return Number(a.setNum) - Number(b.setNum);
+      });
       if (this.sets.length <= 0) {
         this.popup.show();
       }

@@ -11,36 +11,41 @@ import { getFormValidationErrors } from '../../auth/helpers';
 import { ReviewService } from 'src/app/services/review.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ReviewCreateForm } from 'src/app/types/reviewType';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { AbstractControl, FormBuilder, Validators } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Editor, Toolbar } from 'ngx-editor';
+import { getFormValidationErrors } from 'src/app/auth/helpers';
+import { PopupService } from 'src/app/services/popup.service';
+import { ReviewService } from 'src/app/services/review.service';
+import { Review } from 'src/app/types/reviewType';
 
 @Component({
-  selector: 'app-create-review',
-  templateUrl: './create-review.component.html',
-  styleUrls: ['./create-review.component.css'],
+  selector: 'app-create-edit-review',
+  templateUrl: './create-edit-review.component.html',
+  styleUrls: ['./create-edit-review.component.css'],
 })
-export class CreateReviewComponent implements OnInit, OnDestroy {
+export class CreateEditReviewComponent implements OnInit, OnDestroy {
   @ViewChild('imageInput') imageInput!: ElementRef<HTMLInputElement>;
 
+  mode: 'create' | 'update' = 'create';
   errors: string[] = [];
   images: string[] = [];
-  reviewForm = this.fb.group(
-    {
-      content: [
-        '',
-        [
-          Validators.required,
-          Validators.minLength(50),
-          Validators.maxLength(5000),
-        ],
+  reviewForm = this.fb.group({
+    content: [
+      '',
+      [
+        Validators.required,
+        Validators.minLength(50),
+        Validators.maxLength(5000),
       ],
-      setImages: [''],
-      setVideoIds: [''],
-      _id: [''],
-    },
-    {
-      validator: this.linkValidator('setVideoIds'),
-    }
-  );
+    ],
+    setImages: [''],
+    setVideoIds: [''],
+    setImages: [''],
+    setVideoIds: ['', [this.linkValidator]],
+    _id: [''],
+  });
 
   editor!: Editor;
   toolbar: Toolbar = [
@@ -61,6 +66,24 @@ export class CreateReviewComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
+    this.activated.data.subscribe(({ review }) => {
+      if (review) {
+        this.mode = 'update';
+        this.images = review.setImages;
+        this.reviewForm.patchValue({
+          content: review.content,
+        });
+        this.reviewForm.patchValue({
+          setImages: review.setImages,
+        });
+        this.reviewForm.patchValue({
+          setVideoIds: review.setVideoIds
+            .map((id: string) => `https://www.youtube.com/watch?v=${id}`)
+            .join(', '),
+        });
+      }
+    });
+
     this.reviewForm.patchValue({
       _id: this.activated.snapshot.params['id'],
     });
@@ -91,10 +114,15 @@ export class CreateReviewComponent implements OnInit, OnDestroy {
       setImages: this.images,
     };
 
-    this.review.createReview(form).subscribe({
+    const result$ =
+      this.mode === 'create'
+        ? this.review.createReview(form)
+        : this.review.editReview(form);
+
+    result$.subscribe({
       next: () => {
         button.disabled = false;
-        this.route.navigate(['sets/my-sets']);
+        this.route.navigate(['reviews', this.reviewForm.get('_id')?.value]);
       },
       error: (err) => {
         this.errors = [];
@@ -137,33 +165,27 @@ export class CreateReviewComponent implements OnInit, OnDestroy {
     this.imageInput.nativeElement.files = updatedFiles.files;
   }
 
-  linkValidator(controlName: string) {
-    return (formGroup: FormGroup) => {
-      const control = formGroup.controls[controlName];
+  linkValidator(control: AbstractControl) {
+    console.log(control);
 
-      if (control.value === '') {
-        return;
-      }
+    if (control.value === '') {
+      return null;
+    }
 
-      if (control.errors && !control.errors['invalidLinks']) {
-        return;
-      }
+    if (control.errors && !control.errors['invalidLinks']) {
+      return null;
+    }
 
-      const links = control.value.split(',').map((link: string) => link.trim());
-      const isValid = links.every((link: string) => this.isValidUrl(link));
+    const links = control.value.split(',').map((link: string) => link.trim());
+    const isValid = links.every((link: string) => isValidUrl(link));
 
-      isValid
-        ? control.setErrors(null)
-        : control.setErrors({ invalidLinks: true });
+    return isValid ? null : { invalidLinks: true };
 
-      return isValid ? null : { invalidLinks: true };
-    };
-  }
+    function isValidUrl(url: string) {
+      const pattern =
+        /^((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube(-nocookie)?\.com|youtu.be))(\/(?:[\w\-]+\?v=|embed\/|live\/|v\/)?)([\w\-]+)(\S+)?$/gm;
 
-  isValidUrl(url: string) {
-    const pattern =
-      /^((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube(-nocookie)?\.com|youtu.be))(\/(?:[\w\-]+\?v=|embed\/|live\/|v\/)?)([\w\-]+)(\S+)?$/gm;
-
-    return pattern.test(url);
+      return pattern.test(url);
+    }
   }
 }

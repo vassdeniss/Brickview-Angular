@@ -10,19 +10,36 @@
   class="review-form"
   (ngSubmit)="onSubmit(button)"
 >
-  <h2>{{ "review.create-review.header" | translate }}</h2>
+  <h2>
+    {{
+      (mode === "create"
+        ? "review.create-review.header"
+        : "review.edit-review.header"
+      ) | translate
+    }}
+  </h2>
   <ngx-editor-menu [editor]="editor" [toolbar]="toolbar"></ngx-editor-menu>
   <ngx-editor
     [editor]="editor"
-    placeholder="{{ 'review.create-review.editor-placeholder' | translate }}"
+    [placeholder]="
+      (mode === 'create'
+        ? 'review.create-review.editor-placeholder'
+        : 'review.edit-review.editor-placeholder'
+      ) | translate
+    "
     id="content"
     name="content"
     formControlName="content"
   ></ngx-editor>
   <div class="form-group">
-    <label for="setImages">{{
-      "review.create-review.images" | translate
-    }}</label>
+    <label for="setImages">
+      {{
+        (mode === "create"
+          ? "review.create-review.images"
+          : "review.edit-review.images"
+        ) | translate
+      }}</label
+    >
     <input
       #imageInput
       type="file"
@@ -35,14 +52,24 @@
     />
   </div>
   <div class="form-group">
-    <label for="setVideoIds">{{
-      "review.create-review.videos" | translate
-    }}</label>
+    <label for="setVideoIds">
+      {{
+        (mode === "create"
+          ? "review.create-review.videos"
+          : "review.edit-review.videos"
+        ) | translate
+      }}</label
+    >
     <input
       type="text"
       id="setVideoIds"
       name="setVideoIds"
-      placeholder="Enter youtube URLs..."
+      [placeholder]="
+        (mode === 'create'
+          ? 'review.create-review.editor-placeholder'
+          : 'review.edit-review.editor-placeholder'
+        ) | translate
+      "
       formControlName="setVideoIds"
     />
   </div>
@@ -51,5 +78,12 @@
     <a class="delete-button" (click)="deleteImage(i)">&times;</a>
   </div>
   <input type="hidden" id="_id" name="_id" formControlName="_id" />
-  <button #button>{{ "review.create-review.button" | translate }}</button>
+  <button #button>
+    {{
+      (mode === "create"
+        ? "review.create-review.button"
+        : "review.edit-review.button"
+      ) | translate
+    }}
+  </button>
 </form>
