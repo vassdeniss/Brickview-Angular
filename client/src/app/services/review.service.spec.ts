@@ -4,7 +4,7 @@ import {
 } from '@angular/common/http/testing';
 import { ReviewService } from './review.service';
 import { TestBed } from '@angular/core/testing';
-import { Review } from '../types/reviewType';
+import { Review, ReviewForm } from '../types/reviewType';
 import { environment } from 'src/environments/environment';
 
 describe('ReviewService', () => {
@@ -26,9 +26,10 @@ describe('ReviewService', () => {
 
   it('should create a new review', () => {
     // Arrange: create mock review
-    const mockReview: Review = {
+    const mockReview: ReviewForm = {
       _id: 'some-id',
       content: 'This was a fun build.',
+      setVideoIds: '',
       setImages: [],
     };
 
@@ -86,7 +87,7 @@ describe('ReviewService', () => {
 
   it('should edit a review', () => {
     // Arrange: create mock review ID
-    const review = {} as Review;
+    const review = {} as ReviewForm;
 
     // Act: edit a review by review ID
     reviewService.editReview(review).subscribe((response) => {

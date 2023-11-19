@@ -88,13 +88,12 @@ describe('CreateEditReviewComponent', () => {
     expect(component.mode).toEqual('update');
   });
 
-  fit('should show error popup when form is invalid', () => {
+  it('should show error popup when form is invalid', () => {
     // Arrange: set up an invalid review form
     const button = {} as HTMLButtonElement;
     component.reviewForm.reset({
       content: '',
-      images: '',
-      setImages: [''],
+      setImages: '',
       setVideoIds: '',
       _id: '',
     });
@@ -109,62 +108,67 @@ describe('CreateEditReviewComponent', () => {
     expect(component.errors).toContain('content is required!');
   });
 
-  // TODO: fix after merge of new types
-  // it('should create review and navigate to "reviews/:id" on form submission', fakeAsync(() => {
-  //   // Arrange: create mock review, setup service
-  //   const reviewData = {
-  //     content:
-  //       '<p>Test review content lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum</p>',
-  //     images: '',
-  //     setVideoIds: '',
-  //     setImages: [],
-  //     _id: 'test_set_id',
-  //   };
-  //   mockReviewService.createReview.and.returnValue(of(reviewData));
-  //   const button = {} as HTMLButtonElement;
-  //   component.reviewForm.patchValue({
-  //     content: reviewData.content,
-  //   });
-  //   component.reviewForm.patchValue({ _id: reviewData._id });
-  //   const navigateSpy = spyOn(router, 'navigate');
+  it('should create review and navigate to "reviews/:id" on form submission', fakeAsync(() => {
+    // Arrange: create mock review, setup service
+    const reviewData = {
+      content:
+        '<p>Test review content lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum</p>',
+      setVideoIds: '',
+      setImages: [],
+      _id: 'test_set_id',
+    };
+    mockReviewService.createReview.and.returnValue(of(reviewData));
+    const button = {} as HTMLButtonElement;
+    component.reviewForm.reset({
+      content: '',
+      setImages: '',
+      setVideoIds: '',
+      _id: '',
+    });
+    component.reviewForm.patchValue({
+      content: reviewData.content,
+    });
+    component.reviewForm.patchValue({ _id: reviewData._id });
+    component.mode = 'create';
+    const navigateSpy = spyOn(router, 'navigate');
 
-  //   // Act: submit the form
-  //   component.onSubmit(button);
-  //   tick();
+    // Act: submit the form
+    component.onSubmit(button);
+    tick();
 
-  //   // Assert: check that the method was called and the user was navigated to "reviews/:id"
-  //   expect(mockReviewService.createReview).toHaveBeenCalledWith(reviewData);
-  //   expect(navigateSpy).toHaveBeenCalledWith(['reviews', 'test_set_id']);
-  //   expect(button.disabled).toBe(false);
-  // }));
+    // Assert: check that the method was called and the user was navigated to "reviews/:id"
+    expect(mockReviewService.createReview).toHaveBeenCalledWith(reviewData);
+    expect(navigateSpy).toHaveBeenCalledWith(['reviews', 'test_set_id']);
+    expect(button.disabled).toBe(false);
+  }));
 
-  // it('should edit review and navigate to "reviews/:id" on form submission', fakeAsync(() => {
-  //   // Arrange: create mock review, setup service
-  //   const reviewData = {
-  //     content:
-  //       '<p>Test review content lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum</p>',
-  //     images: '',
-  //     setVideoIds: '',
-  //     setImages: [],
-  //     _id: 'test_set_id',
-  //   };
-  //   mockReviewService.editReview.and.returnValue(of(null));
-  //   const button = {} as HTMLButtonElement;
-  //   component.reviewForm.patchValue({
-  //     content: reviewData.content,
-  //   });
-  //   component.reviewForm.patchValue({ _id: reviewData._id });
-  //   const navigateSpy = spyOn(router, 'navigate');
+  it('should edit review and navigate to "reviews/:id" on form submission', fakeAsync(() => {
+    // Arrange: create mock review, setup service
+    const reviewData = {
+      content:
+        '<p>Test review content lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum</p>',
+      setVideoIds:
+        'https://www.youtube.com/watch?v=1, https://www.youtube.com/watch?v=2',
+      setImages: [],
+      _id: 'test_set_id',
+    };
+    mockReviewService.editReview.and.returnValue(of(null));
+    const button = {} as HTMLButtonElement;
+    component.reviewForm.patchValue({
+      content: reviewData.content,
+    });
+    component.reviewForm.patchValue({ _id: reviewData._id });
+    const navigateSpy = spyOn(router, 'navigate');
 
-  //   // Act: submit the form
-  //   component.onSubmit(button);
-  //   tick();
+    // Act: submit the form
+    component.onSubmit(button);
+    tick();
 
-  //   // Assert: check that the method was called and the user was navigated to "reviews/:id"
-  //   expect(mockReviewService.editReview).toHaveBeenCalledWith(reviewData);
-  //   expect(navigateSpy).toHaveBeenCalledWith(['reviews', 'test_set_id']);
-  //   expect(button.disabled).toBe(false);
-  // }));
+    // Assert: check that the method was called and the user was navigated to "reviews/:id"
+    expect(mockReviewService.editReview).toHaveBeenCalledWith(reviewData);
+    expect(navigateSpy).toHaveBeenCalledWith(['reviews', 'test_set_id']);
+    expect(button.disabled).toBe(false);
+  }));
 
   it('should show error popup when review creation fails', () => {
     // Arrange: setup service to throw error
@@ -224,18 +228,11 @@ describe('CreateEditReviewComponent', () => {
   it('should delete an image from the form', () => {
     // Arrange: setup images and imageSources
     component.images = ['image1', 'image2', 'image3'];
-    component.reviewForm.patchValue({
-      setImages: ['image1', 'image2', 'image3'],
-    });
 
     // Act: delete an image
     component.deleteImage(1);
 
     // Assert: check that the image was deleted from the form
     expect(component.images).toEqual(['image1', 'image3']);
-    expect(component.reviewForm.get('setImages')?.value).toEqual([
-      'image1',
-      'image3',
-    ]);
   });
 });
