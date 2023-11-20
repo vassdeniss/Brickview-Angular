@@ -33,6 +33,7 @@
   ></ngx-editor>
   <div class="form-group">
     <label for="setImages">
+      <i class="fa-solid fa-image fa-xs"></i>
       {{
         (mode === "create"
           ? "review.create-review.images"
@@ -53,6 +54,7 @@
   </div>
   <div class="form-group">
     <label for="setVideoIds">
+      <i class="fa-brands fa-youtube fa-xs"></i>
       {{
         (mode === "create"
           ? "review.create-review.videos"
@@ -79,6 +81,7 @@
   </div>
   <input type="hidden" id="_id" name="_id" formControlName="_id" />
   <button #button>
+    <i class="fa-solid fa-computer-mouse"></i>
     {{
       (mode === "create"
         ? "review.create-review.button"

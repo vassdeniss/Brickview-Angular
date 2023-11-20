@@ -1,4 +1,8 @@
-<app-popup *ngIf="popup.isActive" title="Error!" (closed)="popup.hide()">
+<app-popup
+  *ngIf="popup.isActive"
+  title="{{ 'general.error' | translate }}"
+  (closed)="popup.hide()"
+>
   <p class="multiline" *ngFor="let error of errors">{{ error }}</p>
 </app-popup>
 <form
@@ -6,49 +10,66 @@
   class="register-form"
   (ngSubmit)="onSubmit(button)"
 >
-  <h2>Register</h2>
+  <h2>{{ "user.register.register" | translate }}</h2>
   <div class="form-group">
-    <label for="username">Username</label>
+    <label for="username"
+      ><i class="fa-solid fa-user fa-xs"></i>
+      {{ "user.register.username" | translate }}</label
+    >
     <input
       type="text"
       id="username"
       name="username"
-      placeholder="Enter username"
+      placeholder="{{ 'user.register.username-placeholder' | translate }}"
       formControlName="username"
     />
   </div>
   <div class="form-group">
-    <label for="email">Email</label>
+    <label for="email"
+      ><i class="fa-solid fa-envelope fa-xs"></i>
+      {{ "user.register.email" | translate }}</label
+    >
     <input
       type="email"
       id="email"
       name="email"
-      placeholder="Enter email"
+      placeholder="{{ 'user.register.email-placeholder' | translate }}"
       formControlName="email"
     />
   </div>
   <div class="form-group">
-    <label for="password">Password</label>
+    <label for="password"
+      ><i class="fa-solid fa-lock fa-xs"></i>
+      {{ "user.register.password" | translate }}</label
+    >
     <input
       type="password"
       id="password"
       name="password"
-      placeholder="Enter password"
+      placeholder="{{ 'user.register.password-placeholder' | translate }}"
       formControlName="password"
     />
   </div>
   <div class="form-group">
-    <label for="repeat-password">Repeat Password</label>
+    <label for="repeat-password"
+      ><i class="fa-solid fa-lock fa-xs"></i>
+      {{ "user.register.password-repeat" | translate }}
+    </label>
     <input
       type="password"
       id="repeat-password"
       name="repeat-password"
-      placeholder="Repeat password"
+      placeholder="{{
+        'user.register.password-repeat-placeholder' | translate
+      }}"
       formControlName="repeatPassword"
     />
   </div>
   <div class="form-group">
-    <label for="image">Profile Image</label>
+    <label for="image"
+      ><i class="fa-solid fa-image fa-xs"></i>
+      {{ "user.register.image" | translate }}
+    </label>
     <input
       type="file"
       id="image"
@@ -62,5 +83,8 @@
     alt="Selected Image"
     *ngIf="registerForm.value.image"
   />
-  <button #button>Register</button>
+  <button #button>
+    <i class="fa-solid fa-computer-mouse"></i>
+    {{ "user.register.button" | translate }}
+  </button>
 </form>

@@ -8,7 +8,10 @@
 <form [formGroup]="editForm" class="edit-form" (ngSubmit)="onSubmit(button)">
   <h2>{{ "user.edit-info.header" | translate }}</h2>
   <div class="form-group">
-    <label for="username">{{ "user.edit-info.username" | translate }}</label>
+    <label for="username"
+      ><i class="fa-solid fa-user fa-xs"></i>
+      {{ "user.edit-info.username" | translate }}</label
+    >
     <input
       type="text"
       id="username"
@@ -18,7 +21,10 @@
     />
   </div>
   <div class="form-group">
-    <label for="image">{{ "user.edit-info.image" | translate }}</label>
+    <label for="image"
+      ><i class="fa-solid fa-image fa-xs"></i>
+      {{ "user.edit-info.image" | translate }}</label
+    >
     <input
       type="file"
       id="image"
@@ -34,7 +40,8 @@
   />
   <div *ngIf="currentProfilePicture" class="form-group-side">
     <label for="deleteProfilePicture"
-      >{{ "user.edit-info.delete" | translate }}:</label
+      ><i class="fa-solid fa-trash"></i>
+      {{ "user.edit-info.delete" | translate }}:</label
     >
     <input
       type="checkbox"
@@ -42,5 +49,8 @@
       formControlName="deleteProfilePicture"
     />
   </div>
-  <button #button>{{ "user.edit-info.save" | translate }}</button>
+  <button #button>
+    <i class="fa-solid fa-computer-mouse"></i>
+    {{ "user.edit-info.save" | translate }}
+  </button>
 </form>

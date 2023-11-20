@@ -6,15 +6,19 @@
       <a (click)="changeLanguage('bg')" class="fib fi-bg flag"></a>
     </div>
     <button routerLink="/reviews/" class="navbar-button">
+      <i class="fa-solid fa-newspaper"></i>
       {{ "core.nav.reviews" | translate }}
     </button>
     <button *ngIf="!isLogged" routerLink="/auth/login" class="navbar-button">
+      <i class="fa-solid fa-user"></i>
       {{ "core.nav.login" | translate }}
     </button>
     <button *ngIf="!isLogged" routerLink="/auth/register" class="navbar-button">
+      <i class="fa-solid fa-user"></i>
       {{ "core.nav.register" | translate }}
     </button>
     <button *ngIf="isLogged" routerLink="/auth/logout" class="navbar-button">
+      <i class="fa-solid fa-right-to-bracket"></i>
       {{ "core.nav.logout" | translate }}
     </button>
     <img

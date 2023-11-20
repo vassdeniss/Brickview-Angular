@@ -1,26 +1,39 @@
-<app-popup *ngIf="popup.isActive" title="Error!" (closed)="popup.hide()">
+<app-popup
+  *ngIf="popup.isActive"
+  title="{{ 'general.error' | translate }}"
+  (closed)="popup.hide()"
+>
   <p *ngFor="let error of errors">{{ error }}</p>
 </app-popup>
 <form [formGroup]="loginForm" class="login-form" (ngSubmit)="onSubmit(button)">
-  <h2>Login</h2>
+  <h2>{{ "user.login.login" | translate }}</h2>
   <div class="form-group">
-    <label for="username">Username</label>
+    <label for="username"
+      ><i class="fa-solid fa-user fa-xs"></i>
+      {{ "user.login.username" | translate }}</label
+    >
     <input
       id="username"
       name="username"
-      placeholder="Enter username"
+      placeholder="{{ 'user.login.username-placeholder' | translate }}"
       formControlName="username"
     />
   </div>
   <div class="form-group">
-    <label for="password">Password</label>
+    <label for="password"
+      ><i class="fa-solid fa-lock fa-xs"></i>
+      {{ "user.login.password" | translate }}</label
+    >
     <input
       type="password"
       id="password"
       name="password"
-      placeholder="Enter password"
+      placeholder="{{ 'user.login.password-placeholder' | translate }}"
       formControlName="password"
     />
   </div>
-  <button #button>Login</button>
+  <button #button>
+    <i class="fa-solid fa-computer-mouse"></i>
+    {{ "user.login.button" | translate }}
+  </button>
 </form>

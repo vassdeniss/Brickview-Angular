@@ -22,9 +22,11 @@
       class="button-warning"
       [routerLink]="['/reviews', review?._id, 'edit']"
     >
+      <i class="fa-solid fa-pen-to-square"></i>
       {{ "review.detail-review.edit" | translate }}
     </button>
     <button class="button-danger" (click)="deleteReview()">
+      <i class="fa-solid fa-trash"></i>
       {{ "review.detail-review.delete" | translate }}
     </button>
   </div>

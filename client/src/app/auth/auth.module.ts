@@ -7,9 +7,16 @@ import { AuthRoutingModule } from './auth-routing.module';
 import { SharedModule } from '../shared/shared.module';
 import { LogoutComponent } from './logout/logout.component';
 import { LoginComponent } from './login/login.component';
+import { TranslateModule } from '@ngx-translate/core';
 
 @NgModule({
   declarations: [RegisterComponent, LoginComponent, LogoutComponent],
-  imports: [CommonModule, AuthRoutingModule, ReactiveFormsModule, SharedModule],
+  imports: [
+    CommonModule,
+    AuthRoutingModule,
+    ReactiveFormsModule,
+    SharedModule,
+    TranslateModule,
+  ],
 })
 export class AuthModule {}
