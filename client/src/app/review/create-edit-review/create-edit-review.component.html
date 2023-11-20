@@ -1,0 +1,89 @@
+<app-popup
+  *ngIf="popup.isActive"
+  title="{{ 'general.error' | translate }}"
+  (closed)="popup.hide()"
+>
+  <p *ngFor="let error of errors">{{ error }}</p>
+</app-popup>
+<form
+  [formGroup]="reviewForm"
+  class="review-form"
+  (ngSubmit)="onSubmit(button)"
+>
+  <h2>
+    {{
+      (mode === "create"
+        ? "review.create-review.header"
+        : "review.edit-review.header"
+      ) | translate
+    }}
+  </h2>
+  <ngx-editor-menu [editor]="editor" [toolbar]="toolbar"></ngx-editor-menu>
+  <ngx-editor
+    [editor]="editor"
+    [placeholder]="
+      (mode === 'create'
+        ? 'review.create-review.editor-placeholder'
+        : 'review.edit-review.editor-placeholder'
+      ) | translate
+    "
+    id="content"
+    name="content"
+    formControlName="content"
+  ></ngx-editor>
+  <div class="form-group">
+    <label for="setImages">
+      {{
+        (mode === "create"
+          ? "review.create-review.images"
+          : "review.edit-review.images"
+        ) | translate
+      }}</label
+    >
+    <input
+      #imageInput
+      type="file"
+      id="setImages"
+      name="setImages"
+      multiple=""
+      accept="image/*"
+      formControlName="setImages"
+      (change)="onFileChange($event)"
+    />
+  </div>
+  <div class="form-group">
+    <label for="setVideoIds">
+      {{
+        (mode === "create"
+          ? "review.create-review.videos"
+          : "review.edit-review.videos"
+        ) | translate
+      }}</label
+    >
+    <input
+      type="text"
+      id="setVideoIds"
+      name="setVideoIds"
+      [placeholder]="
+        (mode === 'create'
+          ? 'review.create-review.editor-placeholder'
+          : 'review.edit-review.editor-placeholder'
+        ) | translate
+      "
+      formControlName="setVideoIds"
+    />
+  </div>
+  <div class="image-wrapper" *ngFor="let url of images; let i = index">
+    <img [src]="url" />
+    <a class="delete-button" (click)="deleteImage(i)">&times;</a>
+  </div>
+  <input type="hidden" id="_id" name="_id" formControlName="_id" />
+  <button #button>
+    {{
+      (mode === "create"
+        ? "review.create-review.button"
+        : "review.edit-review.button"
+      ) | translate
+    }}
+  </button>
+</form>

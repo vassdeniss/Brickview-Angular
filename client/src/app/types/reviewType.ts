@@ -1,5 +1,12 @@
 import { Minigifure } from './minifigureType';
 
+export interface ReviewForm {
+  _id: string;
+  content: string;
+  setVideoIds: string;
+  setImages: string[];
+}
+
 export interface Review {
   _id: string;
   setName?: string;

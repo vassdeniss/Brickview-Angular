@@ -29,10 +29,12 @@ export class NavComponent implements OnInit {
     });
 
     this.translate.setDefaultLang('bg');
-    this.translate.use('bg');
+    const storedLanguage = localStorage.getItem('preferred-language');
+    this.translate.use(storedLanguage || 'bg');
   }
 
   changeLanguage(langauge: string) {
     this.translate.use(langauge);
+    localStorage.setItem('preferred-language', langauge);
   }
 }

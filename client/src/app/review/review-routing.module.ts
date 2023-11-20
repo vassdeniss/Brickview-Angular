@@ -1,13 +1,12 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { routeGuard } from '../auth/route.guard';
-import { CreateReviewComponent } from './create-review/create-review.component';
 import { DetailReviewComponent } from './detail-review/detail-review.component';
 import { detailReviewResolver } from './detail-review/detail-review.resolver';
-import { EditReviewComponent } from './edit-review/edit-review.component';
-import { editReviewResolver } from './edit-review/edit-review.resolver';
+import { createEditReviewResolver } from './create-edit-review/create-edit-review.resolver';
 import { AllReviewsComponent } from './all-reviews/all-reviews.component';
 import { allReviewsResolver } from './all-reviews/all-reviews.resolver';
+import { CreateEditReviewComponent } from './create-edit-review/create-edit-review.component';
 
 const routes: Routes = [
   {
@@ -19,7 +18,7 @@ const routes: Routes = [
   },
   {
     path: ':id/create',
-    component: CreateReviewComponent,
+    component: CreateEditReviewComponent,
     canActivate: [routeGuard],
     title: 'Create Review',
   },
@@ -31,9 +30,9 @@ const routes: Routes = [
   },
   {
     path: ':id/edit',
-    component: EditReviewComponent,
+    component: CreateEditReviewComponent,
     title: 'Edit Review',
-    resolve: { review: editReviewResolver },
+    resolve: { review: createEditReviewResolver },
   },
 ];
 
