@@ -5,7 +5,6 @@ import {
   HttpEvent,
   HttpInterceptor,
   HttpResponse,
-  HttpErrorResponse,
 } from '@angular/common/http';
 import { EMPTY, Observable, catchError, finalize, tap, throwError } from 'rxjs';
 import { TokenService } from '../services/token.service';
@@ -32,10 +31,13 @@ export class TokenInterceptor implements HttpInterceptor {
     if (request.url.startsWith(environment.apiUrl)) {
       const token: string = this.token.getToken();
       const refreshToken: string = this.token.getRefreshToken();
+      const language: string =
+        localStorage.getItem('preferred-language') || 'bg';
       request = request.clone({
         setHeaders: {
           'X-Authorization': token,
           'X-Refresh': refreshToken,
+          'X-Language': language,
         },
       });
     }

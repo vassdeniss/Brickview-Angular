@@ -323,7 +323,8 @@ router.post('/add-set', mustBeAuth, async (req, res) => {
   try {
     const updatedUser = await setService.addSet(
       req.body.setId,
-      req.header('X-Refresh')
+      req.header('X-Refresh'),
+      req.header('X-Language')
     );
     res.status(200).json(updatedUser);
   } catch (err) {
@@ -385,7 +386,8 @@ router.delete('/delete/:id', mustBeAuth, async (req, res) => {
   try {
     const updatedUser = await setService.deleteSet(
       req.params.id,
-      req.header('X-Refresh')
+      req.header('X-Refresh'),
+      req.header('X-Language')
     );
     res.status(200).json(updatedUser);
   } catch (err) {

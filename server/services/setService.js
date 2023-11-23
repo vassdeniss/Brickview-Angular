@@ -58,7 +58,7 @@ exports.getUserCollection = async (username) => {
   };
 };
 
-exports.addSet = async (setId, refreshToken) => {
+exports.addSet = async (setId, refreshToken, language) => {
   const foundSet = await axios
     .get(`${host}/api/v3/lego/sets/${setId}-1/`, {
       headers: {
@@ -66,7 +66,9 @@ exports.addSet = async (setId, refreshToken) => {
       },
     })
     .catch((_) => {
-      const error = new Error('Set not found!');
+      const error = new Error(
+        language === 'en' ? 'Set not found!' : 'Сетът не е намерен!'
+      );
       error.statusCode = 404;
       throw error;
     });
@@ -82,7 +84,11 @@ exports.addSet = async (setId, refreshToken) => {
 
   const user = await User.findOne({ refreshToken }).populate('sets');
   if (user.sets.find((set) => foundSet.data.set_num.includes(set.setNum))) {
-    const error = new Error('Set already exists in collection!');
+    const error = new Error(
+      language === 'en'
+        ? 'Set already exists in collection!'
+        : 'Сетът вече съществува в колекцията!'
+    );
     error.statusCode = 409;
     throw error;
   }
@@ -133,20 +139,26 @@ exports.addSet = async (setId, refreshToken) => {
   };
 };
 
-exports.deleteSet = async (setId, token) => {
+exports.deleteSet = async (setId, token, language) => {
   const payload = jwt.decode(token);
   const email = payload.email.replace(/[.@]/g, '');
   const id = payload._id;
 
   const set = await Set.findById(setId).populate('user');
   if (!set) {
-    const error = new Error('Set not found!');
+    const error = new Error(
+      language === 'en' ? 'Set not found!' : 'Сетът не е намерен!'
+    );
     error.statusCode = 404;
     throw error;
   }
 
   if (set.user._id.toString() !== id) {
-    const error = new Error('You are not authorized to delete this set!');
+    const error = new Error(
+      language === 'en'
+        ? 'You are not authorized to delete this set!'
+        : 'Нямате права да изтриете този сет!'
+    );
     error.statusCode = 403;
     throw error;
   }

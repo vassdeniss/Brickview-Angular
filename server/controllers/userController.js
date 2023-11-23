@@ -164,7 +164,7 @@ router.post('/register', async (req, res) => {
  */
 router.post('/login', async (req, res) => {
   try {
-    const result = await userService.login(req.body);
+    const result = await userService.login(req.body, req.header('X-Language'));
     res.status(200).json(result);
   } catch (err) {
     res.status(400).json({

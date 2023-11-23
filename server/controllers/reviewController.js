@@ -68,7 +68,10 @@ const reviewService = require('../services/reviewService');
  */
 router.get('/get/:id', async (req, res) => {
   try {
-    const review = await reviewService.getReview(req.params.id);
+    const review = await reviewService.getReview(
+      req.params.id,
+      req.header('X-Language')
+    );
     res.status(200).json(review);
   } catch (err) {
     res.status(404).json({
@@ -181,7 +184,8 @@ router.patch('/edit', mustBeAuth, async (req, res) => {
   try {
     const user = await reviewService.editReview(
       req.body,
-      req.header('X-Refresh')
+      req.header('X-Refresh'),
+      req.header('X-Language')
     );
     res.status(200).json(user);
   } catch (err) {
@@ -225,7 +229,8 @@ router.delete('/delete/:id', mustBeAuth, async (req, res) => {
   try {
     const user = await reviewService.deleteReview(
       req.params.id,
-      req.header('X-Refresh')
+      req.header('X-Refresh'),
+      req.header('X-Language')
     );
     res.status(200).json(user);
   } catch (err) {

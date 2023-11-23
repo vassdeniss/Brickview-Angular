@@ -25,18 +25,26 @@ exports.register = async (userData) => {
   };
 };
 
-exports.login = async ({ username, password }) => {
+exports.login = async ({ username, password }, language) => {
   username = username.toLowerCase();
   const user = await User.findOne({
     normalizedUsername: username,
   }).populate('sets');
   if (!user) {
-    throw new Error('Invalid username or password!');
+    throw new Error(
+      language === 'en'
+        ? 'Invalid username or password!'
+        : 'Невалидно потребителско име или парола!'
+    );
   }
 
   const isValid = await bcrypt.compare(password, user.password);
   if (!isValid) {
-    throw new Error('Invalid username or password!');
+    throw new Error(
+      language === 'en'
+        ? 'Invalid username or password!'
+        : 'Невалидно потребителско име или парола!'
+    );
   }
 
   const result = await generateToken(user);

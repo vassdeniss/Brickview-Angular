@@ -32,10 +32,12 @@ exports.addReview = async (data, token) => {
   };
 };
 
-exports.getReview = async (setId) => {
+exports.getReview = async (setId, language) => {
   const set = await Set.findById(setId).populate('user');
   if (!set.review) {
-    throw new Error('Review not found!');
+    throw new Error(
+      language === 'en' ? 'Review not found!' : 'Мнението не беше намерено!'
+    );
   }
 
   const images = await minioService.getReviewImages(
@@ -60,7 +62,7 @@ exports.getReview = async (setId) => {
   };
 };
 
-exports.editReview = async (data, token) => {
+exports.editReview = async (data, token, language) => {
   const payload = jwt.decode(token);
   const email = payload.email.replace(/[.@]/g, '');
   const id = payload._id;
@@ -76,13 +78,19 @@ exports.editReview = async (data, token) => {
     .select('review setNum videoIds')
     .populate('user');
   if (!set.review) {
-    const error = new Error('Review not found!');
+    const error = new Error(
+      language === 'en' ? 'Review not found!' : 'Мнението не беше намерено!'
+    );
     error.statusCode = 404;
     throw error;
   }
 
   if (set.user._id.toString() !== id) {
-    const error = new Error('You are not authorized to edit this review!');
+    const error = new Error(
+      language === 'en'
+        ? 'You are not authorized to edit this review!'
+        : 'Нямате права да редактирате това мнение!'
+    );
     error.statusCode = 403;
     throw error;
   }
@@ -105,20 +113,26 @@ exports.editReview = async (data, token) => {
   };
 };
 
-exports.deleteReview = async (setId, token) => {
+exports.deleteReview = async (setId, token, language) => {
   const payload = jwt.decode(token);
   const email = payload.email.replace(/[.@]/g, '');
   const id = payload._id;
 
   const set = await Set.findById(setId).populate('user');
   if (!set.review) {
-    const error = new Error('Review not found!');
+    const error = new Error(
+      language === 'en' ? 'Review not found!' : 'Мнението не беше намерено!'
+    );
     error.statusCode = 404;
     throw error;
   }
 
   if (set.user._id.toString() !== id) {
-    const error = new Error('You are not authorized to delete this review!');
+    const error = new Error(
+      language === 'en'
+        ? 'You are not authorized to delete this review!'
+        : 'Нямате права да изтриете това мнение!'
+    );
     error.statusCode = 403;
     throw error;
   }
