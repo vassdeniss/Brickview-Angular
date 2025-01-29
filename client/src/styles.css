@@ -13,10 +13,15 @@ app-root {
 body {
   margin: 0;
   padding: 0;
-  background-image: linear-gradient(
-      rgba(32, 32, 32, 0.6),
-      rgba(32, 32, 32, 0.6)
-    ),
-    url(./assets/images/bgn.jpeg);
+  background-color: black;
+  background-image: url(./assets/images/bgn.jpg);
   background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+@media screen and (max-width: 1024px) {
+  body {
+    background-image: url(./assets/images/bgn_mobile.jpg);
+  }
 }
