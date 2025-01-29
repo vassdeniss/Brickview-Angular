@@ -17,7 +17,7 @@
       <i class="fa-solid fa-user"></i>
       {{ "core.nav.register" | translate }}
     </button>
-    <button *ngIf="isLogged" routerLink="/auth/logout" class="navbar-button">
+    <button *ngIf="isLogged" (click)="logout()" class="navbar-button">
       <i class="fa-solid fa-right-to-bracket"></i>
       {{ "core.nav.logout" | translate }}
     </button>

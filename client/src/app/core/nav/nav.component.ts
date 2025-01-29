@@ -37,4 +37,12 @@ export class NavComponent implements OnInit {
     this.translate.use(langauge);
     localStorage.setItem('preferred-language', langauge);
   }
+
+  logout() {
+    this.user.logout().subscribe(() => {
+      this.token.clearTokens();
+      //this.router.navigate(['']);
+      this.router.navigateByUrl('/');
+    });
+  }
 }

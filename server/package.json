@@ -6,10 +6,10 @@
   "scripts": {
     "server": "nodemon --exec \"node -r dotenv/config\" server.js",
     "server-debug": "nodemon --exec \"node --inspect -r dotenv/config\" server.js",
-    "test": "mocha ./tests/*.spec.js --exit",
+    "test:unit": "mocha ./tests/*.spec.js --exit",
     "test:integration": "mocha ./tests/integration/*.spec.js --exit",
     "test:backend": "npm run test & npm run test:integration",
-    "coverage": "nyc --reporter=text npm test"
+    "test:coverage": "nyc --reporter=text npm test"
   },
   "repository": {
     "type": "git",

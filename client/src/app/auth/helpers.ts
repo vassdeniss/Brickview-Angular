@@ -26,7 +26,7 @@ export function getFormValidationErrors(form: FormGroup) {
           message =
             language === 'en'
               ? 'must match repeat password!'
-              : 'дшете пароли не съвпадат!';
+              : 'двете пароли не съвпадат!';
         } else if (keyError === 'invalidLinks') {
           message =
             language === 'en'

@@ -25,14 +25,7 @@ export class CreateEditReviewComponent implements OnInit, OnDestroy {
   errors: string[] = [];
   images: string[] = [];
   reviewForm = this.fb.group({
-    content: [
-      '',
-      [
-        Validators.required,
-        Validators.minLength(50),
-        Validators.maxLength(5000),
-      ],
-    ],
+    content: ['', [Validators.required, Validators.minLength(50)]],
     setImages: [''],
     setVideoIds: ['', [this.linkValidator]],
     _id: [''],

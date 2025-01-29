@@ -138,7 +138,7 @@ router.post('/register', async (req, res) => {
  *           schema:
  *             $ref: '#/components/schemas/User'
  *           example:
- *             email: john_doe@example.com
+ *             username: john_doe
  *             password: password123
  *     responses:
  *       200:

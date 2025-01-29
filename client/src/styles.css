@@ -1,3 +1,9 @@
+:root {
+  --primary-color: #eb9c35;
+  --secondary-color: #4e7145;
+  --secondary-color-hover: #13341e;
+}
+
 html,
 body,
 app-root {
@@ -11,6 +17,6 @@ body {
       rgba(32, 32, 32, 0.6),
       rgba(32, 32, 32, 0.6)
     ),
-    url(./assets/images/bgn.png);
+    url(./assets/images/bgn_old.jpg);
   background-size: cover;
 }

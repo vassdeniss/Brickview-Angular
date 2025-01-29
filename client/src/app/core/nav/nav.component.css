@@ -4,7 +4,7 @@ body {
 }
 
 .navbar {
-  background-color: orange;
+  background-color: var(--primary-color);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -27,7 +27,7 @@ body {
 .navbar-button {
   margin: 0 5px;
   padding: 8px 12px;
-  background-color: green;
+  background-color: var(--secondary-color);
   color: white;
   border: none;
   border-radius: 4px;
@@ -37,7 +37,7 @@ body {
 }
 
 .navbar-button:hover {
-  background-color: #015605;
+  background-color: var(--secondary-color-hover);
 }
 
 img {
