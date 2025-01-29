@@ -134,7 +134,10 @@ exports.addSet = async (setId, refreshToken, language) => {
       _id: user._id,
       username: user.username,
       email: user.email,
-      sets,
+      sets: sets.map((set) => ({
+        ...set,
+        review: Boolean(set.review),
+      })),
     },
   };
 };
@@ -176,7 +179,10 @@ exports.deleteSet = async (setId, token, language) => {
       _id: set.user._id,
       username: set.user.username,
       email: set.user.email,
-      sets: set.user.sets,
+      sets: set.user.sets.map((set) => ({
+        ...set.toObject(),
+        review: Boolean(set.review),
+      })),
     },
   };
   await set.deleteOne();

@@ -20,7 +20,10 @@ exports.register = async (userData) => {
       _id: user._id,
       username: user.username,
       email: user.email,
-      sets: user.sets,
+      sets: user.sets.map((set) => ({
+        ...set.toObject(),
+        review: Boolean(set.review),
+      })),
     },
   };
 };
@@ -58,7 +61,10 @@ exports.login = async ({ username, password }, language) => {
       _id: user._id,
       username: user.username,
       email: user.email,
-      sets: user.sets,
+      sets: user.sets.map((set) => ({
+        ...set.toObject(),
+        review: Boolean(set.review),
+      })),
     },
     image,
   };
@@ -135,7 +141,10 @@ exports.editData = async (
       _id: user._id,
       username: user.username,
       email: user.email,
-      sets: user.sets,
+      sets: user.sets.map((set) => ({
+        ...set.toObject(),
+        review: Boolean(set.review),
+      })),
     },
     image,
   };

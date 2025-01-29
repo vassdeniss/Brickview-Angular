@@ -21,7 +21,6 @@ const setSchema = new mongoose.Schema({
   review: {
     type: String,
     minLength: [50, 'Review must be at least 50 characters long!'],
-    maxLength: [5000, 'Review cannot exceed 5000 characters!'],
   },
   reviewDate: Date,
   videoIds: {

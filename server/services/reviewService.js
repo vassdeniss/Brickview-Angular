@@ -27,7 +27,10 @@ exports.addReview = async (data, token) => {
       _id: user._id,
       username: user.username,
       email: user.email,
-      sets: user.sets,
+      sets: user.sets.map((set) => ({
+        ...set.toObject(),
+        review: Boolean(set.review),
+      })),
     },
   };
 };
@@ -108,7 +111,10 @@ exports.editReview = async (data, token, language) => {
       _id: user._id,
       username: user.username,
       email: user.email,
-      sets: user.sets,
+      sets: user.sets.map((set) => ({
+        ...set.toObject(),
+        review: Boolean(set.review),
+      })),
     },
   };
 };
@@ -149,7 +155,10 @@ exports.deleteReview = async (setId, token, language) => {
       _id: user._id,
       username: user.username,
       email: user.email,
-      sets: user.sets,
+      sets: user.sets.map((set) => ({
+        ...set.toObject(),
+        review: Boolean(set.review),
+      })),
     },
   };
 };

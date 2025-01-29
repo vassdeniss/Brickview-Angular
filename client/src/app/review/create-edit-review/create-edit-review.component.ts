@@ -130,12 +130,15 @@ export class CreateEditReviewComponent implements OnInit, OnDestroy {
       const reader = new FileReader();
       reader.readAsDataURL(target.files[i]);
       reader.onload = () => {
-        this.images.push(reader.result as string);
+        const imageUrl = reader.result as string;
+        this.images.push(imageUrl);
+        this.insertImage(imageUrl);
       };
     }
   }
 
   deleteImage(index: number) {
+    const imageUrl = this.images[index];
     this.images.splice(index, 1);
 
     const files = this.imageInput.nativeElement.files!;
@@ -147,6 +150,25 @@ export class CreateEditReviewComponent implements OnInit, OnDestroy {
     }
 
     this.imageInput.nativeElement.files = updatedFiles.files;
+    this.removeImageFromEditor(imageUrl);
+  }
+
+  insertImage(url: string) {
+    const imageHtml = `<img src="${url}" width="200"/>`;
+    this.editor.commands.insertHTML(imageHtml).exec();
+  }
+
+  removeImageFromEditor(url: string) {
+    const currentContent = this.reviewForm.value.content || '';
+
+    // Create a regex pattern to match the image tag
+    const updatedContent = currentContent.replace(
+      new RegExp(`<img[^>]+src=["']${url.split(',')[0]}[^>]*>`, 'g'),
+      ''
+    );
+
+    // Update the form control with the new content
+    this.reviewForm.patchValue({ content: updatedContent });
   }
 
   linkValidator(control: AbstractControl) {

@@ -11,6 +11,6 @@ export type Set = {
   minifigs: Minigifure[];
   userImage?: string;
   username?: string;
-  review?: string;
+  review?: boolean;
   reviewDate?: string;
 };
