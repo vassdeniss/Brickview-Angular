@@ -51,7 +51,7 @@ export class EditInfoComponent implements OnInit {
     }
   }
 
-  onSubmit(button: HTMLButtonElement): void {
+  onSubmit(button: any): void {
     button.disabled = true;
     if (this.editForm.invalid) {
       this.errors = [];

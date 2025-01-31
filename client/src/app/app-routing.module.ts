@@ -11,7 +11,7 @@ const routes: Routes = [
     pathMatch: 'full',
     component: HomeComponent,
     title: 'Home',
-    resolve: { sets: homeResolver },
+    //resolve: { sets: homeResolver },
   },
   {
     path: 'users',

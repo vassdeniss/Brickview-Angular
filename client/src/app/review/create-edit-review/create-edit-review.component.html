@@ -18,7 +18,11 @@
       ) | translate
     }}
   </h2>
-  <ngx-editor-menu [editor]="editor" [toolbar]="toolbar"></ngx-editor-menu>
+  <ngx-editor-menu
+    id="toolbar"
+    [editor]="editor"
+    [toolbar]="toolbar"
+  ></ngx-editor-menu>
   <ngx-editor
     [editor]="editor"
     [placeholder]="
@@ -80,7 +84,7 @@
     <a class="delete-button" (click)="deleteImage(i)">&times;</a>
   </div>
   <input type="hidden" id="_id" name="_id" formControlName="_id" />
-  <button #button>
+  <app-button #button>
     <i class="fa-solid fa-computer-mouse"></i>
     {{
       (mode === "create"
@@ -88,5 +92,5 @@
         : "review.edit-review.button"
       ) | translate
     }}
-  </button>
+  </app-button>
 </form>

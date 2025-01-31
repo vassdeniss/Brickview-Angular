@@ -9,21 +9,20 @@
     {{ "user.user-current-profile.header2" | translate }}
   </h3>
   <div class="buttons">
-    <button routerLink="/sets/my-sets" class="button">
+    <app-button routerLink="/sets/my-sets">
       <i class="fa-solid fa-box"></i>
       {{ "user.user-current-profile.collection" | translate }}
-    </button>
-    <button routerLink="/sets/add-set" class="button">
+    </app-button>
+    <app-button routerLink="/sets/add-set">
       <i class="fa-solid fa-plus"></i>
       {{ "user.user-current-profile.new" | translate }}
-    </button>
-    <button
+    </app-button>
+    <app-button
       [routerLink]="['/users', 'edit']"
       [queryParams]="{ username: user?.username }"
-      class="button"
     >
       <i class="fa-solid fa-gear"></i>
       {{ "user.user-current-profile.edit" | translate }}
-    </button>
+    </app-button>
   </div>
 </div>

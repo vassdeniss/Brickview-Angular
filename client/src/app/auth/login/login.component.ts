@@ -27,7 +27,7 @@ export class LoginComponent {
     private token: TokenService
   ) {}
 
-  onSubmit(button: HTMLButtonElement): void {
+  onSubmit(button: any): void {
     button.disabled = true;
     if (this.loginForm.invalid) {
       this.errors = [];

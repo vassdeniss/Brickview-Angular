@@ -1,12 +1,12 @@
 .card {
-  background-color: #fff;
+  background-color: #373737;
   border-radius: 5px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  max-width: 300px;
-  height: 320px;
+  max-width: 350px;
+  height: 360px;
 }
 
 .card img {
@@ -25,17 +25,17 @@
   font-weight: bold;
   align-self: center;
   margin-bottom: 5px;
+  color: var(--secondary-color);
 }
 
 .card-details {
   display: flex;
   justify-content: space-between;
   font-size: 14px;
-  color: #888;
   margin-top: 10px;
+  color: var(--secondary-color);
 }
 
-.card-button,
 .card-button-warning,
 .card-button-danger {
   color: #fff;
@@ -44,33 +44,15 @@
   padding: 8px 16px;
   font-size: 14px;
   margin-top: 10px;
+  width: 100%;
   cursor: pointer;
-}
-
-.card-button:focus,
-.card-button-danger:focus,
-.card-button-warning:focus {
-  outline: none;
-}
-
-.card-button {
-  background-color: #4caf50;
-}
-
-.card-button:hover {
-  background-color: #45a049;
-}
-
-.card-button-warning {
-  background-color: orange;
-}
-
-.card-button-warning:hover {
-  background-color: rgb(216, 141, 2);
-}
-
-.card-button-danger {
+  box-shadow: 5px 5px 5px black;
+  transition: all 0.3s ease;
   background-color: #bd1405;
+}
+
+.card-button-danger:focus {
+  outline: none;
 }
 
 .card-button-danger:hover {
@@ -79,11 +61,14 @@
 
 .card-actions {
   display: flex;
-  justify-content: space-around;
+  flex-direction: column;
+  /* gap: 10px; */
+  /* justify-content: space-between; */
 }
 
 .review-div {
-  color: rgb(209, 137, 4);
+  color: white;
+  text-decoration: underline;
 }
 
 @media (max-width: 600px) {

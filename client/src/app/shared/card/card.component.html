@@ -17,10 +17,10 @@
       </div>
     </div>
     <div class="card-actions">
-      <button [routerLink]="['/reviews', set._id]" class="card-button">
+      <app-button [routerLink]="['/reviews', set._id]">
         <i class="fa-solid fa-arrow-up-right-from-square"></i>
         {{ "general.review.view" | translate }}
-      </button>
+      </app-button>
     </div>
   </div>
 </ng-container>

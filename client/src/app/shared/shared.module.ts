@@ -5,10 +5,16 @@ import { SpinnerComponent } from './spinner/spinner.component';
 import { CardComponent } from './card/card.component';
 import { TranslateModule } from '@ngx-translate/core';
 import { RouterModule } from '@angular/router';
+import { ButtonComponent } from './button/button.component';
 
 @NgModule({
-  declarations: [PopupComponent, SpinnerComponent, CardComponent],
+  declarations: [
+    PopupComponent,
+    SpinnerComponent,
+    CardComponent,
+    ButtonComponent,
+  ],
   imports: [CommonModule, RouterModule, TranslateModule],
-  exports: [PopupComponent, SpinnerComponent, CardComponent],
+  exports: [PopupComponent, SpinnerComponent, CardComponent, ButtonComponent],
 })
 export class SharedModule {}

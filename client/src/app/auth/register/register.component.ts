@@ -35,7 +35,7 @@ export class RegisterComponent {
     private token: TokenService
   ) {}
 
-  onSubmit(button: HTMLButtonElement): void {
+  onSubmit(button: any): void {
     button.disabled = true;
     if (this.registerForm.invalid) {
       this.errors = [];

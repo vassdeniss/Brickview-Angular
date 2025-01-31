@@ -23,7 +23,7 @@ export class AddSetComponent {
     private set: SetService
   ) {}
 
-  onSubmit(button: HTMLButtonElement): void {
+  onSubmit(button: any): void {
     button.disabled = true;
     if (this.setForm.invalid) {
       this.errors = [];

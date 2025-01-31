@@ -79,28 +79,6 @@ ul {
   margin-top: 10px;
 }
 
-.card-button {
-  color: #fff;
-  border: none;
-  border-radius: 5px;
-  padding: 8px 16px;
-  font-size: 14px;
-  margin-top: 10px;
-  cursor: pointer;
-}
-
-.card-button:focus {
-  outline: none;
-}
-
-.card-button {
-  background-color: #4caf50;
-}
-
-.card-button:hover {
-  background-color: #45a049;
-}
-
 .review-div {
   color: rgb(209, 137, 4);
 }

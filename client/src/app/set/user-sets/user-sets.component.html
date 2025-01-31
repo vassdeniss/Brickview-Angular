@@ -19,14 +19,10 @@
         <span>{{ "general.review.year" | translate }}: {{ set.year }}</span>
         <span>{{ "general.review.parts" | translate }}: {{ set.parts }}</span>
       </div>
-      <button
-        *ngIf="set.review"
-        [routerLink]="['/reviews', set._id]"
-        class="card-button"
-      >
+      <app-button *ngIf="set.review" [routerLink]="['/reviews', set._id]">
         <i class="fa-solid fa-arrow-up-right-from-square"></i>
         {{ "general.review.view" | translate }}
-      </button>
+      </app-button>
     </div>
   </div>
 </ul>

@@ -1,6 +1,6 @@
 .container {
   display: flex;
-  background-color: orange;
+  background-color: var(--primary-color);
   justify-content: center;
   margin-bottom: 20px;
 }
@@ -26,7 +26,7 @@
 }
 
 .minifigures {
-  background-color: white;
+  background-color: var(--secondary-color);
 }
 
 .minifigure {
@@ -48,10 +48,9 @@
 
 .user-container {
   margin: 50px auto;
-  background-color: green;
+  background-color: var(--secondary-color);
   padding: 20px;
   border-radius: 5px;
-  color: white;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -60,7 +59,7 @@
 }
 
 .set-images {
-  background-color: orange;
+  background-color: var(--primary-color);
   margin-bottom: 20px;
   display: flex;
   flex-wrap: wrap;
@@ -103,14 +102,19 @@ img {
   font-size: 14px;
   margin-top: 10px;
   cursor: pointer;
+  box-shadow: 5px 5px 5px black;
+  transition: all 0.3s ease;
 }
 
 .button-danger {
   background-color: #bd1405;
+  box-shadow: 5px 5px 5px black;
+  transition: all 0.3s ease;
 }
 
 .button-warning {
-  background-color: orange;
+  background-color: yellow;
+  color: black;
 }
 
 .button-danger:hover {
@@ -118,13 +122,13 @@ img {
 }
 
 .button-warning:hover {
-  background-color: rgb(201, 131, 2);
+  background-color: rgb(215, 227, 0);
 }
 
 .playlist-item {
   padding: 10px;
   list-style: none;
-  background: #e6e6e6;
+  background-color: var(--secondary-color);
   cursor: pointer;
   text-align: center;
   margin-bottom: 5px;
@@ -137,7 +141,7 @@ ul {
 
 .set-videos {
   width: 50%;
-  background-color: #fff;
+  background-color: var(--secondary-color);
   margin: 0 auto;
 }
 

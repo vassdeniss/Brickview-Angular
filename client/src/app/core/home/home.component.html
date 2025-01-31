@@ -1,4 +1,4 @@
-<div class="flex-wrapper">
+<!-- <div class="flex-wrapper">
   <div class="wrapper">
     <h1>
       {{ "core.home.header" | translate }}
@@ -22,4 +22,22 @@
   <ul>
     <app-card *ngFor="let set of sets$ | async" [set]="set" />
   </ul>
+</div> -->
+
+<div class="wrapper">
+  <div class="scroll-text">
+    <h1>{{ "core.home.header" | translate }}</h1>
+    <p>
+      {{ "core.home.desc1" | translate }}
+    </p>
+    <p>
+      {{ "core.home.desc2" | translate }}
+    </p>
+    <p>
+      {{ "core.home.desc3" | translate }}
+    </p>
+    <p>
+      {{ "core.home.desc4" | translate }}
+    </p>
+  </div>
 </div>

@@ -1,0 +1,28 @@
+button {
+  color: black;
+  background-color: var(--secondary-color);
+  border: none;
+  border-radius: 5px;
+  padding: 8px 12px;
+  font-size: 14px;
+  margin-top: 10px;
+  cursor: pointer;
+  width: 100%;
+
+  box-shadow: 5px 5px 5px black;
+  transition: all 0.3s ease;
+}
+
+button:focus {
+  outline: none;
+}
+
+button:hover {
+  background-color: var(--secondary-color-hover);
+  top: 3px;
+}
+
+button:active {
+  box-shadow: none;
+  top: 5px;
+}

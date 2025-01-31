@@ -4,8 +4,8 @@
     placeholder="{{ 'core.search.placeholder' | translate }}"
     #searchField
   />
-  <button type="button" (click)="search(searchField.value)">
+  <app-button type="button" (click)="search(searchField.value)">
     <i class="fa-solid fa-magnifying-glass"></i>
     {{ "core.search.button" | translate }}
-  </button>
+  </app-button>
 </div>

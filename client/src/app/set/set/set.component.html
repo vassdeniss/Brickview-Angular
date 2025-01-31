@@ -11,22 +11,20 @@
       >
     </div>
     <div class="card-actions">
-      <button
+      <app-button
         *ngIf="!legoSet?.review"
         [routerLink]="['/reviews', legoSet?._id, 'create']"
-        class="card-button"
       >
         <i class="fa-solid fa-plus"></i>
         {{ "set.set.button-add" | translate }}
-      </button>
-      <button
+      </app-button>
+      <app-button
         *ngIf="legoSet?.review"
         [routerLink]="['/reviews', legoSet?._id]"
-        class="card-button"
       >
         <i class="fa-solid fa-arrow-up-right-from-square"></i>
         {{ "general.review.view" | translate }}
-      </button>
+      </app-button>
       <button class="card-button-danger" (click)="deleteSet(legoSet!._id)">
         <i class="fa-solid fa-trash"></i>
         {{ "set.set.button-delete" | translate }}
