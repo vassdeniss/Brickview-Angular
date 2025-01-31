@@ -78,7 +78,7 @@ export class CreateEditReviewComponent implements OnInit, OnDestroy {
     this.editor.destroy();
   }
 
-  onSubmit(button: HTMLButtonElement): void {
+  onSubmit(button: any): void {
     button.disabled = true;
     if (this.reviewForm.invalid) {
       this.errors = [];
