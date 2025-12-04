@@ -39,20 +39,22 @@
  *           example: 4
  *         minifigs:
  *           type: array
- *           $ref: '#/components/schemas/Minifigure'
+ *           items:
+ *             $ref: '#/components/schemas/Minifigure'
  *         content:
  *           type: string
  *           description: The review itself.
- *           example: Some very long review text.
+ *           example: "Some very long review text."
  *         reviewDate:
  *           type: string
+ *           format: date
  *           description: The date the review was created.
- *           example: January 1, 2021
+ *           example: "2021-01-01"
  *         videoIds:
  *           type: array
  *           items:
  *             type: string
- *           example: [195fa1, vj1oa9]
+ *           example: ["195fa1", "vj1oa9"]
  *         user:
  *           $ref: '#/components/schemas/User'
  *       example:
@@ -62,8 +64,8 @@
  *         parts: 176
  *         image: "https://cdn.rebrickable.com/media/sets/8091-1/3953.jpg"
  *         minifigCount: 4
- *         content: Some very long review text.
- *         reviewDate: January 1, 2021
+ *         content: "Some very long review text."
+ *         reviewDate: "2021-01-01"
  *         minifigs:
  *           - name: "Barriss Offee, Black Hood and Cape"
  *             quantity: 1
@@ -78,14 +80,12 @@
  *             quantity: 1
  *             image: "https://cdn.rebrickable.com/media/sets/fig-003668/102998.jpg"
  *         videoIds:
- *           - 195fa1
- *           - vj1oa9
+ *           - "195fa1"
+ *           - "vj1oa9"
  *         user:
- *           username: john_doe
- *           email: john_doe@example.com
- *           password: password123
- *           repeatPassword: password123
- *           image: some_base64_image
+ *           username: "john_doe"
+ *           email: "john_doe@example.com"
+ *           image: "some_base64_image"
  *
  *     Minifigure:
  *       type: object
@@ -119,9 +119,17 @@ const setService = require('../services/setService');
  *   get:
  *     summary: Get all sets with their reviews.
  *     tags: [Sets]
+ *     parameters:
+ *       - name: setNumber
+ *         in: query
+ *         required: false
+ *         description: Optional filter for set number (partial match).
+ *         schema:
+ *           type: string
+ *           example: "8091"
  *     responses:
  *       200:
- *         description: Successfullly retrieved the sets.
+ *         description: Successfully retrieved the sets.
  *         content:
  *           application/json:
  *             schema:
@@ -136,39 +144,55 @@ const setService = require('../services/setService');
  *                   name:
  *                     type: string
  *                     description: The set name.
- *                     example: "Kessel Run Millennium  Falcon"
+ *                     example: "Kessel Run Millennium Falcon"
  *                   image:
  *                     type: string
- *                     description: The set image.
+ *                     description: The set image URL.
  *                     example: "https://some-url"
  *                   username:
  *                     type: string
- *                     description: The user username.
+ *                     description: The username of the reviewer.
  *                     example: "guest"
  *                   userImage:
  *                     type: string
- *                     description: The user image.
+ *                     description: The user profile image (e.g., URL or base64).
  *                     example: "some-base64-image"
  *                   reviewDate:
  *                     type: string
- *                     description: The date the review was created.
- *                     example: January 1, 2021
- *
+ *                     description: The date the review was created (localized).
+ *                     example: "January 1, 2021"
+ *       500:
+ *         description: Internal server error.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Something went wrong."
  */
 router.get('/allWithReviews', async (req, res) => {
-  const reviews = await setService.getAllWithReview(req.query.setNumber);
-  res.status(200).json(reviews);
+  try {
+    const reviews = await setService.getAllWithReview(req.query.setNumber);
+    res.status(200).json(reviews);
+  } catch (err) {
+    const status = err.statusCode || 500;
+    res.status(status).json({
+      message: err.message || 'Something went wrong.',
+    });
+  }
 });
 
 /**
  * @swagger
  * /sets/latestThreeWithReviews:
  *   get:
- *     summary: Get latest 3 sets with their reviews.
+ *     summary: Get the latest 3 sets with their reviews.
  *     tags: [Sets]
  *     responses:
  *       200:
- *         description: Successfullly retrieved the sets.
+ *         description: Successfully retrieved the sets.
  *         content:
  *           application/json:
  *             schema:
@@ -183,34 +207,51 @@ router.get('/allWithReviews', async (req, res) => {
  *                   name:
  *                     type: string
  *                     description: The set name.
- *                     example: "Kessel Run Millennium  Falcon"
+ *                     example: "Kessel Run Millennium Falcon"
  *                   image:
  *                     type: string
- *                     description: The set image.
+ *                     description: The set image URL.
  *                     example: "https://some-url"
  *                   username:
  *                     type: string
- *                     description: The user username.
+ *                     description: The username of the reviewer.
  *                     example: "guest"
  *                   userImage:
  *                     type: string
- *                     description: The user image.
+ *                     description: The user profile image (e.g., URL or base64).
  *                     example: "some-base64-image"
  *                   reviewDate:
  *                     type: string
- *                     description: The date the review was created.
- *                     example: January 1, 2021
+ *                     description: The date the review was created (localized).
+ *                     example: "January 1, 2021"
+ *       500:
+ *         description: Internal server error.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Something went wrong."
  */
-router.get('/latestThreeWithReviews', async (req, res) => {
-  const reviews = await setService.getLatestThreeWithReviews();
-  res.status(200).json(reviews);
-});
+// router.get('/latestThreeWithReviews', async (req, res) => {
+//   try {
+//     const reviews = await setService.getLatestThreeWithReviews();
+//     res.status(200).json(reviews);
+//   } catch (err) {
+//     const status = err.statusCode || 500;
+//     res.status(status).json({
+//       message: err.message || 'Something went wrong.',
+//     });
+//   }
+// });
 
 /**
  * @swagger
- * /sets/user-collection:
+ * /sets/user-collection/{username}:
  *   get:
- *     summary: Get a user's set collection
+ *     summary: Get a user's set collection.
  *     tags: [Sets]
  *     parameters:
  *       - name: username
@@ -220,31 +261,36 @@ router.get('/latestThreeWithReviews', async (req, res) => {
  *         schema:
  *           type: string
  *           example: "guest"
+ *       - name: X-Language
+ *         in: header
+ *         required: false
+ *         description: Language for error messages (defaults to "en").
+ *         schema:
+ *           type: string
+ *           example: "en"
  *     responses:
  *       200:
- *         description: Successfullly retrieved the set collection.
+ *         description: Successfully retrieved the set collection.
  *         content:
  *           application/json:
  *             schema:
- *               type: array
- *               items:
- *                 type: object
- *                 properties:
- *                   user:
- *                     type: object
- *                     properties:
- *                       image:
- *                         type: string
- *                         description: The set image.
- *                         example: "https://some-url"
- *                       username:
- *                         type: string
- *                         description: The user username.
- *                         example: "guest"
- *                   sets:
- *                     type: array
- *                     items:
- *                       $ref: '#/components/schemas/Set'
+ *               type: object
+ *               properties:
+ *                 user:
+ *                   type: object
+ *                   properties:
+ *                     image:
+ *                       type: string
+ *                       description: The user profile image URL.
+ *                       example: "https://some-url"
+ *                     username:
+ *                       type: string
+ *                       description: The username.
+ *                       example: "guest"
+ *                 sets:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Set'
  *       404:
  *         description: User not found.
  *         content:
@@ -256,14 +302,28 @@ router.get('/latestThreeWithReviews', async (req, res) => {
  *                   type: string
  *                   description: Error message.
  *                   example: "User not found!"
+ *       500:
+ *         description: Internal server error.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Something went wrong."
  */
 router.get('/user-collection/:username', async (req, res) => {
+  const { username } = req.params;
+  const language = req.header('X-Language') || 'en';
+
   try {
-    const collection = await setService.getUserCollection(req.params.username);
+    const collection = await setService.getUserCollection(username, language);
     res.status(200).json(collection);
   } catch (err) {
-    res.status(404).json({
-      message: err.message,
+    const status = err.statusCode || 500;
+    res.status(status).json({
+      message: err.message || 'Something went wrong.',
     });
   }
 });
@@ -272,10 +332,24 @@ router.get('/user-collection/:username', async (req, res) => {
  * @swagger
  * /sets/add-set:
  *   post:
- *     summary: Add a set to the user's collection
+ *     summary: Add a set to the user's collection.
  *     tags: [Sets]
  *     security:
  *       - BearerAuth: []
+ *     parameters:
+ *       - name: X-Refresh
+ *         in: header
+ *         required: true
+ *         description: Refresh token used to identify the user.
+ *         schema:
+ *           type: string
+ *       - name: X-Language
+ *         in: header
+ *         required: false
+ *         description: Language for error messages (defaults to "en").
+ *         schema:
+ *           type: string
+ *           example: "en"
  *     requestBody:
  *       required: true
  *       content:
@@ -285,17 +359,40 @@ router.get('/user-collection/:username', async (req, res) => {
  *             properties:
  *               setId:
  *                 type: string
- *                 description: The set ID to add to the collection.
+ *                 description: The Rebrickable set base ID to add to the collection (without the -1 suffix).
  *                 example: "8091"
  *     responses:
  *       200:
- *         description: Successfullly added the set to the collection.
+ *         description: Successfully added the set to the collection.
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/User'
+ *               type: object
+ *               properties:
+ *                 user:
+ *                   $ref: '#/components/schemas/User'
+ *       400:
+ *         description: Invalid input.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "setId is required."
+ *       401:
+ *         description: User not authenticated.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Unauthorized."
  *       404:
- *         description: Set not found.
+ *         description: Set or user not found.
  *         content:
  *           application/json:
  *             schema:
@@ -316,20 +413,32 @@ router.get('/user-collection/:username', async (req, res) => {
  *                   type: string
  *                   description: Error message.
  *                   example: "Set already exists in collection!"
- *       401:
- *         description: User not authenticated
+ *       500:
+ *         description: Internal server error.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Something went wrong."
  */
 router.post('/add-set', mustBeAuth, async (req, res) => {
+  const language = req.header('X-Language') || 'en';
+  const refreshToken = req.header('X-Refresh');
+
   try {
     const updatedUser = await setService.addSet(
       req.body.setId,
-      req.header('X-Refresh'),
-      req.header('X-Language')
+      refreshToken,
+      language
     );
     res.status(200).json(updatedUser);
   } catch (err) {
-    res.status(err.statusCode).json({
-      message: err.message,
+    const status = err.statusCode || 500;
+    res.status(status).json({
+      message: err.message || 'Something went wrong.',
     });
   }
 });
@@ -338,7 +447,7 @@ router.post('/add-set', mustBeAuth, async (req, res) => {
  * @swagger
  * /sets/delete/{id}:
  *   delete:
- *     summary: Delete a set from the user's collection
+ *     summary: Delete a set from the user's collection.
  *     tags: [Sets]
  *     security:
  *       - BearerAuth: []
@@ -346,17 +455,27 @@ router.post('/add-set', mustBeAuth, async (req, res) => {
  *       - name: id
  *         in: path
  *         required: true
- *         description: The ID of the set to be deleted.
+ *         description: The ID of the set document to be deleted.
  *         schema:
  *           type: string
- *           example: "8091"
+ *           example: "665b3e4f1b0f3fa41c123456"
+ *       - name: X-Language
+ *         in: header
+ *         required: false
+ *         description: Language for error messages (defaults to "en").
+ *         schema:
+ *           type: string
+ *           example: "en"
  *     responses:
  *       200:
  *         description: Successfully deleted the set from the collection.
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/User'
+ *               type: object
+ *               properties:
+ *                 user:
+ *                   $ref: '#/components/schemas/User'
  *       404:
  *         description: Set not found in the collection.
  *         content:
@@ -369,7 +488,7 @@ router.post('/add-set', mustBeAuth, async (req, res) => {
  *                   description: Error message.
  *                   example: "Set not found!"
  *       403:
- *         description: User not allowed to delete.
+ *         description: User not allowed to delete this set.
  *         content:
  *           application/json:
  *             schema:
@@ -381,18 +500,39 @@ router.post('/add-set', mustBeAuth, async (req, res) => {
  *                   example: "You are not authorized to delete this set!"
  *       401:
  *         description: User not authenticated.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Unauthorized."
+ *       500:
+ *         description: Internal server error.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Something went wrong."
  */
 router.delete('/delete/:id', mustBeAuth, async (req, res) => {
+  const language = req.header('X-Language') || 'en';
+
   try {
     const updatedUser = await setService.deleteSet(
       req.params.id,
       req.header('X-Refresh'),
-      req.header('X-Language')
+      language
     );
     res.status(200).json(updatedUser);
   } catch (err) {
-    res.status(err.statusCode).json({
-      message: err.message,
+    const status = err.statusCode || 500;
+    res.status(status).json({
+      message: err.message || 'Something went wrong.',
     });
   }
 });

@@ -6,52 +6,66 @@ const minioService = require('../services/minioService');
 
 const host = 'https://rebrickable.com';
 
+const getUserImageKey = (email) => email.replace(/[.@]/g, '');
+
+const createError = (enMsg, bgMsg, language, statusCode) => {
+  const error = new Error(language === 'en' ? enMsg : bgMsg);
+  error.statusCode = statusCode;
+  return error;
+};
+
+const baseReviewQuery = { review: { $ne: null } };
+const API_HEADERS = {
+  Authorization: `key ${process.env.REBRICKABLE_API_KEY}`,
+};
+
 exports.getAllWithReview = async (setNumber) => {
-  let filteredSets;
+  const query = { ...baseReviewQuery };
   if (setNumber) {
-    filteredSets = Set.find({
-      review: { $ne: null },
-      setNum: { $regex: setNumber },
-    });
-  } else {
-    filteredSets = Set.find({
-      review: { $ne: null },
-    });
+    query.setNum = { $regex: setNumber };
   }
 
-  const sets = await filteredSets
+  const sets = await Set.find(query)
     .select('name image reviewDate')
     .populate('user', 'username email');
 
   return getUserImagesFromSets(sets);
 };
 
-exports.getLatestThreeWithReviews = async () => {
-  const sets = await Set.find({
-    review: { $ne: null },
-    reviewDate: { $ne: null },
-  })
-    .sort({ reviewDate: -1 })
-    .limit(3)
-    .select('name image reviewDate')
-    .populate('user', 'username email');
+// exports.getLatestThreeWithReviews = async () => {
+//   const sets = await Set.find({
+//     review: { $ne: null },
+//     reviewDate: { $ne: null },
+//   })
+//     .sort({ reviewDate: -1 })
+//     .limit(3)
+//     .select('name image reviewDate')
+//     .populate('user', 'username email');
+//
+//   return getUserImagesFromSets(sets);
+// };
 
-  return getUserImagesFromSets(sets);
-};
-
-exports.getUserCollection = async (username) => {
-  username = username.toLowerCase();
-  const user = await User.findOne({ normalizedUsername: username }).populate(
-    'sets'
-  );
+exports.getUserCollection = async (username, language) => {
+  const user = await User.findOne({
+    normalizedUsername: username.toLowerCase()
+  }).populate('sets');
 
   if (!user) {
-    throw new Error('User not found!');
+    throw createError(
+      'User not found!',
+      'Потребителят не е намерен!',
+      language,
+      404
+    );
   }
+
+  const userImage = await minioService.getUserImage(
+    getUserImageKey(user.email)
+  );
 
   return {
     user: {
-      image: await minioService.getUserImage(user.email.replace(/[.@]/g, '')),
+      image: userImage,
       username: user.username,
     },
     sets: user.sets,
@@ -59,38 +73,47 @@ exports.getUserCollection = async (username) => {
 };
 
 exports.addSet = async (setId, refreshToken, language) => {
-  const foundSet = await axios
-    .get(`${host}/api/v3/lego/sets/${setId}-1/`, {
-      headers: {
-        Authorization: `key ${process.env.REBRICKABLE_API_KEY}`,
-      },
+  let foundSet;
+  try {
+    foundSet = await axios.get(`${host}/api/v3/lego/sets/${setId}-1/`, {
+      headers: API_HEADERS
     })
-    .catch((_) => {
-      const error = new Error(
-        language === 'en' ? 'Set not found!' : 'Сетът не е намерен!'
-      );
-      error.statusCode = 404;
-      throw error;
-    });
+  } catch {
+    throw createError( // CHANGED: use helper
+      'Set not found!',
+      'Сетът не е намерен!',
+      language,
+      404
+    );
+  }
 
   const figs = await axios.get(
     `${host}/api/v3/lego/sets/${setId}-1/minifigs/`,
     {
-      headers: {
-        Authorization: `key ${process.env.REBRICKABLE_API_KEY}`,
-      },
+      headers: API_HEADERS
     }
   );
 
   const user = await User.findOne({ refreshToken }).populate('sets');
-  if (user.sets.find((set) => foundSet.data.set_num.includes(set.setNum))) {
-    const error = new Error(
-      language === 'en'
-        ? 'Set already exists in collection!'
-        : 'Сетът вече съществува в колекцията!'
+  if (!user) {
+    throw createError(
+      'User not found!',
+      'Потребителят не е намерен!',
+      language,
+      404
     );
-    error.statusCode = 409;
-    throw error;
+  }
+
+  const alreadyExists = user.sets.some(
+    (set) => set.setNum === foundSet.data.set_num
+  );
+  if (alreadyExists) {
+    throw createError(
+      'Set already exists in collection!',
+      'Сетът вече съществува в колекцията!',
+      language,
+      409
+    );
   }
 
   const setData = {
@@ -100,17 +123,13 @@ exports.addSet = async (setId, refreshToken, language) => {
     parts: foundSet.data.num_parts,
     image: foundSet.data.set_img_url,
     minifigCount: figs.data.count,
-    minifigs: [],
-    user: user._id,
-  };
-
-  for (const fig of figs.data.results) {
-    setData.minifigs.push({
+    minifigs: figs.data.results.map((fig) => ({
       name: fig.set_name,
       quantity: fig.quantity,
       image: fig.set_img_url,
-    });
-  }
+    })),
+    user: user._id,
+  };
 
   const set = await Set.create(setData);
   user.sets.push(set._id);
@@ -144,37 +163,40 @@ exports.addSet = async (setId, refreshToken, language) => {
 
 exports.deleteSet = async (setId, token, language) => {
   const payload = jwt.decode(token);
-  const email = payload.email.replace(/[.@]/g, '');
+  const emailKey = getUserImageKey(payload.email);
   const id = payload._id;
 
   const set = await Set.findById(setId).populate('user');
   if (!set) {
-    const error = new Error(
-      language === 'en' ? 'Set not found!' : 'Сетът не е намерен!'
+    throw createError(
+      'Set not found!',
+      'Сетът не е намерен!',
+      language,
+      404
     );
-    error.statusCode = 404;
-    throw error;
   }
 
   if (set.user._id.toString() !== id) {
-    const error = new Error(
-      language === 'en'
-        ? 'You are not authorized to delete this set!'
-        : 'Нямате права да изтриете този сет!'
+    throw createError(
+      'You are not authorized to delete this set!',
+      'Нямате права да изтриете този сет!',
+      language,
+      403
     );
-    error.statusCode = 403;
-    throw error;
   }
 
   if (set.review) {
-    await minioService.deleteReviewImages(email, set.setNum);
+    await minioService.deleteReviewImages(emailKey, set.setNum);
   }
 
-  set.user.sets.splice(set.user.sets.indexOf(set._id), 1);
+  set.user.sets = set.user.sets.filter(
+    (userSetId) => userSetId.toString() !== set._id.toString()
+  );
   await set.user.save();
-  set.user.populate('sets');
+  await set.deleteOne();
+  await set.user.populate('sets');
 
-  const updatedUser = {
+  return {
     user: {
       _id: set.user._id,
       username: set.user.username,
@@ -185,36 +207,40 @@ exports.deleteSet = async (setId, token, language) => {
       })),
     },
   };
-  await set.deleteOne();
-  return updatedUser;
 };
 
 /* istanbul ignore next  */
 async function getUserImagesFromSets(sets) {
-  const foundPictures = {};
-  const result = [];
-  for (const set of sets) {
-    const cutMail = set.user.email.replace(/[.@]/g, '');
+  const uniqueKeys = [
+    ...new globalThis.Set(sets.map((set) => getUserImageKey(set.user.email))),
+  ];
 
-    let userImage = foundPictures[cutMail];
-    if (!userImage) {
-      userImage = await minioService.getUserImage(cutMail);
-      foundPictures[cutMail] = userImage;
-    }
+  const images = await Promise.all(
+    uniqueKeys.map((key) => minioService.getUserImage(key))
+  );
 
-    result.push({
+  const pictureCache = uniqueKeys.reduce((acc, key, index) => {
+    acc[key] = images[index];
+    return acc;
+  }, {});
+
+  return sets.map((set) => {
+    const emailKey = getUserImageKey(set.user.email);
+    const userImage = pictureCache[emailKey];
+
+    return {
       _id: set._id,
       name: set.name,
       image: set.image,
       username: set.user.username,
-      reviewDate: set.reviewDate.toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-      }),
+      reviewDate: set.reviewDate
+        ? set.reviewDate.toLocaleDateString('en-US', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+        })
+        : null,
       userImage,
-    });
-  }
-
-  return result;
+    };
+  });
 }

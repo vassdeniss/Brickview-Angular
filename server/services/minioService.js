@@ -1,7 +1,7 @@
 const Minio = require('minio');
 
 const minioClient = new Minio.Client({
-  endPoint: process.env.MINIO_ENDPOINT || 'localhost',
+  endPoint: process.env.MINIO_ENDPOINT,
   port: 9000,
   useSSL: false,
   accessKey: process.env.MINIO_ACCESS_KEY,
@@ -15,10 +15,8 @@ exports.getUserImage = async (fileName) =>
   getObjectAsBase64('pfp', `${fileName}.png`);
 
 exports.saveReview = async (username, setId, files) => {
-  const exists = await minioClient.bucketExists(`${username}-${setId}`);
-  if (!exists) {
-    await minioClient.makeBucket(`${username}-${setId}`, 'eu-central-1');
-  }
+  const bucketName = `${username}-${setId}`;
+  await ensureBucketExists(bucketName);
 
   const uploadPromises = files.map((file, i) =>
     minioClient.putObject(`${username}-${setId}`, `${i}.png`, file)
@@ -39,19 +37,12 @@ exports.deleteReviewImagesWithoutBucket = async (username, setId) => {
 };
 
 exports.deleteImage = async (fileName) => {
-  const exists = await minioClient.bucketExists('pfp');
-  if (!exists) {
-    throw new Error('Bucket does not exist!');
-  }
-
+  await assertBucketExists('pfp');
   await minioClient.removeObject('pfp', `${fileName}.png`);
 };
 
 async function deleteImagesWithBucket(bucketName) {
-  const exists = await minioClient.bucketExists(bucketName);
-  if (!exists) {
-    throw new Error('Bucket does not exist!');
-  }
+  await assertBucketExists(bucketName);
 
   const objectsList = await listObjects(bucketName);
 
@@ -60,10 +51,7 @@ async function deleteImagesWithBucket(bucketName) {
 }
 
 async function getObjectAsBase64(bucketName, objectName) {
-  const exists = await minioClient.bucketExists(bucketName);
-  if (!exists) {
-    throw new Error('Bucket does not exist!');
-  }
+  await assertBucketExists(bucketName);
 
   try {
     const dataStream = await minioClient.getObject(bucketName, objectName);
@@ -100,15 +88,23 @@ function listObjects(bucketName) {
 }
 
 async function getAllObjectsAsBase64(bucketName) {
-  const exists = await minioClient.bucketExists(bucketName);
-  if (!exists) {
-    throw {
-      message: 'Bucket does not exist!',
-    };
-  }
-
+  await assertBucketExists(bucketName);
   const objectsList = await listObjects(bucketName);
   return Promise.all(
     objectsList.map((objectName) => getObjectAsBase64(bucketName, objectName))
   );
+}
+
+async function ensureBucketExists(bucketName, region = 'eu-central-1') {
+  const exists = await minioClient.bucketExists(bucketName);
+  if (!exists) {
+    await minioClient.makeBucket(bucketName, region);
+  }
+}
+
+async function assertBucketExists(bucketName) {
+  const exists = await minioClient.bucketExists(bucketName);
+  if (!exists) {
+    throw new Error(`Bucket "${bucketName}" does not exist`);
+  }
 }

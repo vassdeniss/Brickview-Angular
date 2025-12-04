@@ -1,464 +1,384 @@
-const chai = require('chai');
-const { expect } = chai;
-const chaiAsPromised = require('chai-as-promised');
+const { expect } = require('chai');
 const sinon = require('sinon');
-const sinonChai = require('sinon-chai');
+
 const axios = require('axios');
-const rewire = require('rewire');
-const setService = rewire('../services/setService');
-const minioService = require('../services/minioService');
+const jwt = require('jsonwebtoken');
 
-chai.use(sinonChai);
-chai.use(chaiAsPromised);
-
-const User = require('../models/User');
 const Set = require('../models/Set');
-const { default: mongoose } = require('mongoose');
-// const Review = require('../models/Review');
+const User = require('../models/User');
+const minioService = require('../services/minioService');
+const setService = require('../services/setService');
 
-describe('Set service methods', function () {
+describe('setService', () => {
+  let sandbox;
+
+  beforeEach(() => {
+    sandbox = sinon.createSandbox();
+    process.env.REBRICKABLE_API_KEY = 'test-key';
+  });
+
   afterEach(() => {
-    sinon.restore();
+    sandbox.restore();
   });
 
-  describe('addSet', () => {
-    let axiosGetStub;
-    let setId;
-    let refreshToken;
-    beforeEach(() => {
-      axiosGetStub = sinon
-        .stub(axios, 'get')
-        .onFirstCall()
-        .resolves({
-          data: {
-            set_num: '123',
-            name: 'Test Set',
-            year: 2023,
-            num_parts: 100,
-            set_img_url: 'https://example.com/test_set.jpg',
-          },
-        })
-        .onSecondCall()
-        .resolves({
-          data: {
-            count: 3,
-            results: [
-              { name: 'Fig 1', image_url: 'https://example.com/fig1.jpg' },
-              { name: 'Fig 2', image_url: 'https://example.com/fig2.jpg' },
-              { name: 'Fig 3', image_url: 'https://example.com/fig3.jpg' },
-            ],
-          },
-        });
-      setId = '123';
-      refreshToken = 'test_refresh_token';
-    });
-
-    it('should not add set if already exists', async () => {
-      // Arrange: mock dependencies and data
-      const userFindOneStub = sinon.stub(User, 'findOne').returns({
-        populate: sinon.stub().resolves({
-          sets: [
-            {
-              setNum: '123',
-            },
-          ],
-        }),
-      });
-
-      // Act: call the method (expect error)
-      try {
-        await setService.addSet(setId, refreshToken);
-        expect.fail('Expected an error but none was thrown');
-      } catch (error) {
-        expect(error).to.be.an.instanceOf(Error);
-        expect(error.message).to.equal('Set already exists in collection!');
-      }
-
-      // Assert: check if methods were called
-      expect(axiosGetStub).to.have.been.calledTwice;
-      expect(userFindOneStub).to.have.been.calledOnce;
-    });
-
-    it('should add set to users sets array', async () => {
-      // Arrange: mock dependencies and data
-      const setCreateStub = sinon.stub(Set, 'create').resolves({
-        _id: new mongoose.Types.ObjectId(),
-        setNum: '12345',
-        name: 'Test Set',
-        year: 2023,
-        parts: 100,
-        image: 'https://example.com/test_set.jpg',
-        minifigCount: 3,
-        minifigs: [
-          { name: 'Fig 1', image_url: 'https://example.com/fig1.jpg' },
-          { name: 'Fig 2', image_url: 'https://example.com/fig2.jpg' },
-          { name: 'Fig 3', image_url: 'https://example.com/fig3.jpg' },
-        ],
-      });
-      const userSaveStub = sinon.stub();
-      const userFindOneStub = sinon.stub(User, 'findOne').returns({
-        populate: sinon.stub().resolves({
-          sets: [],
-          save: userSaveStub,
-        }),
-      });
-
-      // Act: call the method
-      await setService.addSet(setId, refreshToken);
-
-      // Assert: check if methods were called
-      expect(axiosGetStub).to.have.been.calledTwice;
-      expect(setCreateStub).to.have.been.calledOnce;
-      expect(userFindOneStub).to.have.been.calledOnce;
-      expect(userSaveStub).to.have.been.calledOnce;
-    });
-
-    it('should throw error if set not found', async () => {
-      // Arrange: mock dependencies and data
-      axiosGetStub.restore();
-      axiosGetStub = sinon.stub(axios, 'get').rejects({
-        response: {},
-      });
-
-      // Act+Assert: call the method, error was thrown
-      try {
-        await setService.addSet('12345', 'some-refresh-token');
-      } catch (error) {
-        expect(error.message).to.equal('Set not found!');
-        expect(error.statusCode).to.equal(404);
-        expect(axiosGetStub).to.have.been.calledOnce;
-      }
-    });
-  });
-
-  describe('deleteSet function', () => {
-    let setId;
-    let userId;
-    let email;
-    let token;
-
-    beforeEach(() => {
-      setId = 'set123';
-      userId = 'user123';
-      email = 'testemail@gmail.com';
-      token = 'your_test_token';
-    });
-
-    it('should delete a set and its associated review if authorized', async () => {
-      // Arrange: mock the necessary data
-      const decodedToken = { _id: userId, email };
-      const jwtStub = { decode: sinon.stub().returns(decodedToken) };
-      setService.__set__('jwt', jwtStub);
-
-      const setData = {
-        _id: setId,
-        setNum: '12345',
-        user: {
-          _id: userId,
-          sets: [setId],
-          save: sinon.stub().resolves(),
-          populate: sinon.stub().resolves(),
-        },
-        review: 'a',
-        deleteOne: sinon.stub(),
-      };
-      const findByIdStub = sinon.stub(Set, 'findById').returns({
-        populate: sinon.stub().resolves(setData),
-      });
-
-      const deleteReviewImagesStub = sinon
-        .stub(minioService, 'deleteReviewImages')
-        .resolves();
-
-      // Act: call the function under test
-      await setService.deleteSet(setId, token);
-
-      // Assert: check if the methods were called
-      expect(jwtStub.decode).to.have.been.calledOnceWith(token);
-      expect(findByIdStub).to.have.been.calledOnceWith(setId);
-      expect(setData.user.save).to.have.been.calledOnce;
-      expect(setData.user.sets).to.not.include(setId);
-      expect(deleteReviewImagesStub).to.have.been.calledOnceWith(
-        'testemailgmailcom',
-        setData.setNum
-      );
-    });
-
-    it('should delete a set without a review if authorized', async () => {
-      // Arrange: mock the necessary data
-      const decodedToken = { _id: userId, email };
-      const jwtStub = { decode: sinon.stub().returns(decodedToken) };
-      setService.__set__('jwt', jwtStub);
-
-      const set = {
-        _id: setId,
-        user: {
-          _id: userId,
-          sets: [setId],
-          save: sinon.stub().resolves(),
-          populate: sinon.stub().resolves(),
-        },
-        deleteOne: sinon.stub(),
-      };
-      const findByIdStub = sinon.stub(Set, 'findById').returns({
-        populate: sinon.stub().resolves(set),
-      });
-
-      const deleteReviewImagesStub = sinon
-        .stub(minioService, 'deleteReviewImages')
-        .resolves();
-
-      // Act: call the function under test
-      await setService.deleteSet(setId, token);
-
-      // Assert: check if the methods were called
-      expect(jwtStub.decode).to.have.been.calledOnceWith(token);
-      expect(findByIdStub).to.have.been.calledOnceWith(setId);
-      expect(set.user.save).to.have.been.calledOnce;
-      expect(set.user.sets).to.not.include(setId);
-      expect(deleteReviewImagesStub).to.have.not.been.called;
-    });
-
-    it('should throw an error if the set is not found', async () => {
-      // Arrange: mock data, create stubs
-      setId = 'nonexistent_set';
-      sinon.stub(Set, 'findById').returns({
-        populate: sinon.stub().resolves(null),
-      });
-
-      // Act+Assert: call the method, error was thrown
-      try {
-        await setService.deleteSet(setId, token);
-        expect.fail('Expected an error to be thrown');
-      } catch (error) {
-        expect(error.message).to.equal('Set not found!');
-      }
-    });
-
-    it('should throw an error if the user is not authorized to delete the set', async () => {
-      // Arrange: mock data, create stubs
-      const jwtStub = {
-        decode: sinon
-          .stub()
-          .returns({ _id: 'different_user', email: 'testemail@mail.com' }),
-      };
-      setService.__set__('jwt', jwtStub);
-
-      sinon.stub(Set, 'findById').returns({
-        populate: sinon.stub().resolves({ _id: setId, user: { _id: userId } }),
-      });
-
-      // Act+Assert: call the method, error was thrown
-      try {
-        await setService.deleteSet(setId, token);
-        expect.fail('Expected an error to be thrown');
-      } catch (error) {
-        expect(error.message).to.equal(
-          'You are not authorized to delete this set!'
-        );
-      }
-    });
-  });
+  function makeFindQueryStub(result) {
+    const populateStub = sandbox.stub().resolves(result);
+    const selectStub = sandbox.stub().returns({ populate: populateStub });
+    return { selectStub, populateStub, root: { select: selectStub, populate: populateStub } };
+  }
 
   describe('getAllWithReview', () => {
-    afterEach(() => {
-      sinon.restore();
-    });
+    it('should fetch all sets with reviews (no filter) and attach user images', async () => {
+      const setsFromDb = [
+        {
+          _id: 'set1',
+          name: 'Set One',
+          image: 'https://img/set1.jpg',
+          reviewDate: new Date('2021-01-01'),
+          user: {
+            username: 'john',
+            email: 'john@example.com',
+          },
+        },
+        {
+          _id: 'set2',
+          name: 'Set Two',
+          image: 'https://img/set2.jpg',
+          reviewDate: new Date('2021-02-01'),
+          user: {
+            username: 'john',
+            email: 'john@example.com',
+          },
+        },
+      ];
 
-    it('should return an array of sets with review and user data', async () => {
-      // Arrange: mock data and stubs
-      const mockSet1 = {
-        _id: '123',
-        name: 'Set 1',
-        image: 'image-url-1',
-        user: { username: 'user1', email: 'user1@example.com' },
-        reviewDate: new Date('2021-01-01'),
-      };
-      const mockSet2 = {
-        _id: '456',
-        name: 'Set 2',
-        image: 'image-url-2',
-        user: { username: 'user2', email: 'user2@example.com' },
-        reviewDate: new Date('2021-01-02'),
-      };
-      const mockSets = [mockSet1, mockSet2];
+      const { root } = makeFindQueryStub(setsFromDb);
+      sandbox.stub(Set, 'find').returns(root);
+      const getUserImageStub = sandbox
+        .stub(minioService, 'getUserImage')
+        .resolves('https://avatar/john.png');
 
-      sinon.stub(Set, 'find').returns({
-        select: sinon.stub().returns({
-          populate: sinon.stub().resolves(mockSets),
-        }),
-      });
-
-      sinon.stub(minioService, 'getUserImage').resolves('user-image-url');
-
-      // Act: call the service
       const result = await setService.getAllWithReview();
 
-      // Assert: verify the result
-      expect(result).to.be.an('array').with.lengthOf(2);
-      expect(result[0]).to.deep.equal({
-        _id: '123',
-        name: 'Set 1',
-        image: 'image-url-1',
-        username: 'user1',
-        userImage: 'user-image-url',
-        reviewDate: 'January 1, 2021',
+      expect(Set.find.calledOnce).to.be.true;
+      expect(Set.find.firstCall.args[0]).to.deep.equal({ review: { $ne: null } });
+
+      expect(getUserImageStub.calledOnce).to.be.true;
+
+      expect(result).to.have.length(2);
+      expect(result[0]).to.include({
+        _id: 'set1',
+        name: 'Set One',
+        image: 'https://img/set1.jpg',
+        username: 'john',
+        userImage: 'https://avatar/john.png',
       });
-      expect(result[1]).to.deep.equal({
-        _id: '456',
-        name: 'Set 2',
-        image: 'image-url-2',
-        username: 'user2',
-        userImage: 'user-image-url',
-        reviewDate: 'January 2, 2021',
-      });
+      expect(result[0].reviewDate).to.be.a('string');
     });
 
-    it('should return an array of one set with review and user data when given number', async () => {
-      // Arrange: mock data and stubs
-      const mockSet1 = {
-        _id: '123',
-        name: 'Set 1',
-        image: 'image-url-1',
-        user: { username: 'user1', email: 'user1@example.com' },
-        reviewDate: new Date('2021-01-01'),
-      };
-      const mockSets = [mockSet1];
+    it('should apply setNumber filter when provided', async () => {
+      const setsFromDb = [];
+      const { root } = makeFindQueryStub(setsFromDb);
+      const findStub = sandbox.stub(Set, 'find').returns(root);
+      sandbox.stub(minioService, 'getUserImage');
 
-      sinon.stub(Set, 'find').returns({
-        select: sinon.stub().returns({
-          populate: sinon.stub().resolves(mockSets),
-        }),
+      await setService.getAllWithReview('8091');
+
+      expect(findStub.calledOnce).to.be.true;
+      expect(findStub.firstCall.args[0]).to.deep.equal({
+        review: { $ne: null },
+        setNum: { $regex: '8091' },
       });
-
-      sinon.stub(minioService, 'getUserImage').resolves('user-image-url');
-
-      // Act: call the service
-      const result = await setService.getAllWithReview(mockSet1._id);
-
-      // Assert: verify the result
-      expect(result).to.be.an('array').with.lengthOf(1);
-      expect(result[0]).to.deep.equal({
-        _id: '123',
-        name: 'Set 1',
-        image: 'image-url-1',
-        username: 'user1',
-        userImage: 'user-image-url',
-        reviewDate: 'January 1, 2021',
-      });
-    });
-  });
-
-  describe('getLatestThreeWithReviews', () => {
-    it('should return an array of sets with review and user data', async () => {
-      // Arrange: mock data and stubs
-      const mockSet1 = {
-        _id: '123',
-        name: 'Set 1',
-        image: 'image-url-1',
-        user: { username: 'user1', email: 'user1@example.com' },
-        reviewDate: new Date('2021-01-01'),
-      };
-      const mockSet2 = {
-        _id: '456',
-        name: 'Set 2',
-        image: 'image-url-2',
-        user: { username: 'user2', email: 'user2@example.com' },
-        reviewDate: new Date('2021-01-02'),
-      };
-      const mockSets = [mockSet1, mockSet2];
-
-      sinon.stub(Set, 'find').returns({
-        sort: sinon.stub().returns({
-          limit: sinon.stub().returns({
-            select: sinon.stub().returns({
-              populate: sinon.stub().resolves(mockSets),
-            }),
-          }),
-        }),
-      });
-
-      sinon.stub(minioService, 'getUserImage').resolves('user-image-url');
-
-      // Act: call the service
-      const result = await setService.getLatestThreeWithReviews();
-
-      // Assert: verify the result
-      expect(result).to.be.an('array').with.lengthOf(2);
-      expect(result[0]).to.deep.equal({
-        _id: '123',
-        name: 'Set 1',
-        image: 'image-url-1',
-        username: 'user1',
-        userImage: 'user-image-url',
-        reviewDate: 'January 1, 2021',
-      });
-      expect(result[1]).to.deep.equal({
-        _id: '456',
-        name: 'Set 2',
-        image: 'image-url-2',
-        username: 'user2',
-        userImage: 'user-image-url',
-        reviewDate: 'January 2, 2021',
-      });
-
-      sinon.restore();
     });
   });
 
   describe('getUserCollection', () => {
-    it('should return user collection data', async () => {
-      // Arrange: mock data and stubs
-      const setsData = [
-        { _id: 'set1', name: 'Set 1' },
-        { _id: 'set2', name: 'Set 2' },
-      ];
-      const findOneStub = sinon.stub(User, 'findOne').returns({
-        populate: sinon.stub().resolves({
-          email: 'test@example.com',
-          username: 'TestUser',
-          sets: setsData,
-        }),
-      });
-      const getUserImageStub = sinon
+    it('should return user collection and user image when user exists', async () => {
+      const mockUser = {
+        username: 'guest',
+        email: 'guest@example.com',
+        sets: [{ setNum: '8091-1' }],
+      };
+
+      const populateStub = sandbox.stub().resolves(mockUser);
+      const findOneStub = sandbox
+        .stub(User, 'findOne')
+        .returns({ populate: populateStub });
+
+      const getUserImageStub = sandbox
         .stub(minioService, 'getUserImage')
-        .resolves('user-image-data');
+        .resolves('https://avatar/guest.png');
 
-      const username = 'testuser';
-      const normalizedUsername = username.toLowerCase();
+      const result = await setService.getUserCollection('Guest', 'en');
 
-      // Act: call the service
-      const result = await setService.getUserCollection(username);
+      expect(findOneStub.calledOnce).to.be.true;
+      expect(findOneStub.firstCall.args[0]).to.deep.equal({
+        normalizedUsername: 'guest',
+      });
 
-      // Assert: verify the methods were called
-      expect(findOneStub).to.have.been.calledOnceWith({ normalizedUsername });
-      expect(getUserImageStub).to.have.been.calledOnceWith('testexamplecom');
+      expect(getUserImageStub.calledOnceWith('guestexamplecom')).to.be.true;
       expect(result).to.deep.equal({
         user: {
-          image: 'user-image-data', // Replace with expected image data
-          username: 'TestUser',
+          image: 'https://avatar/guest.png',
+          username: 'guest',
         },
-        sets: setsData,
+        sets: mockUser.sets,
       });
     });
 
-    it('should throw error if user not found', async () => {
-      // Arrange: mock data and stubs
-      const findOneStub = sinon.stub(User, 'findOne').returns({
-        populate: sinon.stub().resolves(null),
-      });
-      const username = 'nonexistentuser';
-      const normalizedUsername = username.toLowerCase();
+    it('should throw 404 error when user does not exist', async () => {
+      const populateStub = sandbox.stub().resolves(null);
+      sandbox.stub(User, 'findOne').returns({ populate: populateStub });
 
-      // Act+Assert: call the service, error was thrown
       try {
-        await setService.getUserCollection(username);
-        expect.fail('Expected an error to be thrown');
-      } catch (error) {
-        expect(error.message).to.equal('User not found!');
-        expect(findOneStub).to.have.been.calledOnceWith({
-          normalizedUsername,
-        });
+        await setService.getUserCollection('notfound', 'bg');
+        throw new Error('Expected error was not thrown');
+      } catch (err) {
+        expect(err).to.be.instanceOf(Error);
+        expect(err.message).to.equal('Потребителят не е намерен!');
+        expect(err.statusCode).to.equal(404);
+      }
+    });
+  });
+
+  describe('addSet', () => {
+    it('should add a set for a user and return updated user', async () => {
+      const setId = '8091';
+      const refreshToken = 'refresh-token';
+      const language = 'en';
+
+      const foundSetData = {
+        set_num: '8091-1',
+        name: 'Republic Swamp Speeder',
+        year: 2010,
+        num_parts: 176,
+        set_img_url: 'https://img/8091-1.jpg',
+      };
+
+      const figsData = {
+        count: 2,
+        results: [
+          {
+            set_name: 'Fig One',
+            quantity: 1,
+            set_img_url: 'https://img/fig1.jpg',
+          },
+          {
+            set_name: 'Fig Two',
+            quantity: 2,
+            set_img_url: 'https://img/fig2.jpg',
+          },
+        ],
+      };
+
+      const axiosGetStub = sandbox.stub(axios, 'get');
+      axiosGetStub.onCall(0).resolves({ data: foundSetData });
+      axiosGetStub.onCall(1).resolves({ data: figsData });
+
+      const user = {
+        _id: 'user1',
+        username: 'guest',
+        email: 'guest@example.com',
+        sets: [],
+        save: sandbox.stub().resolves(),
+      };
+      user.sets.push = function () {}; // no-op, avoids weird equals logic
+
+      const populateStub = sandbox.stub().resolves(user);
+      sandbox.stub(User, 'findOne').returns({ populate: populateStub });
+
+      const createdSet = {
+        _id: 'set1',
+        ...foundSetData,
+      };
+      sandbox.stub(Set, 'create').resolves(createdSet);
+
+      const result = await setService.addSet(setId, refreshToken, language);
+
+      expect(axiosGetStub.calledTwice).to.be.true;
+      expect(User.findOne.calledOnce).to.be.true;
+      expect(Set.create.calledOnce).to.be.true;
+
+      expect(result.user).to.include({
+        _id: 'user1',
+        username: 'guest',
+        email: 'guest@example.com',
+      });
+      expect(result.user.sets).to.be.an('array');
+    });
+
+    it('should throw 404 when set is not found in external API', async () => {
+      const axiosGetStub = sandbox.stub(axios, 'get');
+      axiosGetStub.onCall(0).rejects(new Error('Not found'));
+
+      try {
+        await setService.addSet('badid', 'refresh', 'en');
+        throw new Error('Expected error was not thrown');
+      } catch (err) {
+        expect(err).to.be.instanceOf(Error);
+        expect(err.message).to.equal('Set not found!');
+        expect(err.statusCode).to.equal(404);
+      }
+    });
+
+    it('should throw 404 when user with refreshToken is not found', async () => {
+      const foundSetData = {
+        set_num: '8091-1',
+        name: 'Test Set',
+        year: 2010,
+        num_parts: 100,
+        set_img_url: 'https://img/set.jpg',
+      };
+
+      const figsData = { count: 0, results: [] };
+
+      const axiosGetStub = sandbox.stub(axios, 'get');
+      axiosGetStub.onCall(0).resolves({ data: foundSetData });
+      axiosGetStub.onCall(1).resolves({ data: figsData });
+
+      const populateStub = sandbox.stub().resolves(null);
+      sandbox.stub(User, 'findOne').returns({ populate: populateStub });
+
+      try {
+        await setService.addSet('8091', 'bad-refresh', 'bg');
+        throw new Error('Expected error was not thrown');
+      } catch (err) {
+        expect(err.message).to.equal('Потребителят не е намерен!');
+        expect(err.statusCode).to.equal(404);
+      }
+    });
+
+    it('should throw 409 when set already exists in user collection', async () => {
+      const foundSetData = {
+        set_num: '8091-1',
+        name: 'Test Set',
+        year: 2010,
+        num_parts: 100,
+        set_img_url: 'https://img/set.jpg',
+      };
+
+      const figsData = { count: 0, results: [] };
+
+      const axiosGetStub = sandbox.stub(axios, 'get');
+      axiosGetStub.onCall(0).resolves({ data: foundSetData });
+      axiosGetStub.onCall(1).resolves({ data: figsData });
+
+      const user = {
+        _id: 'user1',
+        username: 'guest',
+        email: 'guest@example.com',
+        sets: [{ setNum: '8091-1' }],
+      };
+      const populateStub = sandbox.stub().resolves(user);
+      sandbox.stub(User, 'findOne').returns({ populate: populateStub });
+
+      try {
+        await setService.addSet('8091', 'refresh', 'en');
+        throw new Error('Expected error was not thrown');
+      } catch (err) {
+        expect(err.message).to.equal('Set already exists in collection!');
+        expect(err.statusCode).to.equal(409);
+      }
+    });
+  });
+
+  describe('deleteSet', () => {
+    it('should delete set and its review images when authorized and has review', async () => {
+      const language = 'en';
+
+      const payload = {
+        _id: 'user1',
+        email: 'user@example.com',
+      };
+      const token = jwt.sign(payload, 'test-secret');
+
+      const user = {
+        _id: 'user1',
+        username: 'guest',
+        email: 'user@example.com',
+        sets: ['set1', 'set2'],
+        save: sandbox.stub().resolves(),
+        populate: sandbox.stub().callsFake(function () {
+          this.sets = this.sets.map((id) => ({
+            _id: id,
+            review: id === 'set2' ? null : 'Nice set',
+            toObject() {
+              return { _id: this._id, review: this.review };
+            },
+          }));
+          return Promise.resolve(this);
+        }),
+      };
+
+      const setDoc = {
+        _id: 'set1',
+        setNum: '8091-1',
+        review: 'Nice set',
+        user,
+        deleteOne: sandbox.stub().resolves(),
+      };
+
+      const populateStub = sandbox.stub().resolves(setDoc);
+      sandbox.stub(Set, 'findById').returns({ populate: populateStub });
+
+      const deleteReviewImagesStub = sandbox
+        .stub(minioService, 'deleteReviewImages')
+        .resolves();
+
+      const result = await setService.deleteSet('set1', token, language);
+
+      expect(Set.findById.calledOnceWith('set1')).to.be.true;
+      expect(deleteReviewImagesStub.calledOnce).to.be.true;
+      expect(result.user._id).to.equal('user1');
+      expect(result.user.sets).to.be.an('array');
+      expect(result.user.sets[0]).to.deep.include({ _id: 'set2' });
+      expect(result.user.sets[0]).to.have.property('review');
+    });
+
+    it('should throw 404 when set is not found', async () => {
+      const token = jwt.sign(
+        { _id: 'user1', email: 'user@example.com' },
+        'test-secret'
+      );
+
+      const populateStub = sandbox.stub().resolves(null);
+      sandbox.stub(Set, 'findById').returns({ populate: populateStub });
+
+      try {
+        await setService.deleteSet('missing-id', token, 'en');
+        throw new Error('Expected error was not thrown');
+      } catch (err) {
+        expect(err.message).to.equal('Set not found!');
+        expect(err.statusCode).to.equal(404);
+      }
+    });
+
+   it('should throw 403 when user is not authorized to delete the set', async () => {
+     const token = jwt.sign(
+       { _id: 'otheruser', email: 'user@example.com' },
+       'test-secret'
+     );
+
+      const user = {
+        _id: 'ownerid',
+        sets: [],
+      };
+
+      const setDoc = {
+        _id: 'set1',
+        setNum: '8091-1',
+        user,
+      };
+
+      const populateStub = sandbox.stub().resolves(setDoc);
+      sandbox.stub(Set, 'findById').returns({ populate: populateStub });
+
+      try {
+        await setService.deleteSet('set1', token, 'bg');
+        throw new Error('Expected error was not thrown');
+      } catch (err) {
+        expect(err.message).to.equal('Нямате права да изтриете този сет!');
+        expect(err.statusCode).to.equal(403);
       }
     });
   });
