@@ -55,8 +55,6 @@
  *           items:
  *             type: string
  *           example: ["195fa1", "vj1oa9"]
- *         user:
- *           $ref: '#/components/schemas/User'
  *       example:
  *         setNum: "8091-1"
  *         name: "Republic Swamp Speeder"
@@ -82,10 +80,6 @@
  *         videoIds:
  *           - "195fa1"
  *           - "vj1oa9"
- *         user:
- *           username: "john_doe"
- *           email: "john_doe@example.com"
- *           image: "some_base64_image"
  *
  *     Minifigure:
  *       type: object
@@ -183,69 +177,6 @@ router.get('/allWithReviews', async (req, res) => {
     });
   }
 });
-
-/**
- * @swagger
- * /sets/latestThreeWithReviews:
- *   get:
- *     summary: Get the latest 3 sets with their reviews.
- *     tags: [Sets]
- *     responses:
- *       200:
- *         description: Successfully retrieved the sets.
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 type: object
- *                 properties:
- *                   _id:
- *                     type: string
- *                     description: The set ID.
- *                     example: "918fh18j102"
- *                   name:
- *                     type: string
- *                     description: The set name.
- *                     example: "Kessel Run Millennium Falcon"
- *                   image:
- *                     type: string
- *                     description: The set image URL.
- *                     example: "https://some-url"
- *                   username:
- *                     type: string
- *                     description: The username of the reviewer.
- *                     example: "guest"
- *                   userImage:
- *                     type: string
- *                     description: The user profile image (e.g., URL or base64).
- *                     example: "some-base64-image"
- *                   reviewDate:
- *                     type: string
- *                     description: The date the review was created (localized).
- *                     example: "January 1, 2021"
- *       500:
- *         description: Internal server error.
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   example: "Something went wrong."
- */
-// router.get('/latestThreeWithReviews', async (req, res) => {
-//   try {
-//     const reviews = await setService.getLatestThreeWithReviews();
-//     res.status(200).json(reviews);
-//   } catch (err) {
-//     const status = err.statusCode || 500;
-//     res.status(status).json({
-//       message: err.message || 'Something went wrong.',
-//     });
-//   }
-// });
 
 /**
  * @swagger

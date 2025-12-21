@@ -1,6 +1,5 @@
 const { expect } = require('chai');
 const sinon = require('sinon');
-
 const axios = require('axios');
 const jwt = require('jsonwebtoken');
 

@@ -1,376 +1,331 @@
 const { expect } = require('chai');
 const sinon = require('sinon');
-const bcrypt = require('bcrypt');
 const jwt = require('../lib/jwt');
+const bcrypt = require('bcrypt');
+
 const User = require('../models/User');
 const minioService = require('../services/minioService');
+const userService = require('../services/userService');
 
-const rewire = require('rewire');
-const service = rewire('../services/userService');
+describe('userService', () => {
+  let sandbox;
 
-describe('User service methods', function () {
-  afterEach(() => {
-    sinon.restore();
+  beforeEach(() => {
+    sandbox = sinon.createSandbox();
+    process.env.JWT_SECRET = 'test-secret';
   });
 
+  afterEach(() => {
+    sandbox.restore();
+  });
+
+  function makeSetDoc(fields = {}) {
+    return {
+      ...fields,
+      toObject() {
+        return { ...fields };
+      },
+    };
+  }
+
   describe('register', () => {
-    it('should create a new user and return a token (with image)', async () => {
-      // Arrange: mock data, create stubs
-      const userData = {
-        username: 'testuser',
-        email: 'testuser@mail.com',
-        password: 'testpassword',
-        repeatPassword: 'testpassword',
-        image: 'data:image/png;base64,base64String',
+    let userData;
+    let createdUser;
+    let signStub;
+    let saveUserImageStub;
+    beforeEach(() => {
+      userData = {
+        username: 'john',
+        email: 'john@example.com',
+        password: 'hashed',
       };
-      const user = new User(userData);
-      const createStub = sinon.stub(User, 'create').resolves(user);
-      const generateTokenStub = sinon.stub().resolves({
-        accessToken: 'access_token',
-        refreshToken: 'refresh_token',
-      });
-      const generateTokenStubResetter = service.__set__(
-        'generateToken',
-        generateTokenStub
-      );
-      const saveUserImageStub = sinon.stub(minioService, 'saveUserImage');
-
-      const result = await service.register(userData);
-
-      // Assert: check if methods were called
-      expect(createStub.calledOnceWith(userData)).to.be.true;
-      expect(generateTokenStub.calledOnceWith(user)).to.be.true;
-      expect(
-        saveUserImageStub.calledOnceWith(
-          'testusermailcom',
-          Buffer.from('base64String', 'base64')
-        )
-      ).to.be.true;
-      expect(result.tokens.accessToken).to.equal('access_token');
-      expect(result.tokens.refreshToken).to.equal('refresh_token');
-      expect(result.user).to.deep.equal({
-        _id: user._id,
-        username: user.username,
-        email: user.email,
-        sets: user.sets,
-      });
-
-      generateTokenStubResetter();
+      createdUser = {
+        _id: 'u1',
+        username: 'john',
+        email: 'john@example.com',
+        sets: [makeSetDoc({ setNum: '1', review: null })],
+        save: sandbox.stub().resolves(),
+      };
+      sandbox.stub(User, 'create').resolves(createdUser);
+      signStub = sandbox.stub(jwt, 'sign');
+      signStub.onCall(0).resolves('access-token');
+      signStub.onCall(1).resolves('refresh-token');
+      saveUserImageStub = sandbox.stub(minioService, 'saveUserImage').resolves();
     });
 
-    it('should create a new user and return a token (no image)', async () => {
-      // Arrange: mock data, create stubs
-      const userData = {
-        username: 'testuser',
-        email: 'testuser@mail.com',
-        password: 'testpassword',
-        repeatPassword: 'testpassword',
-      };
-      const user = new User(userData);
-      const createStub = sinon.stub(User, 'create').resolves(user);
-      const generateTokenStub = sinon.stub().resolves({
-        accessToken: 'access_token',
-        refreshToken: 'refresh_token',
+    it('should create user, generate tokens, and save image if provided', async () => {
+      userData.image = `data:image/png;base64,${Buffer.from('abc').toString('base64')}`;
+
+      const res = await userService.register(userData);
+
+      expect(User.create.calledOnceWith(userData)).to.be.true;
+      expect(signStub.calledTwice).to.be.true;
+      expect(createdUser.refreshToken).to.equal('refresh-token');
+      expect(createdUser.save.calledOnce).to.be.true;
+      expect(saveUserImageStub.calledOnce).to.be.true;
+      const [key, fileBuf] = saveUserImageStub.firstCall.args;
+      expect(key).to.equal('johnexamplecom');
+      expect(Buffer.isBuffer(fileBuf)).to.equal(true);
+      expect(res).to.deep.equal({
+        tokens: { accessToken: 'access-token', refreshToken: 'refresh-token' },
+        user: {
+          _id: 'u1',
+          username: 'john',
+          email: 'john@example.com',
+          sets: [{ setNum: '1', review: false }], // toPublicUser adds boolean review
+        },
       });
-      const generateTokenStubResetter = service.__set__(
-        'generateToken',
-        generateTokenStub
-      );
+    });
 
-      // Act: call the method
-      const result = await service.register(userData);
+    it('should not save image when none provided', async () => {
+      const res = await userService.register(userData);
 
-      // Assert: check if methods were called
-      expect(createStub.calledOnceWith(userData)).to.be.true;
-      expect(generateTokenStub.calledOnceWith(user)).to.be.true;
-      expect(result.tokens.accessToken).to.equal('access_token');
-      expect(result.tokens.refreshToken).to.equal('refresh_token');
-      expect(result.user).to.deep.equal({
-        _id: user._id,
-        username: user.username,
-        email: user.email,
-        sets: user.sets,
-      });
-
-      generateTokenStubResetter();
+      expect(saveUserImageStub.notCalled).to.be.true;
+      expect(res.tokens.accessToken).to.equal('access-token');
     });
   });
 
   describe('login', () => {
-    let userData;
-    let findOneStub;
-    beforeEach(() => {
-      userData = {
-        _id: 'some-id',
-        username: 'testuser',
-        email: 'testuser@mail.com',
-        sets: [],
-        password: 'testpassword',
+    it('should login successfully, generate tokens, and return user + image', async () => {
+      const userDoc = {
+        _id: 'u1',
+        username: 'john',
+        email: 'john@example.com',
+        password: 'bcrypt-hash',
+        sets: [makeSetDoc({ setNum: '1', review: 'text' })],
+        save: sandbox.stub().resolves(),
       };
-      findOneStub = sinon.stub(User, 'findOne').returns({
-        populate: sinon.stub().resolves(userData),
-      });
-    });
 
-    it('should login with valid credentials and return a token (with image)', async () => {
-      // Arrange: create stubs
-      const compareStub = sinon.stub(bcrypt, 'compare').resolves(true);
-      const generateTokenStub = sinon.stub().returns({
-        accessToken: 'access_token',
-        refreshToken: 'refresh_token',
-      });
-      const generateTokenStubResetter = service.__set__(
-        'generateToken',
-        generateTokenStub
+      const populateStub = sandbox.stub().resolves(userDoc);
+      sandbox.stub(User, 'findOne').returns({ populate: populateStub });
+
+      sandbox.stub(bcrypt, 'compare').resolves(true);
+
+      const signStub = sandbox.stub(jwt, 'sign');
+      signStub.onCall(0).resolves('access-token');
+      signStub.onCall(1).resolves('refresh-token');
+
+      sandbox.stub(minioService, 'getUserImage').resolves('img-data');
+
+      const res = await userService.login(
+        { username: 'John', password: 'pass' },
+        'en'
       );
-      const getUserImageStub = sinon
-        .stub(minioService, 'getUserImage')
-        .resolves('data:image/png;base64,image');
 
-      // Act: call the method
-      const result = await service.login(userData);
-
-      // Assert: check if methods were called
-      expect(
-        findOneStub.calledOnceWith({
-          normalizedUsername: userData.username.toLowerCase(),
-        })
-      ).to.be.true;
-      expect(compareStub.calledOnceWith(userData.password, userData.password))
-        .to.be.true;
-      expect(generateTokenStub.calledOnceWith(userData)).to.be.true;
-      expect(getUserImageStub.calledOnceWith('testusermailcom')).to.be.true;
-      expect(result.tokens.accessToken).to.equal('access_token');
-      expect(result.tokens.refreshToken).to.equal('refresh_token');
-      expect(result.user).to.deep.equal({
-        _id: userData._id,
-        username: userData.username,
-        email: userData.email,
-        sets: userData.sets,
+      expect(User.findOne.calledOnce).to.be.true;
+      expect(User.findOne.firstCall.args[0]).to.deep.equal({
+        normalizedUsername: 'john',
       });
-      expect(result.image).to.equal('data:image/png;base64,image');
-
-      generateTokenStubResetter();
+      expect(bcrypt.compare.calledOnceWith('pass', userDoc.password)).to.be.true;
+      expect(userDoc.refreshToken).to.equal('refresh-token');
+      expect(userDoc.save.calledOnce).to.be.true;
+      expect(minioService.getUserImage.calledOnceWith('johnexamplecom')).to.be.true;
+      expect(res).to.deep.equal({
+        tokens: { accessToken: 'access-token', refreshToken: 'refresh-token' },
+        user: {
+          _id: 'u1',
+          username: 'john',
+          email: 'john@example.com',
+          sets: [{ setNum: '1', review: true }],
+        },
+        image: 'img-data',
+      });
     });
 
-    it('should login with valid credentials and return a token (no image)', async () => {
-      // Arrange: create stubs
-      const compareStub = sinon.stub(bcrypt, 'compare').resolves(true);
-      const generateTokenStub = sinon.stub().returns({
-        accessToken: 'access_token',
-        refreshToken: 'refresh_token',
-      });
-      const generateTokenStubResetter = service.__set__(
-        'generateToken',
-        generateTokenStub
-      );
-      const getUserImageStub = sinon
-        .stub(minioService, 'getUserImage')
-        .resolves(null);
+    it('should throw 401 with localized message on invalid creds (user not found)', async () => {
+      const populateStub = sandbox.stub().resolves(null);
+      sandbox.stub(User, 'findOne').returns({ populate: populateStub });
 
-      // Act: call the method
-      const result = await service.login(userData);
+      const compareStub = sandbox.stub(bcrypt, 'compare').resolves(false);
 
-      // Assert: check if methods were called
-      expect(
-        findOneStub.calledOnceWith({
-          normalizedUsername: userData.username.toLowerCase(),
-        })
-      ).to.be.true;
-      expect(compareStub.calledOnceWith(userData.password, userData.password))
-        .to.be.true;
-      expect(generateTokenStub.calledOnceWith(userData)).to.be.true;
-      expect(getUserImageStub.calledOnceWith('testusermailcom')).to.be.true;
-      expect(result.tokens.accessToken).to.equal('access_token');
-      expect(result.tokens.refreshToken).to.equal('refresh_token');
-      expect(result.user).to.deep.equal({
-        _id: userData._id,
-        username: userData.username,
-        email: userData.email,
-        sets: userData.sets,
-      });
-      expect(result.image).to.be.null;
-
-      generateTokenStubResetter();
-    });
-
-    it('should throw an error with non-existant email', async () => {
-      // Arrange: reate stubs
-      findOneStub.restore();
-      sinon.stub(User, 'findOne').returns({
-        populate: sinon.stub().resolves(null),
-      });
-
-      // Act+Assert: call the method, error was thrown
       try {
-        await service.login(userData);
-        expect.fail('Expected an error to be thrown');
-      } catch (error) {
-        expect(error.message).to.equal('Invalid username or password!');
+        await userService.login({ username: 'Nope', password: 'x' }, 'bg');
+        throw new Error('Expected error not thrown');
+      } catch (err) {
+        expect(err).to.be.instanceOf(Error);
+        expect(err.statusCode).to.equal(401);
+        expect(err.message).to.equal('Невалидно потребителско име или парола!');
+      }
+
+      expect(compareStub.calledOnce).to.be.true;
+      const [, hashUsed] = compareStub.firstCall.args;
+      expect(hashUsed).to.be.a('string');
+    });
+
+    it('should throw 401 with localized message on invalid creds (wrong password)', async () => {
+      const userDoc = {
+        _id: 'u1',
+        username: 'john',
+        email: 'john@example.com',
+        password: 'bcrypt-hash',
+        sets: [],
+      };
+
+      const populateStub = sandbox.stub().resolves(userDoc);
+      sandbox.stub(User, 'findOne').returns({ populate: populateStub });
+
+      sandbox.stub(bcrypt, 'compare').resolves(false);
+
+      try {
+        await userService.login({ username: 'john', password: 'bad' }, 'en');
+        throw new Error('Expected error not thrown');
+      } catch (err) {
+        expect(err.statusCode).to.equal(401);
+        expect(err.message).to.equal('Invalid username or password!');
       }
     });
+  });
 
-    it('should throw an error with invalid password', async () => {
-      // Arrange: create stubs
-      sinon.stub(bcrypt, 'compare').resolves(false);
+  describe('generateToken (exported)', () => {
+    it('should sign access+refresh tokens and persist refreshToken on user', async () => {
+      const userDoc = {
+        _id: 'u1',
+        username: 'john',
+        email: 'john@example.com',
+        save: sandbox.stub().resolves(),
+      };
 
-      // Act+Assert: call the method, error was thrown
+      const signStub = sandbox.stub(jwt, 'sign');
+      signStub.onCall(0).resolves('access-token');
+      signStub.onCall(1).resolves('refresh-token');
+
+      const res = await userService.generateToken(userDoc);
+
+      expect(res).to.deep.equal({
+        accessToken: 'access-token',
+        refreshToken: 'refresh-token',
+      });
+
+      expect(userDoc.refreshToken).to.equal('refresh-token');
+      expect(userDoc.save.calledOnce).to.be.true;
+      expect(signStub.firstCall.args[2]).to.deep.include({ expiresIn: '15m' });
+      expect(signStub.secondCall.args[2]).to.deep.include({ expiresIn: '7d' });
+    });
+  });
+
+  describe('validateRefreshToken', () => {
+    it('should return user when refreshToken exists', async () => {
+      const userDoc = { _id: 'u1' };
+      sandbox.stub(User, 'findOne').resolves(userDoc);
+
+      const res = await userService.validateRefreshToken('rt');
+
+      expect(User.findOne.calledOnceWith({ refreshToken: 'rt' })).to.be.true;
+      expect(res).to.equal(userDoc);
+    });
+
+    it('should throw when refreshToken is invalid', async () => {
+      sandbox.stub(User, 'findOne').resolves(null);
+
       try {
-        await service.login(userData);
-        expect.fail('Expected an error to be thrown');
-      } catch (error) {
-        expect(error.message).to.equal('Invalid username or password!');
+        await userService.validateRefreshToken('bad');
+        throw new Error('Expected error not thrown');
+      } catch (err) {
+        expect(err).to.be.instanceOf(Error);
+        expect(err.message).to.equal('Invalid refresh token!');
       }
     });
   });
 
   describe('logout', () => {
-    it('should clear the refreshToken field and save the user', async () => {
-      // Arrange: mock data, create stubs
-      const user = {
-        refreshToken: 'oldRefreshToken',
-        save: sinon.stub().resolves({ refreshToken: '' }),
+    it('should clear refreshToken and save user when found', async () => {
+      const userDoc = {
+        refreshToken: 'rt',
+        save: sandbox.stub().resolves('saved'),
       };
-      const findOneStub = sinon.stub(User, 'findOne').resolves(user);
+      sandbox.stub(User, 'findOne').resolves(userDoc);
 
-      // Act: call the method
-      const result = await service.logout('oldRefreshToken');
+      const res = await userService.logout('rt');
 
-      // Assert: check if methods were called
-      expect(findOneStub.calledOnceWith({ refreshToken: 'oldRefreshToken' })).to
-        .be.true;
-      expect(user.refreshToken).to.equal('');
-      expect(user.save.calledOnce).to.be.true;
-      expect(result).to.deep.equal({ refreshToken: '' });
+      expect(User.findOne.calledOnceWith({ refreshToken: 'rt' })).to.be.true;
+      expect(userDoc.refreshToken).to.equal('');
+      expect(userDoc.save.calledOnce).to.be.true;
+      expect(res).to.equal('saved');
     });
 
-    it('should return if user is not found', async () => {
-      // Arrange: mock data, create stubs
-      const findOneStub = sinon.stub(User, 'findOne').resolves(null);
+    it('should do nothing when user not found', async () => {
+      sandbox.stub(User, 'findOne').resolves(null);
 
-      // Act: call the method
-      const result = await service.logout('oldRefreshToken');
+      const res = await userService.logout('rt');
 
-      // Assert: check if methods were called
-      expect(findOneStub.calledOnceWith({ refreshToken: 'oldRefreshToken' })).to
-        .be.true;
-      expect(result).to.be.undefined;
-    });
-  });
-
-  describe('generateToken', () => {
-    it('should return a token for the user', async () => {
-      // Arrange: mock data, create stubs
-      const userData = {
-        username: 'testusername',
-        email: 'testEmail@email.com',
-        password: 'testpassword',
-        repeatPassword: 'testpassword',
-      };
-      const user = new User(userData);
-      const signStub = sinon
-        .stub(jwt, 'sign')
-        .onFirstCall()
-        .resolves('access_token')
-        .onSecondCall()
-        .resolves('refresh_token');
-      const saveStub = sinon.stub(user, 'save').resolves(true);
-
-      // Act: call the method
-      const result = await service.generateToken(user);
-
-      // Assert: check if methods were called
-      expect(signStub.calledTwice).to.be.true;
-      expect(saveStub.calledOnce).to.be.true;
-      expect(result.accessToken).to.equal('access_token');
-      expect(result.refreshToken).to.equal('refresh_token');
-      expect(user.refreshToken).to.exist;
-      expect(user.refreshToken).to.equal('refresh_token');
-    });
-  });
-
-  describe('validateRefreshToken', () => {
-    it('should return the user if the refresh token is valid', async () => {
-      // Arrange: mock data, create stubs
-      const mockUser = {
-        name: 'John Doe',
-        refreshToken: 'valid-refresh-token',
-      };
-      const findOneStub = sinon.stub(User, 'findOne').resolves(mockUser);
-
-      // Act: call the method
-      const result = await service.validateRefreshToken('valid-refresh-token');
-
-      // Assert: check if methods were called
-      expect(
-        findOneStub.calledOnceWith({ refreshToken: 'valid-refresh-token' })
-      ).to.be.true;
-      expect(result).to.equal(mockUser);
-    });
-
-    it('should throw an error if the refresh token is invalid', async () => {
-      // Arrange: mock data, create stubs
-      sinon.stub(User, 'findOne').resolves(null);
-      const refreshToken = 'invalid-refresh-token';
-
-      // Act+Assert: call the method, error was thrown
-      try {
-        await service.validateRefreshToken(refreshToken);
-        expect.fail('Expected an error to be thrown');
-      } catch (error) {
-        expect(error).to.be.instanceOf(Error);
-        expect(error.message).to.equal('Invalid refresh token!');
-      }
+      expect(res).to.equal(undefined);
     });
   });
 
   describe('editData', () => {
-    let findOneStub;
-    let deleteImageStub;
-    let saveUserImageStub;
-    let refreshToken;
-    let profileData;
+    it('should throw 404 if user not found', async () => {
+      const populateStub = sandbox.stub().resolves(null);
+      sandbox.stub(User, 'findOne').returns({ populate: populateStub });
 
-    beforeEach(() => {
-      findOneStub = sinon.stub(User, 'findOne').returns({
-        populate: sinon.stub().resolves({
-          email: 'test@example.com',
-          save: sinon.stub().resolves(),
-        }),
-      });
-      deleteImageStub = sinon.stub(minioService, 'deleteImage');
-      saveUserImageStub = sinon.stub(minioService, 'saveUserImage');
-      refreshToken = 'refreshToken';
-      profileData = {
-        username: 'newUsername',
-        profilePicture: 'data:image/jpeg;base64,base64data',
-        deleteProfilePicture: false,
+      try {
+        await userService.editData({ username: 'x' }, 'bad-refresh');
+        throw new Error('Expected error not thrown');
+      } catch (err) {
+        expect(err.statusCode).to.equal(404);
+        expect(err.message).to.equal('User not found!');
+      }
+    });
+
+    it('should delete profile picture when deleteProfilePicture is true', async () => {
+      const userDoc = {
+        _id: 'u1',
+        username: 'old',
+        normalizedUsername: 'old',
+        email: 'john@example.com',
+        sets: [makeSetDoc({ setNum: '1', review: null })],
+        save: sandbox.stub().resolves(),
       };
+
+      const populateStub = sandbox.stub().resolves(userDoc);
+      sandbox.stub(User, 'findOne').returns({ populate: populateStub });
+
+      const delStub = sandbox.stub(minioService, 'deleteImage').resolves();
+      const saveImgStub = sandbox.stub(minioService, 'saveUserImage').resolves();
+
+      const res = await userService.editData(
+        { username: 'NewName', deleteProfilePicture: true },
+        'rt'
+      );
+
+      expect(userDoc.username).to.equal('NewName');
+      expect(userDoc.normalizedUsername).to.equal('newname');
+      expect(delStub.calledOnce).to.be.true;
+      expect(saveImgStub.notCalled).to.be.true;
+      expect(res.user.username).to.equal('NewName');
+      expect(res).to.have.property('image', undefined);
     });
 
-    it('should edit user data and save', async () => {
-      // Arrange:
+    it('should save profile picture when provided', async () => {
+      const userDoc = {
+        _id: 'u1',
+        username: 'old',
+        normalizedUsername: 'old',
+        email: 'john@example.com',
+        sets: [makeSetDoc({ setNum: '1', review: null })],
+        save: sandbox.stub().resolves(),
+      };
 
-      // Act: call the method
-      await service.editData(profileData, refreshToken);
+      const populateStub = sandbox.stub().resolves(userDoc);
+      sandbox.stub(User, 'findOne').returns({ populate: populateStub });
 
-      // Assert: check if methods were called
-      expect(findOneStub).to.have.been.calledOnceWith({ refreshToken });
-      expect(deleteImageStub).to.have.not.been.called;
-      expect(saveUserImageStub).to.have.been.calledOnceWith('testexamplecom');
-    });
+      sandbox.stub(minioService, 'deleteImage').resolves();
 
-    it('should delete profile picture', async () => {
-      // Arrange: change delete profile pic to true
-      profileData.deleteProfilePicture = true;
+      const saveImgStub = sandbox.stub(minioService, 'saveUserImage').resolves();
 
-      // Act: call the method
-      await service.editData(profileData, refreshToken);
+      const dataUrl = `data:image/png;base64,${Buffer.from('hello').toString('base64')}`;
 
-      // Assert: check if methods were called
-      expect(findOneStub).to.have.been.calledOnceWith({ refreshToken });
-      expect(saveUserImageStub).to.have.not.been.called;
-      expect(deleteImageStub).to.have.been.calledOnceWith('testexamplecom');
+      const res = await userService.editData(
+        { username: 'NewName', profilePicture: dataUrl, deleteProfilePicture: false },
+        'rt'
+      );
+
+      expect(saveImgStub.calledOnce).to.be.true;
+      const [key, buf] = saveImgStub.firstCall.args;
+      expect(key).to.equal('johnexamplecom');
+      expect(Buffer.isBuffer(buf)).to.equal(true);
+
+      expect(res.image).to.equal(dataUrl);
+      expect(res.user.username).to.equal('NewName');
     });
   });
 });

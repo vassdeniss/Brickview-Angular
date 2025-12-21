@@ -3,28 +3,42 @@ const jwt = require('../lib/jwt');
 const bcrypt = require('bcrypt');
 const minioService = require('./minioService');
 
+const getUserImageKey = (email) => email.replace(/[.@]/g, '');
+
+const base64ImageToBuffer = (dataUrl) => {
+  if (!dataUrl) return null;
+  const base64 = dataUrl.replace(/^data:image\/(\w+);base64,/, '');
+  return Buffer.from(base64, 'base64');
+};
+
+const toPublicUser = (user) => ({
+  _id: user._id,
+  username: user.username,
+  email: user.email,
+  sets: (user.sets || []).map((set) => ({
+    ...(set.toObject ? set.toObject() : set),
+    review: Boolean(set.review),
+  })),
+});
+
+const createError = (enMsg, bgMsg, language, statusCode) => {
+  const error = new Error(language === 'en' ? enMsg : bgMsg);
+  error.statusCode = statusCode;
+  return error;
+};
+
 exports.register = async (userData) => {
   const user = await User.create(userData);
-  const result = await generateToken(user);
+  const token = await generateToken(user);
 
   if (userData.image) {
-    const base64String = userData.image;
-    const base64Data = base64String.replace(/^data:image\/(\w+);base64,/, '');
-    const file = Buffer.from(base64Data, 'base64');
-    minioService.saveUserImage(user.email.replace(/[.@]/g, ''), file);
+    const file = base64ImageToBuffer(userData.image);
+    await minioService.saveUserImage(getUserImageKey(user.email), file);
   }
 
   return {
-    tokens: result,
-    user: {
-      _id: user._id,
-      username: user.username,
-      email: user.email,
-      sets: user.sets.map((set) => ({
-        ...set.toObject(),
-        review: Boolean(set.review),
-      })),
-    },
+    tokens: token,
+    user: toPublicUser(user),
   };
 };
 
@@ -33,39 +47,24 @@ exports.login = async ({ username, password }, language) => {
   const user = await User.findOne({
     normalizedUsername: username,
   }).populate('sets');
-  if (!user) {
-    throw new Error(
-      language === 'en'
-        ? 'Invalid username or password!'
-        : 'Невалидно потребителско име или парола!'
-    );
-  }
 
-  const isValid = await bcrypt.compare(password, user.password);
-  if (!isValid) {
-    throw new Error(
-      language === 'en'
-        ? 'Invalid username or password!'
-        : 'Невалидно потребителско име или парола!'
-    );
+  const dummyHash = '$2b$10$CwTycUXWue0Thq9StjUM0uJ8r3u4UqD9pQnq0V2mQmTt2cWn6o3uS';
+  const hashToCheck = user ? user.password : dummyHash;
+  const isValid = await bcrypt.compare(password, hashToCheck);
+
+  if (!user || !isValid) {
+    throw createError(
+      'Invalid username or password!',
+      'Невалидно потребителско име или парола!',
+      language, 401);
   }
 
   const result = await generateToken(user);
-  const image = await minioService.getUserImage(
-    user.email.replace(/[.@]/g, '')
-  );
+  const image = await minioService.getUserImage(getUserImageKey(user.email));
 
   return {
     tokens: result,
-    user: {
-      _id: user._id,
-      username: user.username,
-      email: user.email,
-      sets: user.sets.map((set) => ({
-        ...set.toObject(),
-        review: Boolean(set.review),
-      })),
-    },
+    user: toPublicUser(user),
     image,
   };
 };
@@ -90,18 +89,16 @@ async function generateToken(user) {
   user.refreshToken = refreshToken;
   await user.save();
 
-  const result = {
+  return {
     accessToken,
     refreshToken,
   };
-
-  return result;
 }
 
 exports.validateRefreshToken = async (refreshToken) => {
   const user = await User.findOne({ refreshToken });
   if (!user) {
-    throw new Error('Invalid refresh token!');
+    throw createError('Invalid refresh token!', 'Невалиден refresh token!', 'en', 401);
   }
 
   return user;
@@ -122,30 +119,26 @@ exports.editData = async (
   refreshToken
 ) => {
   const user = await User.findOne({ refreshToken }).populate('sets');
+  if (!user) throw createError('User not found!', 'Потребителят не е намерен!', 'en', 404);
   user.username = username;
+  user.normalizedUsername = username.toLowerCase();
 
   let image;
+  const userKey = getUserImageKey(user.email);
   if (deleteProfilePicture) {
-    minioService.deleteImage(user.email.replace(/[.@]/g, ''));
+    await minioService.deleteImage(userKey, '');
     image = undefined;
-  } else {
-    const base64Data = profilePicture.replace(/^data:image\/(\w+);base64,/, '');
-    const file = Buffer.from(base64Data, 'base64');
-    minioService.saveUserImage(user.email.replace(/[.@]/g, ''), file);
+  } else if (profilePicture) {
+    const file = base64ImageToBuffer(profilePicture);
+    await minioService.saveUserImage(userKey, file);
     image = profilePicture;
+  } else {
+    image = undefined;
   }
 
   await user.save();
   return {
-    user: {
-      _id: user._id,
-      username: user.username,
-      email: user.email,
-      sets: user.sets.map((set) => ({
-        ...set.toObject(),
-        review: Boolean(set.review),
-      })),
-    },
+    user: toPublicUser(user),
     image,
   };
 };

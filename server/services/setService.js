@@ -32,19 +32,6 @@ exports.getAllWithReview = async (setNumber) => {
   return getUserImagesFromSets(sets);
 };
 
-// exports.getLatestThreeWithReviews = async () => {
-//   const sets = await Set.find({
-//     review: { $ne: null },
-//     reviewDate: { $ne: null },
-//   })
-//     .sort({ reviewDate: -1 })
-//     .limit(3)
-//     .select('name image reviewDate')
-//     .populate('user', 'username email');
-//
-//   return getUserImagesFromSets(sets);
-// };
-
 exports.getUserCollection = async (username, language) => {
   const user = await User.findOne({
     normalizedUsername: username.toLowerCase()

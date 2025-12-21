@@ -9,33 +9,49 @@
  * @swagger
  * components:
  *   schemas:
- *     User:
+ *     UserPublic:
  *       type: object
  *       properties:
+ *         _id:
+ *           type: string
+ *           description: The auto-generated id of the user.
+ *           example: 5ebd6b2bcef2b33d8c1b4f7c
+ *         username:
+ *           type: string
+ *           description: The username of the user.
+ *           example: john_doe
+ *         email:
+ *           type: string
+ *           description: The email of the user.
+ *           example: john_doe@example.com
+ *         sets:
+ *           type: array
+ *           description: The sets of the user.
+ *           items:
+ *             $ref: '#/components/schemas/Set'
+ *
+ *     Tokens:
+ *       type: object
+ *       properties:
+ *         accessToken:
+ *           type: string
+ *           example: some_jwt_token
+ *         refreshToken:
+ *           type: string
+ *           example: some_jwt_token
+ *
+ *     AuthResponse:
+ *       type: object
+ *       properties:
+ *         tokens:
+ *           $ref: '#/components/schemas/Tokens'
  *         user:
- *           type: object
- *           properties:
- *             _id:
- *               type: string
- *               description: The auto-generated id of the user.
- *               example: 5ebd6b2bcef2b33d8c1b4f7c
- *             username:
- *               type: string
- *               description: The username of the user
- *               example: john_doe
- *             email:
- *               type: string
- *               description: The email of the user.
- *               example: john_doe@example.com
- *             sets:
- *               type: array
- *               description: The sets of the user.
- *               $ref: '#/components/schemas/Minifigure'
- *       example:
- *         _id: 5ebd6b2bcef2b33d8c1b4f7c
- *         username: john_doe
- *         email: john_doe@example.com
- *         sets: []
+ *           $ref: '#/components/schemas/UserPublic'
+ *         image:
+ *           type: string
+ *           nullable: true
+ *           description: User profile image (URL/base64 depending on your minioService).
+ *
  *     Error:
  *       type: object
  *       properties:
@@ -60,15 +76,31 @@ const userService = require('../services/userService');
  *     tags: [Users]
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - name: X-Refresh
+ *         in: header
+ *         required: true
+ *         description: Refresh token for the session to logout.
+ *         schema:
+ *           type: string
  *     responses:
  *       204:
  *         description: Logout successful
  *       401:
  *         description: Unauthorized - User not authenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  */
 router.get('/logout', mustBeAuth, async (req, res) => {
-  await userService.logout(req.header('X-Refresh'));
-  res.status(204).end();
+  try {
+    await userService.logout(req.header('X-Refresh'));
+    res.status(204).end();
+  } catch (err) {
+    const status = err.statusCode || 500;
+    res.status(status).json({ message: err.message || 'Something went wrong.' });
+  }
 });
 
 /**
@@ -82,29 +114,40 @@ router.get('/logout', mustBeAuth, async (req, res) => {
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/User'
- *           example:
- *             username: john_doe
- *             email: john_doe@example.com
- *             password: password123
- *             repeatPassword: password123
- *             image: some_base64_image
+ *             type: object
+ *             required: [username, email, password, repeatPassword]
+ *             properties:
+ *               username:
+ *                 type: string
+ *                 example: john_doe
+ *               email:
+ *                 type: string
+ *                 example: john_doe@example.com
+ *               password:
+ *                 type: string
+ *                 example: password123
+ *               repeatPassword:
+ *                 type: string
+ *                 example: password123
+ *               image:
+ *                 type: string
+ *                 nullable: true
+ *                 example: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA..."
  *     responses:
  *       200:
  *         description: Registration successful
  *         content:
  *           application/json:
- *             example:
- *               tokens:
- *                 accessToken: some_jwt_token
- *                 refreshToken: some_jwt_token
- *               user:
- *                 _id: 5ebd6b2bcef2b33d8c1b4f7c
- *                 username: john_doe
- *                 email: john_doe@example.com
- *                 sets: []
+ *             schema:
+ *               $ref: '#/components/schemas/AuthResponse'
  *       400:
- *         description: Registration failed
+ *         description: Registration failed (validation or bad input)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Internal server error
  *         content:
  *           application/json:
  *             schema:
@@ -119,8 +162,9 @@ router.post('/register', async (req, res) => {
       err = getMongooseErrors(err);
     }
 
-    res.status(400).json({
-      message: err.message,
+    const status = err.statusCode || 400; // register errors are usually 400
+    res.status(status).json({
+      message: err.message || 'Something went wrong.',
     });
   }
 });
@@ -131,44 +175,58 @@ router.post('/register', async (req, res) => {
  *   post:
  *     summary: Log in as a user
  *     tags: [Users]
+ *     parameters:
+ *       - name: X-Language
+ *         in: header
+ *         required: false
+ *         description: Language for error messages (defaults to "en").
+ *         schema:
+ *           type: string
+ *           example: en
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/User'
- *           example:
- *             username: john_doe
- *             password: password123
+ *             type: object
+ *             required: [username, password]
+ *             properties:
+ *               username:
+ *                 type: string
+ *                 example: john_doe
+ *               password:
+ *                 type: string
+ *                 example: password123
  *     responses:
  *       200:
  *         description: Login successful
  *         content:
  *           application/json:
- *             example:
- *               tokens:
- *                 accessToken: some_jwt_token
- *                 refreshToken: some_jwt_token
- *               user:
- *                 _id: 5ebd6b2bcef2b33d8c1b4f7c
- *                 username: john_doe
- *                 email: john_doe@example.com
- *                 sets: []
- *               image: some_base64_image
- *       400:
- *         description: Login failed
+ *             schema:
+ *               $ref: '#/components/schemas/AuthResponse'
+ *       401:
+ *         description: Invalid username or password
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Internal server error
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
 router.post('/login', async (req, res) => {
+  const language = req.header('X-Language') || 'en';
+
   try {
-    const result = await userService.login(req.body, req.header('X-Language'));
+    const result = await userService.login(req.body, language);
     res.status(200).json(result);
   } catch (err) {
-    res.status(400).json({
-      message: err.message,
+    const status = err.statusCode || 500;
+    res.status(status).json({
+      message: err.message || 'Something went wrong.',
     });
   }
 });
@@ -178,10 +236,23 @@ router.post('/login', async (req, res) => {
  * /users/edit:
  *   patch:
  *     summary: Update user data
- *     tags:
- *       - Users
+ *     tags: [Users]
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - name: X-Refresh
+ *         in: header
+ *         required: true
+ *         description: Refresh token used to identify the user.
+ *         schema:
+ *           type: string
+ *       - name: X-Language
+ *         in: header
+ *         required: false
+ *         description: Language for error messages (defaults to "en").
+ *         schema:
+ *           type: string
+ *           example: en
  *     requestBody:
  *       required: true
  *       content:
@@ -193,6 +264,7 @@ router.post('/login', async (req, res) => {
  *                 type: string
  *               profilePicture:
  *                 type: string
+ *                 nullable: true
  *               deleteProfilePicture:
  *                 type: boolean
  *             example:
@@ -204,23 +276,47 @@ router.post('/login', async (req, res) => {
  *         description: Data updated successfully.
  *         content:
  *           application/json:
- *             example:
- *               user:
- *                 _id: 5ebd6b2bcef2b33d8c1b4f7c
- *                 username: john_doe
- *                 email: john_doe@example.com
- *                 sets: []
- *               image: some_base64_image
- *       400:
- *         description: Error updating.
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 user:
+ *                   $ref: '#/components/schemas/UserPublic'
+ *                 image:
+ *                   type: string
+ *                   nullable: true
  *       401:
  *         description: Unauthorized - User not authenticated.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       404:
+ *         description: User not found.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       400:
+ *         description: Validation error / bad input.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Internal server error.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  */
 router.patch('/edit', mustBeAuth, async (req, res) => {
+  const language = req.header('X-Language') || 'en';
+
   try {
     const updatedUser = await userService.editData(
       req.body,
-      req.header('X-Refresh')
+      req.header('X-Refresh'),
+      language
     );
     res.status(200).json(updatedUser);
   } catch (err) {
@@ -228,8 +324,9 @@ router.patch('/edit', mustBeAuth, async (req, res) => {
       err = getMongooseErrors(err);
     }
 
-    res.status(400).json({
-      message: err.message,
+    const status = err.statusCode || 500;
+    res.status(status).json({
+      message: err.message || 'Something went wrong.',
     });
   }
 });
