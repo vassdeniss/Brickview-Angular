@@ -1,13 +1,16 @@
 const Minio = require('minio');
 
+const PFP_BUCKET = 'pfp';
+const DEFAULT_REGION = process.env.MINIO_REGION || 'eu-central-1';
+
 let minioClient;
 
 function getClient() {
   if (!minioClient) {
     minioClient = new Minio.Client({
       endPoint: process.env.MINIO_ENDPOINT,
-      port: 9000,
-      useSSL: false,
+      port: Number(process.env.MINIO_PORT || 9000),
+      useSSL: process.env.MINIO_USE_SSL === 'true',
       accessKey: process.env.MINIO_ACCESS_KEY,
       secretKey: process.env.MINIO_SECRET_KEY,
     });
@@ -16,45 +19,60 @@ function getClient() {
   return minioClient;
 }
 
+const png = (name) => (name.endsWith('.png') ? name : `${name}.png`);
+const reviewBucket = (username, setId) => `${username}-${setId}`;
+
+const streamToBuffer = (stream) =>
+  new Promise((resolve, reject) => {
+    const chunks = [];
+    stream.on('data', (chunk) => chunks.push(chunk));
+    stream.on('end', () => resolve(Buffer.concat(chunks)));
+    stream.on('error', reject);
+  });
+
 exports.saveUserImage = async (fileName, file) =>
-  getClient().putObject('pfp', `${fileName}.png`, file);
+  getClient().putObject(PFP_BUCKET, png(fileName), file);
 
 exports.getUserImage = async (fileName) =>
-  getObjectAsBase64('pfp', `${fileName}.png`);
+  getObjectAsBase64(PFP_BUCKET, png(fileName));
 
 exports.saveReview = async (username, setId, files) => {
-  const bucketName = `${username}-${setId}`;
+  const bucketName = reviewBucket(username, setId);
   await ensureBucketExists(bucketName);
 
-  const uploadPromises = files.map((file, i) =>
-    getClient().putObject(`${username}-${setId}`, `${i}.png`, file)
+  return Promise.all(
+    files.map((file, i) => getClient().putObject(bucketName, png(String(i)), file))
   );
-
-  return Promise.all(uploadPromises);
 };
 
 exports.getReviewImages = (username, setId) =>
-  getAllObjectsAsBase64(`${username}-${setId}`);
+  getAllObjectsAsBase64(reviewBucket(username, setId));
 
 exports.deleteReviewImages = async (username, setId) =>
-  deleteImagesWithBucket(`${username}-${setId}`);
+  deleteImagesWithBucket(reviewBucket(username, setId));
 
 exports.deleteReviewImagesWithoutBucket = async (username, setId) => {
-  const list = await listObjects(`${username}-${setId}`);
-  return getClient().removeObjects(`${username}-${setId}`, list);
+  const bucketName = reviewBucket(username, setId);
+  const list = await listObjects(bucketName);
+  if (list.length === 0) return;
+  return getClient().removeObjects(bucketName, list);
 };
 
 exports.deleteImage = async (fileName) => {
-  await assertBucketExists('pfp');
-  await getClient().removeObject('pfp', `${fileName}.png`);
+  await assertBucketExists(PFP_BUCKET);
+  await getClient().removeObject(PFP_BUCKET, png(fileName));
 };
+
+exports.__setClientForTests = (client) => { minioClient = client; };
 
 async function deleteImagesWithBucket(bucketName) {
   await assertBucketExists(bucketName);
 
   const objectsList = await listObjects(bucketName);
+  if (objectsList.length) {
+    await getClient().removeObjects(bucketName, objectsList);
+  }
 
-  await getClient().removeObjects(bucketName, objectsList);
   await getClient().removeBucket(bucketName);
 }
 

@@ -1,20 +1,13 @@
-FROM node:24-slim
+FROM node:22-alpine
 
-WORKDIR /usr/src/app
+RUN apk add --no-cache python3 make g++
+
+WORKDIR /app
 
 COPY package*.json ./
-RUN npm install --omit-dev
+RUN npm ci --omit=dev
 
 COPY . .
 
 EXPOSE 3000
-
-RUN addgroup --system nodejs \
-    && adduser --system --ingroup nodejs nodejs
-
-USER nodejs
-
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:3000/health || exit 1
-
 CMD ["node", "-r", "dotenv/config", "server.js"]
