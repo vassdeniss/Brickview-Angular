@@ -81,7 +81,7 @@ exports.addSet = async (setId, refreshToken, language) => {
     }
   );
 
-  const user = await User.findOne({ refreshToken }).populate('sets');
+  const user = await User.findOne({ refreshToken });
   if (!user) {
     throw createError(
       'User not found!',
@@ -91,9 +91,10 @@ exports.addSet = async (setId, refreshToken, language) => {
     );
   }
 
-  const alreadyExists = user.sets.some(
-    (set) => set.setNum === foundSet.data.set_num
-  );
+  const alreadyExists = await Set.findOne({
+    user: user._id,
+    setNum: foundSet.data.set_num
+  });
   if (alreadyExists) {
     throw createError(
       'Set already exists in collection!',
@@ -119,30 +120,22 @@ exports.addSet = async (setId, refreshToken, language) => {
   };
 
   const set = await Set.create(setData);
-  user.sets.push(set._id);
-  await user.save();
-
-  let sets = [...user.sets];
-  const userSetsIndex = sets.findIndex((userSet) =>
-    userSet._id.equals(set._id)
+  await User.findByIdAndUpdate(
+    user._id,
+    { $push: { sets: set._id } },
+    { new: true, rawResult: true }
   );
 
-  /* istanbul ignore next  */
-  if (userSetsIndex !== -1) {
-    sets[userSetsIndex] = {
-      _id: sets[userSetsIndex]._id,
-      ...setData,
-    };
-  }
+  const updatedUser = await User.findById(user._id).populate('sets');
 
   return {
     user: {
-      _id: user._id,
-      username: user.username,
-      email: user.email,
-      sets: sets.map((set) => ({
-        ...set,
-        review: Boolean(set.review),
+      _id: updatedUser._id,
+      username: updatedUser.username,
+      email: updatedUser.email,
+      sets: updatedUser.sets.map((s) => ({
+        ...s.toObject(),
+        review: Boolean(s.review),
       })),
     },
   };
@@ -176,21 +169,23 @@ exports.deleteSet = async (setId, token, language) => {
     await minioService.deleteReviewImages(emailKey, set.setNum);
   }
 
-  set.user.sets = set.user.sets.filter(
-    (userSetId) => userSetId.toString() !== set._id.toString()
+  await User.findByIdAndUpdate(
+    set.user._id,
+    { $pull: { sets: set._id } },
+    { new: true, rawResult: true }
   );
-  await set.user.save();
   await set.deleteOne();
-  await set.user.populate('sets');
+
+  const updatedUser = await User.findById(set.user._id).populate('sets');
 
   return {
     user: {
-      _id: set.user._id,
-      username: set.user.username,
-      email: set.user.email,
-      sets: set.user.sets.map((set) => ({
-        ...set.toObject(),
-        review: Boolean(set.review),
+      _id: updatedUser._id,
+      username: updatedUser.username,
+      email: updatedUser.email,
+      sets: updatedUser.sets.map((s) => ({
+        ...s.toObject(),
+        review: Boolean(s.review),
       })),
     },
   };

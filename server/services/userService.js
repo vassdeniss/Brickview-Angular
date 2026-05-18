@@ -62,6 +62,8 @@ exports.login = async ({ username, password }, language) => {
   const result = await generateToken(user);
   const image = await minioService.getUserImage(getUserImageKey(user.email));
 
+  console.log(user.sets);
+
   return {
     tokens: result,
     user: toPublicUser(user),
