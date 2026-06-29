@@ -1,6 +1,9 @@
 FROM node:18-alpine AS build
 WORKDIR /app
 
+ENV CI=true
+ENV NG_CLI_ANALYTICS=false
+
 COPY package*.json ./
 RUN npm install
 
