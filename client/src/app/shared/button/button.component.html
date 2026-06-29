@@ -1,3 +1,7 @@
-<button [routerLink]="routerLink">
-  <ng-content></ng-content>
+<button
+        [routerLink]="routerLink"
+        [disabled]="disabled"
+        [attr.type]="type"
+>
+    <ng-content></ng-content>
 </button>

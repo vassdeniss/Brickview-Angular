@@ -1,10 +1,10 @@
-name: Build and push API image
+name: Build and push Client image
 
 on:
   push:
     branches: [main]
     paths:
-      - 'server/**'
+       - 'client/**'
 
 jobs:
   build:
@@ -26,6 +26,6 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
-          context: ./server
+          context: ./client
           push: true
-          tags: ghcr.io/vassdeniss/brickview-server:latest
+          tags: ghcr.io/vassdeniss/brickview-client:latest

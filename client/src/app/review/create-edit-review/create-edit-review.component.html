@@ -8,7 +8,7 @@
 <form
   [formGroup]="reviewForm"
   class="review-form"
-  (ngSubmit)="onSubmit(button)"
+  (ngSubmit)="onSubmit()"
 >
   <h2>
     {{
@@ -78,13 +78,19 @@
       "
       formControlName="setVideoIds"
     />
+    <small class="field-error" *ngIf="
+      reviewForm.get('setVideoIds')?.hasError('invalidLinks') &&
+      reviewForm.get('setVideoIds')?.touched
+    ">
+      {{ 'review.create-review.videos.error' | translate }}
+    </small>
   </div>
   <div class="image-wrapper" *ngFor="let url of images; let i = index">
     <img [src]="url" />
     <a class="delete-button" (click)="deleteImage(i)">&times;</a>
   </div>
   <input type="hidden" id="_id" name="_id" formControlName="_id" />
-  <app-button #button>
+  <app-button type="submit" [disabled]="isSubmitting">
     <i class="fa-solid fa-computer-mouse"></i>
     {{
       (mode === "create"

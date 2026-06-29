@@ -13,6 +13,23 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Editor, Toolbar } from 'ngx-editor';
 import { AbstractControl, FormBuilder, Validators } from '@angular/forms';
 
+const YOUTUBE_URL_PATTERN =
+    /^((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube(-nocookie)?\.com|youtu\.be))(\/(?:[\w\-]+\?v=|embed\/|live\/|v\/)?)([\w\-]+)(\S+)?$/;
+
+export function youtubeLinksValidator(control: AbstractControl) {
+  const rawValue = control.value ?? '';
+  const value = rawValue.toString().trim();
+
+  if (!value) {
+    return null;
+  }
+
+  const links = value.split(',').map((link: string) => link.trim());
+  const isValid = links.every((link: string) => YOUTUBE_URL_PATTERN.test(link));
+
+  return isValid ? null : { invalidLinks: true };
+}
+
 @Component({
   selector: 'app-create-edit-review',
   templateUrl: './create-edit-review.component.html',
@@ -21,13 +38,14 @@ import { AbstractControl, FormBuilder, Validators } from '@angular/forms';
 export class CreateEditReviewComponent implements OnInit, OnDestroy {
   @ViewChild('imageInput') imageInput!: ElementRef<HTMLInputElement>;
 
+  isSubmitting: boolean = false;
   mode: 'create' | 'update' = 'create';
   errors: string[] = [];
   images: string[] = [];
   reviewForm = this.fb.group({
     content: ['', [Validators.required, Validators.minLength(50)]],
     setImages: [''],
-    setVideoIds: ['', [this.linkValidator]],
+    setVideoIds: ['', [youtubeLinksValidator]],
     _id: [''],
   });
 
@@ -50,54 +68,35 @@ export class CreateEditReviewComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    this.activated.data.subscribe(({ review }) => {
+    this.editor = new Editor();
+
+    const id = this.activated.snapshot.params['id'];
+    if (id) {
+      this.reviewForm.patchValue({ _id: id });
+    }
+
+    this.activated.data.subscribe(({ review }): void => {
       if (review) {
         this.mode = 'update';
-        this.images = review.setImages;
-        this.reviewForm.patchValue({
-          content: review.content,
-        });
-        this.reviewForm.patchValue({
-          setImages: review.setImages,
-        });
-        this.reviewForm.patchValue({
-          setVideoIds: review.setVideoIds
-            .map((id: string) => `https://www.youtube.com/watch?v=${id}`)
-            .join(', '),
-        });
+        this.populateFormFromReview(review);
       }
     });
-
-    this.reviewForm.patchValue({
-      _id: this.activated.snapshot.params['id'],
-    });
-    this.editor = new Editor();
   }
 
   ngOnDestroy(): void {
-    this.editor.destroy();
+    this.editor?.destroy();
   }
 
-  onSubmit(button: any): void {
-    button.disabled = true;
+  onSubmit(): void {
+    this.isSubmitting = true;
+
     if (this.reviewForm.invalid) {
-      this.errors = [];
-      const errors = getFormValidationErrors(this.reviewForm);
-      errors.forEach((error) => {
-        this.errors.push(`${error.control} ${error.message}`);
-      });
-      this.popup.show();
-      button.disabled = false;
+      this.showFormErrors();
+      this.isSubmitting = false;
       return;
     }
 
-    const form: ReviewForm = {
-      _id: this.reviewForm.value._id as string,
-      content: this.reviewForm.value.content as unknown as string,
-      setVideoIds: this.reviewForm.value.setVideoIds as string,
-      setImages: this.images,
-    };
-
+    const form: ReviewForm = this.createPayload();
     const result$ =
       this.mode === 'create'
         ? this.review.createReview(form)
@@ -105,14 +104,14 @@ export class CreateEditReviewComponent implements OnInit, OnDestroy {
 
     result$.subscribe({
       next: () => {
-        button.disabled = false;
+        this.isSubmitting = false;
         this.route.navigate(['reviews', this.reviewForm.get('_id')?.value]);
       },
       error: (err) => {
         this.errors = [];
         this.errors.push(err.error.message);
         this.popup.show();
-        button.disabled = false;
+        this.isSubmitting = false;
       },
     });
   }
@@ -120,36 +119,40 @@ export class CreateEditReviewComponent implements OnInit, OnDestroy {
   /* istanbul ignore next */
   onFileChange(event: Event) {
     const target = event.target as HTMLInputElement;
-
-    if (target.files === null) {
+    const files: FileList | null = target.files;
+    if (!files || files.length === 0) {
       return;
     }
 
-    const fileAmount = target.files.length;
-    for (let i = 0; i < fileAmount; i++) {
+    Array.from(files).forEach((file: File): void => {
       const reader = new FileReader();
-      reader.readAsDataURL(target.files[i]);
-      reader.onload = () => {
+      reader.readAsDataURL(file);
+
+      reader.onload = (): void => {
         const imageUrl = reader.result as string;
         this.images.push(imageUrl);
         this.insertImage(imageUrl);
       };
-    }
+    });
   }
 
-  deleteImage(index: number) {
-    const imageUrl = this.images[index];
+  deleteImage(index: number): void {
+    const imageUrl: string = this.images[index];
     this.images.splice(index, 1);
 
-    const files = this.imageInput.nativeElement.files!;
-    const updatedFiles = new DataTransfer();
-    for (let i = 0; i < files.length; i++) {
-      if (i !== index) {
-        updatedFiles.items.add(files[i]);
-      }
+    const inputEl: HTMLInputElement = this.imageInput.nativeElement;
+    const files: FileList | null = inputEl.files;
+    if (files) {
+      const updatedFiles = new DataTransfer();
+      Array.from(files).forEach((file: File, i: number): void => {
+        if (i !== index) {
+          updatedFiles.items.add(file);
+        }
+      });
+
+      inputEl.files = updatedFiles.files;
     }
 
-    this.imageInput.nativeElement.files = updatedFiles.files;
     this.removeImageFromEditor(imageUrl);
   }
 
@@ -161,35 +164,40 @@ export class CreateEditReviewComponent implements OnInit, OnDestroy {
   removeImageFromEditor(url: string) {
     const currentContent = this.reviewForm.value.content || '';
 
-    // Create a regex pattern to match the image tag
     const updatedContent = currentContent.replace(
-      new RegExp(`<img[^>]+src=["']${url.split(',')[0]}[^>]*>`, 'g'),
-      ''
+        new RegExp(`<img[^>]+src=["']${url.split(',')[0]}["'][^>]*>`, 'g'),
+        ''
     );
 
-    // Update the form control with the new content
     this.reviewForm.patchValue({ content: updatedContent });
   }
 
-  linkValidator(control: AbstractControl) {
-    if (control.value === '') {
-      return null;
-    }
+  private populateFormFromReview(review: any): void {
+    this.images = review.setImages ?? [];
+    this.reviewForm.patchValue({
+      content: review.content ?? '',
+      setImages: review.setImages ?? [],
+      setVideoIds: (review.setVideoIds ?? [])
+          .map((id: string) => `https://www.youtube.com/watch?v=${id}`)
+          .join(', '),
+    });
+  }
 
-    if (control.errors && !control.errors['invalidLinks']) {
-      return null;
-    }
+  private createPayload(): ReviewForm {
+    return {
+      _id: this.reviewForm.value._id as string,
+      content: this.reviewForm.value.content as string,
+      setVideoIds: this.reviewForm.value.setVideoIds as string,
+      setImages: this.images,
+    };
+  }
 
-    const links = control.value.split(',').map((link: string) => link.trim());
-    const isValid = links.every((link: string) => isValidUrl(link));
-
-    return isValid ? null : { invalidLinks: true };
-
-    function isValidUrl(url: string) {
-      const pattern =
-        /^((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube(-nocookie)?\.com|youtu.be))(\/(?:[\w\-]+\?v=|embed\/|live\/|v\/)?)([\w\-]+)(\S+)?$/gm;
-
-      return pattern.test(url);
-    }
+  private showFormErrors(): void {
+    this.errors = [];
+    const errors = getFormValidationErrors(this.reviewForm);
+    errors.forEach((error): void => {
+      this.errors.push(`${error.control} ${error.message}`);
+    });
+    this.popup.show();
   }
 }
