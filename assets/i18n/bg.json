@@ -23,6 +23,7 @@
   "review.create-review.header": "Напишете Вашето Мнение",
   "review.create-review.images": "Задаване на изображения",
   "review.create-review.videos": "Линкове към youtube (разделени със запетая)",
+  "review.create-review.videos.error": "Невалиден формат на YouTube линкове",
   "review.detail-review.alert": "Сигурни ли сте, че искате да изтриете това ревю? Това действие не може да бъде върнато назад.",
   "review.detail-review.delete": "Изтриване",
   "review.detail-review.edit": "Редактиране",
